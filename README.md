@@ -41,6 +41,14 @@ Stand 19.06.23 sind Schritte 1-4 fertig. Ein genauen Zeitplan für Schritt 5
 gibt es nicht, aber es ist meine Hoffnung, bis Ende Juni irgendwas am
 Laufen zu haben.
 
+Die technischen Details unten wird man _nicht_ alle beherrschen müssen, um
+den Weiterbetrieb zu ermöglichen.
+
+## Kontakt
+
+Ich würde gerne in Kontakt kommen mit anderen Plantcube-Besitzer: schreibt
+jon<dies hier entfernen und mit @-Zeichen ersetzen>siliconcircus.com an.
+
 ## Technische Beschreibung des Plantcubes
 
 ### Hardware
@@ -255,11 +263,6 @@ Plantcube über die Änderung.
 
 Der Plantcube informiert AWS über den Zustand des Geräts (Tür auf/zu,
 Temperatur, Luftfeuchtigkeit usw.).
-
-## Kontakt
-
-Ich würde gerne in Kontakt kommen mit anderen Plantcube-Besitzer: schreibt
-jon<dies hier entfernen und mit @-Zeichen ersetzen>siliconcircus.com an.
 
 ## Rechtliches
 
