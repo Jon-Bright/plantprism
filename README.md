@@ -35,11 +35,11 @@ Mein Projektplan läuft wie folgt:
 3. Konfiguration der ESP8266-Prozessor modifizeren, um ein Überwachung der
    Kommunikation der Plantcube mit dem Aussenwelt zu ermöglichen.
 4. Kommunikation überwachen.
-5. Serverkomponente entwickeln, um der Plantcube
+5. Serverkomponente entwickeln, um der Plantcube weiter zu betreiben.
 
 Stand 19.06.23 sind Schritte 1-4 fertig. Ein genauen Zeitplan für Schritt 5
-gibes es nicht, aber ist meine Hoffnung, bis Ende Juni irgendwas am Laufen
-zu haben.
+gibt es nicht, aber es ist meine Hoffnung, bis Ende Juni irgendwas am
+Laufen zu haben.
 
 ## Technische Beschreibung des Plantcubes
 
