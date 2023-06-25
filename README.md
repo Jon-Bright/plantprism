@@ -49,6 +49,78 @@ den Weiterbetrieb zu ermöglichen.
 Ich würde gerne in Kontakt kommen mit anderen Plantcube-Besitzer: schreibt
 jon<dies hier entfernen und mit @-Zeichen ersetzen>siliconcircus.com an.
 
+## Verbrauchsmaterialien
+
+### Nährlösung
+
+Das Etikett der von Agrilution verkauften Nährlösung hat folgende Angaben zu
+Inhaltsstoffe:
+
+| Inhalt                    | %m/V   |
+|---------------------------|--------|
+| Stickstoff                | 1,98   |
+|   Nitratstickstoff        | 1,78   |
+|   Ammoniumstickstoff      | 0,20   |
+| Phosphorpentoxid          |        |
+|   (P₂O₅) wasserlöslich    | 0,87   |
+|   (P)                     | 0,38   |
+| Kaliumoxid                |        |
+|   (K₂O)                   | 3,31   |
+|   (K)                     | 2,75   |
+| Kalziumoxid               |        |
+|   (CaO)                   | 1,40   |
+|   (Ca)                    | 1,00   |
+| Kupfer (Cu)               |        |
+|   chelatisiert durch EDTA | 0,002  |
+| Eisen (Fe)                |        |
+|   chelatisiert durch EDTA | 0,040  |
+| Mangan (Mn)               |        |
+|   chelatisiert durch EDTA | 0,010  |
+| Molybdän (Mo)             | 0,001  |
+| Zink (Zn)                 |        |
+|   chelatisiert durch EDTA | 0,0025 |
+
+Die Flasche gibt außerdem an, daß sie in Großbritannien hergestellt ist, von
+"Growth Technology Ltd.".
+
+Die Angaben oben entsprechen zu 100% die
+[Angaben von Growth Technology](https://www.growthtechnology.com/resources/uploads/products/GT3835_Formulex_1_litre1596640653.jpg)
+zum Produkt "Formulex".
+
+Wir verwenden seit mitte 2022 Formulex statt Agrilution Nährlösung ohne
+Probleme.
+
+### Reinigungstabs
+
+Die Agrilution Reinigungstabs geben an, vom Österreichische Firma "claro
+products GmbH" hergestellt zu sein. Es gibt keine weitere Angaben, womit man
+eingrenzen könnte, um welches Produkt der Firma es sich handelt. Die Tabs
+sind aber gänzlich weiß und die Folie ist wasserlöslich. Somit scheinen die
+[100% Classic Geschirrspültabs](https://www.claro.at/de/produkt/claro-100-prozent-classic-geschirrspueltabs/)
+ein Treffer zu sein.
+
+Bevor Agrilution selber Reinigungstabs verkauft hat, war die Empfehlung, man
+sollte einen halben gewöhnlichen Spülmaschinentab in kochendes Wasser
+auflösen und zu Beginn der Reinigungsvorgang diese Lösung dem Wassertank
+hinzufügen. Der Wahl der Reinigungstab kann also nicht wirklich kritisch
+sein.
+
+### Seedbars
+
+Die Seedbars scheinen aus Kokoserde zu sein. Erste Versuche, nasse Kokoserde
+in einen Seedtray zu pressen und anschliessend auszutrocknen haben
+akzeptablen (wenn auch noch nicht perfekten) Ergebnisse gebracht. Ich plane,
+eine kleine 3D-gedruckte Presse zu entwickeln, um das Prozess zu
+vereinfachen und auch um die kleine Mulden zu erzeugen, indem man Samen
+einsetzen kann.
+
+### Filter
+
+Noch nicht untersucht, aber das Material scheint Filtern von Aquarien oder
+Teiche sehr zu ähneln.
+
+
+
 ## Technische Beschreibung des Plantcubes
 
 ### Hardware
