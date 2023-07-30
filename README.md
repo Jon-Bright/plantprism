@@ -59,6 +59,7 @@ The following pages describe various aspects of the Plantcube's operation:
 * [Hardware](doc/hardware.md)
 * [ESP8266 software](doc/software_esp8266.md)
 * [STM32 software](doc/software_stm32.md)
+* [MQTT communication](doc/mqtt.md)
 
 ## Legal
 
