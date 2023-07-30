@@ -31,22 +31,20 @@ It can be controlled using e.g. an STLink V2 adapter (with the adapter providing
 The ESP8266 is somewhat more challenging. The pinout of the `Service interface`
 is:
 
-Bottom left
-1. TS3A24157 "switch". Connect to VCC, in order to connect pins 2 and 3 with the
-   ESP8266.
-2. ESP8266 TX 
-3. ESP8266 RX
-4. ESP8266 RST. The PCB has a pull-up on this pin.
-5. ESP8266 GPIO0
-Top left
+| Pin         | Function         | Function    | Pin          |
+|-------------|------------------|-------------|--------------|
+| Top left    |                  |             | Top right    |
+| 5           | ESP8266 GPIO0    | GND         | 6            |
+| 4           | ESP8266 RST      | ESP8266 IO2 | 7            |
+| 3           | ESP8266 RX       | VCC         | 8            |
+| 2           | ESP8266 TX       | N/C         | 9            |
+| 1           | TS3A24157 switch | N/C         | 10           |
+| Bottom left |                  |             | Bottom right |
 
-Top right
-6. GND
-7. ESP8266 IO2
-8. VCC
-9. N/C
-10. N/C
-Bottom right
+Pin 1 should be connected to VCC in order to connect pins 2 and 3 with the
+ESP8266.
+
+The PCB has a pull-up on pin 4 (ESP8266 RST).
 
 With a programmer such as an ESPProg, connect pin 6 to GND, pin 1 to VCC, pin 8
 to VCC and pins 2 and 3 to RX/TX and communication should be possible.
