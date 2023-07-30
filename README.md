@@ -55,10 +55,10 @@ and replace with an At sign&gt;siliconcircus.com
 
 The following pages describe various aspects of the Plantcube's operation:
 
-[Consumables](doc/consumables.md)
-[Hardware](doc/hardware.md)
-[ESP8266 software](doc/software_esp8266.md)
-[STM32 software](doc/software_stm32.md)
+* [Consumables](doc/consumables.md)
+* [Hardware](doc/hardware.md)
+* [ESP8266 software](doc/software_esp8266.md)
+* [STM32 software](doc/software_stm32.md)
 
 ## Legal
 
