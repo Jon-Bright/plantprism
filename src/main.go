@@ -67,7 +67,7 @@ func mqttAddCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions
 	return opts.SetTLSConfig(config), nil
 }
 
-func initMQTT(bf *brokerFlags) (*mqtt.Client, error) {
+func mqttInit(bf *brokerFlags) (*mqtt.Client, error) {
 	mqtt.DEBUG = logInfo
 	mqtt.WARN = logWarn
 	mqtt.ERROR = logError
@@ -117,7 +117,7 @@ func main() {
 	flag.Parse()
 
 	initLogging(*logName)
-	mqttClient, err := initMQTT(bf)
+	mqttClient, err := mqttInit(bf)
 	if err != nil {
 		logCritical.Fatalf("Unable to initialize MQTT: %v", err)
 	}
