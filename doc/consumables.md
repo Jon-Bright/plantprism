@@ -52,7 +52,7 @@ should use a normal dishwasher tab dissolved in boiling water and added to the
 water tank before beginning the cleaning cycle. The selection of cleaning tab
 therefore can't really be critical.
 
-### Seedbars
+## Seedbars
 
 The Seedbars appear to made from coconut soil (aka coconut coir). First attempts
 to press damp coconut soil into a seedtray and then to dry it have produced
@@ -60,7 +60,7 @@ acceptable (if not perfect) results. I'm planing to design a small 3D-printed
 press for the seedbars to ease the process and to create the small recesses in
 which to place seeds.
 
-### Filters
+## Filters
 
 Not yet investigated. The material appears to match that from normal aquarium or
 pond filters.
