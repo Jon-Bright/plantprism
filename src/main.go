@@ -1,16 +1,22 @@
 package main
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"time"
+)
 
-	"github.com/eclipse/paho.mqtt.golang"
+const (
+	TOPIC_REGEX = "^(?P<Prefix>agl/prod|agl/all|\\$aws)/things/" + // Prefix
+		"(?P<Device>[[:xdigit:]]{8}(?:-[[:xdigit:]]{4}){3}-[[:xdigit:]]{12})/" + // Device UUID
+		"(?P<Event>events/software/(info|warning)/put|mode|recipe/get|shadow/(get|update))$" // Actual event
+
+	// MQTT's # wildcard must be at end of string and matches
+	// anything following the specified prefix.  This is therefore
+	// "all topics".
+	TOPIC_WILDCARD = "#"
 )
 
 var (
@@ -42,66 +48,6 @@ func initLogging(logName string) {
 	logCritical = log.New(l, "CRIT: ", log.LstdFlags)
 }
 
-func mqttAddCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, error) {
-	// Get the SystemCertPool, continue with an empty pool on error
-	rootCAs, _ := x509.SystemCertPool()
-	if rootCAs == nil {
-		rootCAs = x509.NewCertPool()
-	}
-
-	// Read in the cert file
-	certs, err := ioutil.ReadFile(caCert)
-	if err != nil {
-		return nil, fmt.Errorf("failed to append %q to root CAs: %v", caCert, err)
-	}
-
-	// Append our cert to the system pool
-	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
-		logWarn.Println("No certs appended, using system certs only")
-	}
-
-	// Trust the augmented cert pool in our client
-	config := &tls.Config{
-		RootCAs: rootCAs,
-	}
-	return opts.SetTLSConfig(config), nil
-}
-
-func mqttInit(bf *brokerFlags) (*mqtt.Client, error) {
-	mqtt.DEBUG = logInfo
-	mqtt.WARN = logWarn
-	mqtt.ERROR = logError
-	mqtt.CRITICAL = logCritical
-
-	opts := mqtt.NewClientOptions().
-		AddBroker(bf.url).
-		SetKeepAlive(bf.keepAlive).
-		SetPingTimeout(bf.pingTimeout)
-	if bf.username != "" {
-		opts = opts.SetUsername(bf.username)
-	}
-	if bf.password != "" {
-		opts = opts.SetPassword(bf.password)
-	}
-	if bf.clientID != "" {
-		opts = opts.SetClientID(bf.clientID)
-	}
-	if bf.caCert != "" {
-		var err error
-		opts, err = mqttAddCACert(opts, bf.caCert)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	c := mqtt.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
-	}
-
-	return &c, nil
-}
-
 func main() {
 	bf := new(brokerFlags)
 	flag.StringVar(&bf.url, "broker_url", "ssl://localhost:8883", "MQTT broker's URL, including protocol and port")
@@ -117,9 +63,10 @@ func main() {
 	flag.Parse()
 
 	initLogging(*logName)
-	mqttClient, err := mqttInit(bf)
+	mq, err := NewMQTT(bf)
 	if err != nil {
 		logCritical.Fatalf("Unable to initialize MQTT: %v", err)
 	}
-	_ = mqttClient
+
+	_ = mq
 }
