@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+const (
+	// We sometimes see sprees of 3 or 4 messages. This should be
+	// enough buffer to prevent blocking in those situations.
+	MSG_QUEUE_BUFFER = 5
+)
+
 type deviceList []string
 
 var (
@@ -39,7 +45,11 @@ func instantiateDevice(id string) (*Device, error) {
 	if !slices.Contains(allowedDevices, id) {
 		return nil, fmt.Errorf("device ID '%s' is not an allowed device", id)
 	}
-	d := Device{id}
+	d := Device{}
+	d.id = id
+	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
 	deviceMap[id] = &d
+
+	go d.processingLoop()
 	return &d, nil
 }
