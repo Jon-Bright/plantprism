@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"regexp"
 
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/mqtt"
+	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
 const (
@@ -21,7 +23,31 @@ const (
 	TOPIC_WILDCARD = "#"
 )
 
-var log *logs.Loggers
+var (
+	log     *logs.Loggers
+	mq      *mqtt.MQTT
+	topicRe *regexp.Regexp
+)
+
+func connectHandler(c paho.Client) {
+	log.Info.Printf("MQTT connected")
+	err := mq.Subscribe(TOPIC_WILDCARD, messageHandler)
+	if err != nil {
+		log.Critical.Fatalf("Post-connect subscribe failed: %v", err)
+	}
+}
+
+func messageHandler(c paho.Client, m paho.Message) {
+	matches := topicRe.FindStringSubmatch(m.Topic())
+	if matches == nil {
+		log.Error.Printf("Message topic '%s' unknown, ignoring", m.Topic())
+		return
+	}
+	prefix := matches[topicRe.SubexpIndex(TOPIC_PREFIX_GRP)]
+	device := matches[topicRe.SubexpIndex(TOPIC_DEVICE_GRP)]
+	event := matches[topicRe.SubexpIndex(TOPIC_EVENT_GRP)]
+	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", device, prefix, event)
+}
 
 func main() {
 	mqtt.InitFlags()
@@ -30,10 +56,19 @@ func main() {
 	flag.Parse()
 
 	log = logs.New(*logName)
-	mq, err := mqtt.New(log)
+	log.Info.Printf("Starting")
+
+	topicRe = regexp.MustCompile(TOPIC_REGEX)
+
+	var err error
+	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
 		log.Critical.Fatalf("Unable to initialize MQTT: %v", err)
 	}
+	err = mq.Connect()
+	if err != nil {
+		log.Critical.Fatalf("Unable to connect MQTT: %v", err)
+	}
 
-	_ = mq
+	select {}
 }
