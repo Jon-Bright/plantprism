@@ -13,7 +13,7 @@ import (
 )
 
 type MQTT struct {
-	c *paho.Client
+	c   paho.Client
 }
 
 type brokerFlags struct {
@@ -95,6 +95,6 @@ func New(l *logs.Loggers) (*MQTT, error) {
 		return nil, token.Error()
 	}
 
-	m := MQTT{&c}
+	m := MQTT{c}
 	return &m, nil
 }
