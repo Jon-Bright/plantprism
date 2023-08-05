@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/Jon-Bright/plantprism/logs"
-	"github.com/eclipse/paho.mqtt.golang"
+	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
 type MQTT struct {
-	c *mqtt.Client
+	c *paho.Client
 }
 
 type brokerFlags struct {
@@ -38,7 +38,7 @@ func InitFlags() {
 	flag.DurationVar(&bf.pingTimeout, "broker_ping_timeout", 130*time.Second, "Timeout after which the connection to the MQTT broker is regarded as dead")
 }
 
-func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, error) {
+func addCACert(opts *paho.ClientOptions, caCert string) (*paho.ClientOptions, error) {
 	// Get the SystemCertPool, continue with an empty pool on error
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
@@ -53,7 +53,7 @@ func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, er
 
 	// Append our cert to the system pool
 	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
-		mqtt.WARN.Println("No certs appended, using system certs only")
+		paho.WARN.Println("No certs appended, using system certs only")
 	}
 
 	// Trust the augmented cert pool in our client
@@ -64,12 +64,12 @@ func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, er
 }
 
 func New(l *logs.Loggers) (*MQTT, error) {
-	mqtt.DEBUG = l.Info
-	mqtt.WARN = l.Warn
-	mqtt.ERROR = l.Error
-	mqtt.CRITICAL = l.Critical
+	paho.DEBUG = l.Info
+	paho.WARN = l.Warn
+	paho.ERROR = l.Error
+	paho.CRITICAL = l.Critical
 
-	opts := mqtt.NewClientOptions().
+	opts := paho.NewClientOptions().
 		AddBroker(bf.url).
 		SetKeepAlive(bf.keepAlive).
 		SetPingTimeout(bf.pingTimeout)
@@ -90,7 +90,7 @@ func New(l *logs.Loggers) (*MQTT, error) {
 		}
 	}
 
-	c := mqtt.NewClient(opts)
+	c := paho.NewClient(opts)
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		return nil, token.Error()
 	}
