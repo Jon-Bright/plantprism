@@ -64,7 +64,7 @@ func addCACert(opts *paho.ClientOptions, caCert string) (*paho.ClientOptions, er
 	return opts.SetTLSConfig(config), nil
 }
 
-func New(l *logs.Loggers) (*MQTT, error) {
+func New(l *logs.Loggers, connectHandler paho.OnConnectHandler) (*MQTT, error) {
 	paho.DEBUG = l.Info
 	paho.WARN = l.Warn
 	paho.ERROR = l.Error
@@ -73,7 +73,8 @@ func New(l *logs.Loggers) (*MQTT, error) {
 	opts := paho.NewClientOptions().
 		AddBroker(bf.url).
 		SetKeepAlive(bf.keepAlive).
-		SetPingTimeout(bf.pingTimeout)
+		SetPingTimeout(bf.pingTimeout).
+		SetOnConnectHandler(connectHandler)
 	if bf.username != "" {
 		opts = opts.SetUsername(bf.username)
 	}
