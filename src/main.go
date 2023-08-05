@@ -8,9 +8,12 @@ import (
 )
 
 const (
-	TOPIC_REGEX = "^(?P<Prefix>agl/prod|agl/all|\\$aws)/things/" + // Prefix
-		"(?P<Device>[[:xdigit:]]{8}(?:-[[:xdigit:]]{4}){3}-[[:xdigit:]]{12})/" + // Device UUID
-		"(?P<Event>events/software/(info|warning)/put|mode|recipe/get|shadow/(get|update))$" // Actual event
+	TOPIC_PREFIX_GRP = "Prefix"
+	TOPIC_DEVICE_GRP = "Device"
+	TOPIC_EVENT_GRP  = "Event"
+	TOPIC_REGEX      = "^(?P<" + TOPIC_PREFIX_GRP + ">agl/prod|agl/all|\\$aws)/things/" + // Prefix
+		"(?P<" + TOPIC_DEVICE_GRP + ">[[:xdigit:]]{8}(?:-[[:xdigit:]]{4}){3}-[[:xdigit:]]{12})/" + // Device UUID
+		"(?P<" + TOPIC_EVENT_GRP + ">events/software/(info|warning)/put|mode|recipe/get|shadow/(get|update))$" // Actual event
 
 	// MQTT's # wildcard must be at end of string and matches
 	// anything following the specified prefix.  This is therefore
