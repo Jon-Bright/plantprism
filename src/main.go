@@ -4,6 +4,7 @@ import (
 	"flag"
 	"regexp"
 
+	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/mqtt"
 	paho "github.com/eclipse/paho.mqtt.golang"
@@ -44,12 +45,21 @@ func messageHandler(c paho.Client, m paho.Message) {
 		return
 	}
 	prefix := matches[topicRe.SubexpIndex(TOPIC_PREFIX_GRP)]
-	device := matches[topicRe.SubexpIndex(TOPIC_DEVICE_GRP)]
+	deviceID := matches[topicRe.SubexpIndex(TOPIC_DEVICE_GRP)]
 	event := matches[topicRe.SubexpIndex(TOPIC_EVENT_GRP)]
-	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", device, prefix, event)
+	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", deviceID, prefix, event)
+
+	device, err := device.Get(deviceID)
+	if err != nil {
+		log.Error.Printf("Couldn't get device: %v", err)
+		return
+	}
+
+	device.ProcessMessage(prefix, event, m.Payload())
 }
 
 func main() {
+	device.InitFlags()
 	mqtt.InitFlags()
 	logName := flag.String("logfile", "plantprism.log", "Name of the log file to use")
 
