@@ -93,10 +93,14 @@ func New(l *logs.Loggers, connectHandler paho.OnConnectHandler) (*MQTT, error) {
 	}
 
 	c := paho.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
-	}
 
 	m := MQTT{c, l}
 	return &m, nil
+}
+
+func (m *MQTT) Connect() error {
+	if token := m.c.Connect(); token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+	return nil
 }
