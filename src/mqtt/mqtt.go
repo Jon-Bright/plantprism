@@ -104,3 +104,14 @@ func (m *MQTT) Connect() error {
 	}
 	return nil
 }
+
+func (m *MQTT) Subscribe(topic string, handler paho.MessageHandler) error {
+	token := m.c.Subscribe(topic, 0, handler)
+	token.Wait()
+	err := token.Error()
+	if err != nil {
+		return fmt.Errorf("subscribe failed for topic '%s': %v", topic, err)
+	}
+	m.log.Info.Printf("Subscribed to '%s'", topic)
+	return nil
+}
