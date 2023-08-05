@@ -1,16 +1,41 @@
-package main
+package mqtt
 
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"time"
 
+	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/eclipse/paho.mqtt.golang"
 )
 
 type MQTT struct {
 	c *mqtt.Client
+}
+
+type brokerFlags struct {
+	url         string
+	username    string
+	password    string
+	clientID    string
+	caCert      string
+	keepAlive   time.Duration
+	pingTimeout time.Duration
+}
+
+var bf brokerFlags
+
+func InitFlags() {
+	flag.StringVar(&bf.url, "broker_url", "ssl://localhost:8883", "MQTT broker's URL, including protocol and port")
+	flag.StringVar(&bf.username, "broker_username", "", "Username for MQTT broker")
+	flag.StringVar(&bf.password, "broker_password", "", "Password for MQTT broker")
+	flag.StringVar(&bf.clientID, "broker_client_id", "", "Client ID for MQTT broker")
+	flag.StringVar(&bf.caCert, "broker_ca_cert", "", "Filename of a custom CA cert to trust from the broker")
+	flag.DurationVar(&bf.keepAlive, "broker_keep_alive", 60*time.Second, "Interval for sending keep-alive packets to the MQTT broker")
+	flag.DurationVar(&bf.pingTimeout, "broker_ping_timeout", 130*time.Second, "Timeout after which the connection to the MQTT broker is regarded as dead")
 }
 
 func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, error) {
@@ -28,7 +53,7 @@ func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, er
 
 	// Append our cert to the system pool
 	if ok := rootCAs.AppendCertsFromPEM(certs); !ok {
-		logWarn.Println("No certs appended, using system certs only")
+		mqtt.WARN.Println("No certs appended, using system certs only")
 	}
 
 	// Trust the augmented cert pool in our client
@@ -38,11 +63,11 @@ func addCACert(opts *mqtt.ClientOptions, caCert string) (*mqtt.ClientOptions, er
 	return opts.SetTLSConfig(config), nil
 }
 
-func NewMQTT(bf *brokerFlags) (*MQTT, error) {
-	mqtt.DEBUG = logInfo
-	mqtt.WARN = logWarn
-	mqtt.ERROR = logError
-	mqtt.CRITICAL = logCritical
+func New(l *logs.Loggers) (*MQTT, error) {
+	mqtt.DEBUG = l.Info
+	mqtt.WARN = l.Warn
+	mqtt.ERROR = l.Error
+	mqtt.CRITICAL = l.Critical
 
 	opts := mqtt.NewClientOptions().
 		AddBroker(bf.url).
