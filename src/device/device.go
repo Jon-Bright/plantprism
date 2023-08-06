@@ -42,6 +42,50 @@ type Device struct {
 	id         string
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
+
+	clientToken string
+
+	// Reported values from Agl update messages
+	connected bool
+	ec        int
+
+	// Monotonically increasing ID sent out with update messages
+	awsVersion int
+
+	// Reported values from AWS update messages. These all need
+	// timestamps, for providing in published messages.
+	cooling       bool
+	coolingT      time.Time
+	door          bool
+	doorT         time.Time
+	firmwareNCU   int
+	firmwareNCUT  time.Time
+	humidA        int
+	humidAT       time.Time
+	humidB        int
+	humidBT       time.Time
+	lightA        bool
+	lightAT       time.Time
+	lightB        bool
+	lightBT       time.Time
+	recipeID      int
+	recipeIDT     time.Time
+	tankLevel     int
+	tankLevelT    time.Time
+	tankLevelRaw  int
+	tankLevelRawT time.Time
+	tempA         float64
+	tempAT        time.Time
+	tempB         float64
+	tempBT        time.Time
+	tempTank      float64
+	tempTankT     time.Time
+	totalOffset   int
+	totalOffsetT  time.Time
+	valve         ValveState
+	valveT        time.Time
+	wifiLevel     int
+	wifiLevelT    time.Time
 }
 
 type msgUnparsed struct {
@@ -185,7 +229,13 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
-	_ = m
+	r := m.State.Reported
+	if r.Connected != nil {
+		d.connected = *r.Connected
+	}
+	if r.EC != nil {
+		d.ec = *r.EC
+	}
 	return nil
 }
 
@@ -248,6 +298,82 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
-	_ = m
+	if *m.ClientToken != d.clientToken {
+		return fmt.Errorf("clientToken '%s' received, but device clienToken is '%s'", *m.ClientToken, d.clientToken)
+	}
+	t := time.Now()
+	r := m.State.Reported
+	if r.Cooling != nil {
+		d.cooling = *r.Cooling
+		d.coolingT = t
+	}
+	if r.Door != nil {
+		d.door = *r.Door
+		d.doorT = t
+	}
+	if r.FirmwareNCU != nil {
+		d.firmwareNCU = *r.FirmwareNCU
+		d.firmwareNCUT = t
+	}
+	if r.HumidA != nil {
+		d.humidA = *r.HumidA
+		d.humidAT = t
+	}
+	if r.HumidB != nil {
+		d.humidB = *r.HumidB
+		d.humidBT = t
+	}
+	if r.LightA != nil {
+		d.lightA = *r.LightA
+		d.lightAT = t
+	}
+	if r.LightB != nil {
+		d.lightB = *r.LightB
+		d.lightBT = t
+	}
+	if r.RecipeID != nil {
+		d.recipeID = *r.RecipeID
+		d.recipeIDT = t
+	}
+	if r.TankLevel != nil {
+		d.tankLevel = *r.TankLevel
+		d.tankLevelT = t
+	}
+	if r.TankLevelRaw != nil {
+		d.tankLevelRaw = *r.TankLevelRaw
+		d.tankLevelRawT = t
+	}
+	if r.TempA != nil {
+		d.tempA = *r.TempA
+		d.tempAT = t
+	}
+	if r.TempB != nil {
+		d.tempB = *r.TempB
+		d.tempBT = t
+	}
+	if r.TempTank != nil {
+		d.tempTank = *r.TempTank
+		d.tempTankT = t
+	}
+	if r.TotalOffset != nil {
+		d.totalOffset = *r.TotalOffset
+		d.totalOffsetT = t
+	}
+	if r.Valve != nil {
+		d.valve = *r.Valve
+		d.valveT = t
+	}
+	if r.WifiLevel != nil {
+		d.wifiLevel = *r.WifiLevel
+		d.wifiLevelT = t
+	}
+	err = d.sendAWSUpdateAccepted(t)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Device) sendAWSUpdateAccepted(t time.Time) error {
 	return nil
 }
