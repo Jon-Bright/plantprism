@@ -1,9 +1,11 @@
 package device
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 )
 
 type DeviceMode int
@@ -73,6 +75,20 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	return nil
 }
 
+func pickyUnmarshal(data []byte, v any) error {
+	d := json.NewDecoder(bytes.NewReader(data))
+	d.DisallowUnknownFields()
+	err := d.Decode(v)
+	if err != nil {
+		return err
+	}
+	// The data should be one object and nothing more
+	if t, err := d.Token(); err != io.EOF {
+		return fmt.Errorf("trailing data after decode: %T / %v, err %v", t, t, err)
+	}
+	return nil
+}
+
 // Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
 type msgAglMode struct {
 	PrevMode *DeviceMode `json:"prev_mode"`
@@ -82,7 +98,7 @@ type msgAglMode struct {
 
 func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
 	var m msgAglMode
-	err := json.Unmarshal(msg.content, &m)
+	err := pickyUnmarshal(msg.content, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +145,7 @@ type msgAglShadowUpdate struct {
 
 func parseAglShadowUpdate(msg *msgUnparsed) (*msgAglShadowUpdate, error) {
 	var m msgAglShadowUpdate
-	err := json.Unmarshal(msg.content, &m)
+	err := pickyUnmarshal(msg.content, &m)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +178,7 @@ type msgAWSShadowGet struct {
 
 func parseAWSShadowGet(msg *msgUnparsed) (*msgAWSShadowGet, error) {
 	var m msgAWSShadowGet
-	err := json.Unmarshal(msg.content, &m)
+	err := pickyUnmarshal(msg.content, &m)
 	if err != nil {
 		return nil, err
 	}

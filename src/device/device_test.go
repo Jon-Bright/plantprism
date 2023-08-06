@@ -5,6 +5,35 @@ import (
 	"testing"
 )
 
+func TestPickyUnmarshal(t *testing.T) {
+	type isb struct {
+		I *int
+		S *string
+		B *bool
+	}
+	// All of these cases should return an error. We could test
+	// working cases, but that's essentially all of the other
+	// tests in this file.
+	tests := []string{
+		`{"i": "foo"}`,  // String instead of int
+		`{"s": 23}`,     // int instead of string
+		`{"b": tralse}`, // Not a bool
+		`{"i": 1, "s": "foo", "b":true, "c":false}`, // Extra field
+		`{"i": 1},{"i": 2}`,                         // More than one object
+		`{"i": 1}{"i": 2}`,                          // More than one object
+		`[{"i": 1},{"i": 2}]`,                       // More than one object
+	}
+	for _, tc := range tests {
+		var x isb
+		err := pickyUnmarshal([]byte(tc), &x)
+		t.Logf("error %v", err)
+		if err == nil {
+			t.Errorf("no error for '%s'", tc)
+		}
+	}
+
+}
+
 func TestParseAglMode(t *testing.T) {
 	type test struct {
 		input     string
@@ -141,16 +170,19 @@ func TestParseAWSShadowGet(t *testing.T) {
 			want:      &msgAWSShadowGet{ClientToken: &clientToken},
 		},
 		{
+			// Invalid: empty token
 			input:     `{"clientToken":""}`,
 			wantError: true,
 			want:      nil,
 		},
 		{
+			// Invalid: token too short
 			input:     `{"clientToken":"dead"}`,
 			wantError: true,
 			want:      nil,
 		},
 		{
+			// Invalid: no token
 			input:     `{}`,
 			wantError: true,
 			want:      nil,
