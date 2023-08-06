@@ -10,23 +10,23 @@ type DeviceMode int
 
 const (
 	ModeDefault           DeviceMode = 0
-	ModeDebug                        = 1
-	ModeRinseEnd                     = 2
-	ModeTankDrainCleaning            = 3
-	ModeTankDrainExplicit            = 4
-	ModeCleaning                     = 5
-	ModeUnknown                      = 6
-	ModeSilent                       = 7
-	ModeCinema                       = 8
-	ModeOutOfRange                   = 9
+	ModeDebug             DeviceMode = 1
+	ModeRinseEnd          DeviceMode = 2
+	ModeTankDrainCleaning DeviceMode = 3
+	ModeTankDrainExplicit DeviceMode = 4
+	ModeCleaning          DeviceMode = 5
+	ModeUnknown           DeviceMode = 6
+	ModeSilent            DeviceMode = 7
+	ModeCinema            DeviceMode = 8
+	ModeOutOfRange        DeviceMode = 9
 )
 
 type ModeTrigger int
 
 const (
 	ModeTriggerApp        ModeTrigger = 0
-	ModeTriggerDevice                 = 1
-	ModeTriggerOutOfRange             = 2
+	ModeTriggerDevice     ModeTrigger = 1
+	ModeTriggerOutOfRange ModeTrigger = 2
 )
 
 type Device struct {
