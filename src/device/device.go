@@ -6,6 +6,29 @@ import (
 	"fmt"
 )
 
+type DeviceMode int
+
+const (
+	ModeDefault           DeviceMode = 0
+	ModeDebug                        = 1
+	ModeRinseEnd                     = 2
+	ModeTankDrainCleaning            = 3
+	ModeTankDrainExplicit            = 4
+	ModeCleaning                     = 5
+	ModeUnknown                      = 6
+	ModeSilent                       = 7
+	ModeCinema                       = 8
+	ModeOutOfRange                   = 9
+)
+
+type ModeTrigger int
+
+const (
+	ModeTriggerApp        ModeTrigger = 0
+	ModeTriggerDevice                 = 1
+	ModeTriggerOutOfRange             = 2
+)
+
 type Device struct {
 	id       string
 	msgQueue chan *msgUnparsed
@@ -33,16 +56,55 @@ func (d *Device) processingLoop() {
 
 func (d *Device) processMessage(msg *msgUnparsed) error {
 	var err error
-	if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
-		err = d.processAglShadowUpdate(msg)
+	if msg.prefix == "agl/prod" && msg.event == "mode" {
+		err = d.processAglMode(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/get" {
 		err = d.processAglShadowGet(msg)
+	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
+		err = d.processAglShadowUpdate(msg)
+	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
+		err = d.processAWSShadowGet(msg)
 	} else {
 		err = errors.New("no handler found")
 	}
 	if err != nil {
 		return fmt.Errorf("failed parsing prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
 	}
+	return nil
+}
+
+// Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
+type msgAglMode struct {
+	PrevMode DeviceMode `json:"prev_mode"`
+	Mode     DeviceMode
+	Trigger  ModeTrigger
+}
+
+func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
+	m := msgAglMode{-1, -1, -1}
+	err := json.Unmarshal(msg.content, &m)
+	if err != nil {
+		return nil, err
+	}
+	if m.PrevMode < ModeDefault || m.PrevMode >= ModeOutOfRange {
+		return nil, fmt.Errorf("PrevMode %d is invalid", m.PrevMode)
+	} else if m.Mode < ModeDefault || m.Mode >= ModeOutOfRange {
+		return nil, fmt.Errorf("Mode %d is invalid", m.Mode)
+	} else if m.Mode == m.PrevMode {
+		return nil, fmt.Errorf("Mode %d is the same as previously", m.Mode)
+	} else if m.Trigger < ModeTriggerApp || m.Trigger >= ModeTriggerOutOfRange {
+		return nil, fmt.Errorf("Trigger %d is invalid", m.Trigger)
+	}
+
+	return &m, nil
+}
+
+func (d *Device) processAglMode(msg *msgUnparsed) error {
+	m, err := parseAglMode(msg)
+	if err != nil {
+		return err
+	}
+	_ = m
 	return nil
 }
 
@@ -65,6 +127,10 @@ func parseAglShadowUpdate(msg *msgUnparsed) (*msgAglShadowUpdate, error) {
 	if err != nil {
 		return nil, err
 	}
+	// NB: in normal operation, connected==false and EC==0 means
+	// we likely missed something, but the very first message the
+	// Plantcube sends has connected==false and no EC, so we can't
+	// be sure of that and don't check for it.
 	return &m, nil
 }
 
