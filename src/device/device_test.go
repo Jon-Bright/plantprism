@@ -31,3 +31,38 @@ func TestParseAglShadowUpdate(t *testing.T) {
 		}
 	}
 }
+
+func TestParseAWSShadowGet(t *testing.T) {
+	type test struct {
+		input     string
+		wantError bool
+		want      *msgAWSShadowGet
+	}
+	tests := []test{
+		{
+			input:     `{"clientToken":"5975bc44"}`,
+			wantError: false,
+			want:      &msgAWSShadowGet{ClientToken: "5975bc44"},
+		},
+		{
+			input:     `{"clientToken":""}`,
+			wantError: true,
+			want:      nil,
+		},
+		{
+			input:     `{"clientToken":"dead"}`,
+			wantError: true,
+			want:      nil,
+		},
+	}
+	for _, tc := range tests {
+		msg := msgUnparsed{"", "", []byte(tc.input)}
+		got, err := parseAWSShadowGet(&msg)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
+		}
+		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
+			t.Errorf("want: %+v, got: %+v", tc.want, got)
+		}
+	}
+}
