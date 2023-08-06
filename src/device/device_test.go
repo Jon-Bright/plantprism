@@ -1,6 +1,7 @@
 package device
 
 import (
+	"github.com/lupguo/go-render/render"
 	"reflect"
 	"testing"
 )
@@ -196,6 +197,250 @@ func TestParseAWSShadowGet(t *testing.T) {
 		}
 		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
 			t.Errorf("want: %+v, got: %+v", tc.want, got)
+		}
+	}
+}
+
+func TestParseAWSShadowUpdate(t *testing.T) {
+	type test struct {
+		input     string
+		wantError bool
+		want      *msgAWSShadowUpdate
+	}
+	// We don't theoretically need all these values, but the input
+	// messages below are from actual captures and I prefer not to
+	// mess around with them, just copy/paste.
+	clientToken := "5975bc44"
+	bTrue := true
+	bFalse := false
+	firmware := 1667466618
+	humid75 := 75
+	offset69299 := 69299
+	temp2269 := 22.69
+	temp2299 := 22.99
+	temp2419 := 24.19
+	temp2834 := 28.34
+	two := 2
+	zero := 0
+	tests := []test{
+		{
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"humid_b":75,"temp_a":22.99,"temp_b":24.19}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						HumidB: &humid75,
+						TempA:  &temp2299,
+						TempB:  &temp2419,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"temp_a":22.69,"firmware_ncu":1667466618,"door":false,"cooling":true,"total_offset":69299,"light_a":false,"light_b":false}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						Cooling:     &bTrue,
+						Door:        &bFalse,
+						FirmwareNCU: &firmware,
+						LightA:      &bFalse,
+						LightB:      &bFalse,
+						TempA:       &temp2269,
+						TotalOffset: &offset69299,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"wifi_level":0}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						WifiLevel: &zero,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"temp_tank":28.34}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						TempTank: &temp2834,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"light_a":true,"light_b":true}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						LightA: &bTrue,
+						LightB: &bTrue,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"tank_level_raw":2}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						TankLevelRaw: &two,
+					},
+				},
+			},
+		}, {
+			input:     `{"clientToken":"5975bc44","state":{"reported":{"door":true}}}`,
+			wantError: false,
+			want: &msgAWSShadowUpdate{
+				ClientToken: &clientToken,
+				State: msgAWSShadowUpdateState{
+					Reported: msgAWSShadowUpdateReported{
+						Door: &bTrue,
+					},
+				},
+			},
+		}, {
+			// Invalid: empty token
+			input:     `{"clientToken":"", "state":{"reported":{"door":true}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: token too short
+			input:     `{"clientToken":"dead", "state":{"reported":{"door":true}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: no token
+			input:     `{"state":{"reported":{"door":true}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: empty update
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: old firmware
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"firmware_ncu":1660000000}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low humidity
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"humid_a":10}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high humidity
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"humid_a":101}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low humidity
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"humid_b":10}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high humidity
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"humid_b":101}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: old recipe
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"recipe_id":1680200000}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low tank level
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"tank_level":-1}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high tank level
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"tank_level":3}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low raw tank level
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"tank_level_raw":-1}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high raw tank level
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"tank_level_raw":3}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low temp A
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_a":9}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high temp A
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_a":41}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low temp B
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_b":9}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high temp B
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_b":41}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low temp tank
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_tank":9}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high temp tank
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"temp_tank":41}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: low offset
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"total_offset":-1}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: high offset
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"total_offset":86401}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: valve
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"valve":3}}}`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: wifi_level
+			input:     `{"clientToken":"5975bc44", "state":{"reported":{"wifi_level":3}}}`,
+			wantError: true,
+			want:      nil,
+		},
+	}
+	for _, tc := range tests {
+		msg := msgUnparsed{"", "", []byte(tc.input)}
+		got, err := parseAWSShadowUpdate(&msg)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
+		}
+		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
+			t.Errorf("want: %s, got: %s", render.Render(tc.want), render.Render(got))
+		} else {
+			t.Logf("err: %v", err)
 		}
 	}
 }
