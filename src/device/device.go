@@ -64,7 +64,9 @@ func (d *Device) processingLoop() {
 
 func (d *Device) processMessage(msg *msgUnparsed) error {
 	var err error
-	if msg.prefix == "agl/prod" && msg.event == "events/software/info/put" {
+	if msg.prefix == "agl/all" && msg.event == "shadow/get" {
+		err = d.processAglShadowGet(msg)
+	} else if msg.prefix == "agl/prod" && msg.event == "events/software/info/put" {
 		err = d.processAglEventInfo(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "events/software/warning/put" {
 		err = d.processAglEventWarning(msg)
@@ -72,8 +74,6 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		err = d.processAglMode(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "recipe/get" {
 		err = d.processAglRecipeGet(msg)
-	} else if msg.prefix == "agl/prod" && msg.event == "shadow/get" {
-		err = d.processAglShadowGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
 		err = d.processAglShadowUpdate(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
