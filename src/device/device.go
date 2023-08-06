@@ -75,25 +75,31 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 
 // Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
 type msgAglMode struct {
-	PrevMode DeviceMode `json:"prev_mode"`
-	Mode     DeviceMode
-	Trigger  ModeTrigger
+	PrevMode *DeviceMode `json:"prev_mode"`
+	Mode     *DeviceMode
+	Trigger  *ModeTrigger
 }
 
 func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
-	m := msgAglMode{-1, -1, -1}
+	var m msgAglMode
 	err := json.Unmarshal(msg.content, &m)
 	if err != nil {
 		return nil, err
 	}
-	if m.PrevMode < ModeDefault || m.PrevMode >= ModeOutOfRange {
-		return nil, fmt.Errorf("PrevMode %d is invalid", m.PrevMode)
-	} else if m.Mode < ModeDefault || m.Mode >= ModeOutOfRange {
-		return nil, fmt.Errorf("Mode %d is invalid", m.Mode)
-	} else if m.Mode == m.PrevMode {
-		return nil, fmt.Errorf("Mode %d is the same as previously", m.Mode)
-	} else if m.Trigger < ModeTriggerApp || m.Trigger >= ModeTriggerOutOfRange {
-		return nil, fmt.Errorf("Trigger %d is invalid", m.Trigger)
+	if m.PrevMode == nil {
+		return nil, errors.New("No prev_mode field")
+	} else if m.Mode == nil {
+		return nil, errors.New("No mode field")
+	} else if m.Trigger == nil {
+		return nil, errors.New("No trigger field")
+	} else if *m.PrevMode < ModeDefault || *m.PrevMode >= ModeOutOfRange {
+		return nil, fmt.Errorf("PrevMode %d is invalid", *m.PrevMode)
+	} else if *m.Mode < ModeDefault || *m.Mode >= ModeOutOfRange {
+		return nil, fmt.Errorf("Mode %d is invalid", *m.Mode)
+	} else if *m.Mode == *m.PrevMode {
+		return nil, fmt.Errorf("Mode %d is the same as previously", *m.Mode)
+	} else if *m.Trigger < ModeTriggerApp || *m.Trigger >= ModeTriggerOutOfRange {
+		return nil, fmt.Errorf("Trigger %d is invalid", *m.Trigger)
 	}
 
 	return &m, nil
@@ -111,8 +117,8 @@ func (d *Device) processAglMode(msg *msgUnparsed) error {
 // Example: {"state":{"reported":{"connected": true}}}
 // Example: {"state":{"reported":{"ec": 1306}}}
 type msgAglShadowUpdateReported struct {
-	Connected bool
-	EC        int
+	Connected *bool
+	EC        *int
 }
 type msgAglShadowUpdateState struct {
 	Reported msgAglShadowUpdateReported
@@ -127,10 +133,11 @@ func parseAglShadowUpdate(msg *msgUnparsed) (*msgAglShadowUpdate, error) {
 	if err != nil {
 		return nil, err
 	}
-	// NB: in normal operation, connected==false and EC==0 means
-	// we likely missed something, but the very first message the
-	// Plantcube sends has connected==false and no EC, so we can't
-	// be sure of that and don't check for it.
+	if m.State.Reported.Connected == nil && m.State.Reported.EC == nil {
+		return nil, errors.New("no fields set")
+	}
+	// Never seen them both set at the same time, but there's no
+	// real reason they shouldn't be, so not checking that.
 	return &m, nil
 }
 
@@ -150,7 +157,7 @@ func (d *Device) processAglShadowGet(msg *msgUnparsed) error {
 
 // Example: {"clientToken":"5975bc44"}
 type msgAWSShadowGet struct {
-	ClientToken string
+	ClientToken *string
 }
 
 func parseAWSShadowGet(msg *msgUnparsed) (*msgAWSShadowGet, error) {
@@ -159,10 +166,10 @@ func parseAWSShadowGet(msg *msgUnparsed) (*msgAWSShadowGet, error) {
 	if err != nil {
 		return nil, err
 	}
-	if m.ClientToken == "" {
+	if m.ClientToken == nil {
 		return nil, errors.New("no ClientToken")
-	} else if len(m.ClientToken) < 8 {
-		return nil, fmt.Errorf("ClientToken '%s' too short", m.ClientToken)
+	} else if len(*m.ClientToken) < 8 {
+		return nil, fmt.Errorf("ClientToken '%s' too short", *m.ClientToken)
 	}
 	// Could theoretically check if it's hex, which the
 	// Plantcube's all are, but do we care?
