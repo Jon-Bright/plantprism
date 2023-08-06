@@ -48,7 +48,8 @@ The following keys have been seen in state reports:
 * `cooling`, boolean. Whether the cooling pump is currently running.
 * `door`, boolean. Whether the door is open.
 * `firmware_ncu`, integer, Unix timestamp. Firmware version of the ESP8266.
-* `humid_a`, integer, percentage. Relative humidity in the upper layer.
+* `humid_a`, integer, percentage. Relative humidity in the upper layer. This
+  doesn't seem to ever actually get published by the device.
 * `humid_b`, integer, percentage. Relative humidity in the lower layer.
 * `light_a`, boolean. Whether the lights on the upper layer are on.
 * `light_b`, boolean. Whether the lights on the lower layer are on.
