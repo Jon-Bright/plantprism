@@ -22,6 +22,32 @@ func pickyUnmarshal(data []byte, v any) error {
 	return nil
 }
 
+func parseAglEventInfo(msg *msgUnparsed) (*msgAglEventInfo, error) {
+	var m msgAglEventInfo
+	err := pickyUnmarshal(msg.content, &m)
+	if err != nil {
+		return nil, err
+	}
+	// There's some consistency checking we could do here
+	// (emptiness, at least), but we don't have a large sample of
+	// these messages to be sure what's allowed and what's not.
+	return &m, nil
+}
+
+func parseAglEventWarning(msg *msgUnparsed) (*msgAglEventWarning, error) {
+	var m msgAglEventWarning
+	// The warnings frequently contain newlines. Replace them.
+	stripped := bytes.ReplaceAll(msg.content, []byte{0x0a}, []byte{'_'})
+	err := pickyUnmarshal(stripped, &m)
+	if err != nil {
+		return nil, err
+	}
+	// There's some consistency checking we could do here
+	// (emptiness, at least), but we don't have a large sample of
+	// these messages to be sure what's allowed and what's not.
+	return &m, nil
+}
+
 func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
 	var m msgAglMode
 	err := pickyUnmarshal(msg.content, &m)

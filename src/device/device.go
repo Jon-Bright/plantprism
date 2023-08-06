@@ -3,6 +3,7 @@ package device
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 type DeviceMode int
@@ -69,6 +70,10 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		err = d.processAglShadowGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
 		err = d.processAglShadowUpdate(msg)
+	} else if msg.prefix == "agl/prod" && msg.event == "events/software/info/put" {
+		err = d.processAglEventInfo(msg)
+	} else if msg.prefix == "agl/prod" && msg.event == "events/software/warning/put" {
+		err = d.processAglEventWarning(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
 		err = d.processAWSShadowGet(msg)
 	} else {
@@ -77,6 +82,53 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	if err != nil {
 		return fmt.Errorf("failed parsing prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
 	}
+	return nil
+}
+
+// Example: {"label":"MCU_MODE_STATE","timestamp":1687686053,"payload":{"mode":"ECO_MODE","state":"0","layer":"APPLIANCE"}}
+type msgAglEventInfoPayload struct {
+	Mode  *string
+	State *string
+	Layer *string
+}
+
+type msgAglEventInfo struct {
+	Label     *string
+	Timestamp *int
+	Payload   msgAglEventInfoPayload
+}
+
+func (d *Device) processAglEventInfo(msg *msgUnparsed) error {
+	m, err := parseAglEventInfo(msg)
+	if err != nil {
+		return err
+	}
+	log.Info.Printf("Plantcube info, time %s, label '%s', mode '%s', state '%s', layer '%s'", time.Unix(int64(*m.Timestamp), 0).String(), *m.Label, *m.Payload.Mode, *m.Payload.State, *m.Payload.Layer)
+
+	return nil
+}
+
+// Example: {"label":"NCU_SYS_LOG","timestamp":1687329836,"payload":{"error_log":"MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state
+//
+//	timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","function_name":"aws_shadow_grp_handler"}}
+type msgAglEventWarningPayload struct {
+	ErrorLog     *string `json:"error_log"`
+	FunctionName *string `json:"function_name"`
+}
+
+type msgAglEventWarning struct {
+	Label     *string
+	Timestamp *int
+	Payload   msgAglEventWarningPayload
+}
+
+func (d *Device) processAglEventWarning(msg *msgUnparsed) error {
+	m, err := parseAglEventWarning(msg)
+	if err != nil {
+		return err
+	}
+	log.Warn.Printf("Plantcube warning, time %s, label '%s', function '%s', log '%s'", time.Unix(int64(*m.Timestamp), 0).String(), *m.Label, *m.Payload.FunctionName, *m.Payload.ErrorLog)
+
 	return nil
 }
 

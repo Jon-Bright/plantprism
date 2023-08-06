@@ -32,7 +32,66 @@ func TestPickyUnmarshal(t *testing.T) {
 			t.Errorf("no error for '%s'", tc)
 		}
 	}
+}
 
+func TestParseAglEventInfo(t *testing.T) {
+	type test struct {
+		input     string
+		wantError bool
+		want      *msgAglEventInfo
+	}
+	mcuModeState := "MCU_MODE_STATE"
+	timestamp := 1687686053
+	modeEco := "ECO_MODE"
+	state := "0"
+	layer := "APPLIANCE"
+	tests := []test{
+		{
+			input:     `{"label":"MCU_MODE_STATE","timestamp":1687686053,"payload":{"mode":"ECO_MODE","state":"0","layer":"APPLIANCE"}}`,
+			wantError: false,
+			want:      &msgAglEventInfo{Label: &mcuModeState, Timestamp: &timestamp, Payload: msgAglEventInfoPayload{Mode: &modeEco, State: &state, Layer: &layer}},
+		},
+	}
+	for _, tc := range tests {
+		msg := msgUnparsed{"", "", []byte(tc.input)}
+		got, err := parseAglEventInfo(&msg)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
+		}
+		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
+			t.Errorf("want: %+v, got: %+v", tc.want, got)
+		}
+	}
+}
+
+func TestParseAglEventWarning(t *testing.T) {
+	type test struct {
+		input     string
+		wantError bool
+		want      *msgAglEventWarning
+	}
+	ncuSysLog := "NCU_SYS_LOG"
+	timestamp := 1687329836
+	errorLog := `MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state_timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':`
+	function := "aws_shadow_grp_handler"
+	tests := []test{
+		{
+			input: `{"label":"NCU_SYS_LOG","timestamp":1687329836,"payload":{"error_log":"MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state
+timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","function_name":"aws_shadow_grp_handler"}}`,
+			wantError: false,
+			want:      &msgAglEventWarning{Label: &ncuSysLog, Timestamp: &timestamp, Payload: msgAglEventWarningPayload{ErrorLog: &errorLog, FunctionName: &function}},
+		},
+	}
+	for _, tc := range tests {
+		msg := msgUnparsed{"", "", []byte(tc.input)}
+		got, err := parseAglEventWarning(&msg)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
+		}
+		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
+			t.Errorf("want: %s, got: %s", render.Render(tc.want), render.Render(got))
+		}
+	}
 }
 
 func TestParseAglMode(t *testing.T) {
