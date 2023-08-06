@@ -45,8 +45,6 @@ every time they update. These messages all have the following format:
 
 The following keys have been seen in state reports:
 
-* `connected`, boolean. Whether the Plantcube currently has an active MQTT
-  connection.
 * `cooling`, boolean. Whether the cooling pump is currently running.
 * `door`, boolean. Whether the door is open.
 * `firmware_ncu`, integer, Unix timestamp. Firmware version of the ESP8266.
@@ -96,6 +94,8 @@ These are less-frequent reports. Note the slightly-different topic and lack of
 ```
 
 ### Reported values
+* `connected`, boolean. Whether the Plantcube currently has an active MQTT
+  connection.
 * `ec`, integer
   * Observed values 1189-1714.
   * Evidence is strong that this is "Electrical Conductivity", which is a common
