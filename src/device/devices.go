@@ -3,6 +3,7 @@ package device
 import (
 	"flag"
 	"fmt"
+	"github.com/Jon-Bright/plantprism/logs"
 	"golang.org/x/exp/slices"
 	"strings"
 )
@@ -18,7 +19,12 @@ type deviceList []string
 var (
 	deviceMap      map[string]*Device
 	allowedDevices deviceList
+	log            *logs.Loggers
 )
+
+func SetLoggers(l *logs.Loggers) {
+	log = l
+}
 
 func (l *deviceList) String() string {
 	return strings.Join(*l, ",")

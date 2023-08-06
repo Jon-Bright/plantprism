@@ -68,6 +68,7 @@ func main() {
 	log = logs.New(*logName)
 	log.Info.Printf("Starting")
 
+	device.SetLoggers(log)
 	topicRe = regexp.MustCompile(TOPIC_REGEX)
 
 	var err error
