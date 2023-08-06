@@ -268,22 +268,22 @@ func (d *Device) processAWSShadowGet(msg *msgUnparsed) error {
 // Example: {"clientToken":"5975bc44","state":{"reported":{"door":true}}}
 
 type msgAWSShadowUpdateReported struct {
-	Cooling      *bool
-	Door         *bool
-	FirmwareNCU  *int        `json:"firmware_ncu"`
-	HumidA       *int        `json:"humid_a"`
-	HumidB       *int        `json:"humid_b"`
-	LightA       *bool       `json:"light_a"`
-	LightB       *bool       `json:"light_b"`
-	RecipeID     *int        `json:"recipe_id"`
-	TankLevel    *int        `json:"tank_level"`
-	TankLevelRaw *int        `json:"tank_level_raw"`
-	TempA        *float64    `json:"temp_a"`
-	TempB        *float64    `json:"temp_b"`
-	TempTank     *float64    `json:"temp_tank"`
-	TotalOffset  *int        `json:"total_offset"`
-	Valve        *ValveState `json:"valve"`
-	WifiLevel    *int        `json:"wifi_level"`
+	Cooling      *bool       `json:"cooling,omitempty"`
+	Door         *bool       `json:"door,omitempty"`
+	FirmwareNCU  *int        `json:"firmware_ncu,omitempty"`
+	HumidA       *int        `json:"humid_a,omitempty"`
+	HumidB       *int        `json:"humid_b,omitempty"`
+	LightA       *bool       `json:"light_a,omitempty"`
+	LightB       *bool       `json:"light_b,omitempty"`
+	RecipeID     *int        `json:"recipe_id,omitempty"`
+	TankLevel    *int        `json:"tank_level,omitempty"`
+	TankLevelRaw *int        `json:"tank_level_raw,omitempty"`
+	TempA        *float64    `json:"temp_a,omitempty"`
+	TempB        *float64    `json:"temp_b,omitempty"`
+	TempTank     *float64    `json:"temp_tank,omitempty"`
+	TotalOffset  *int        `json:"total_offset,omitempty"`
+	Valve        *ValveState `json:"valve,omitempty"`
+	WifiLevel    *int        `json:"wifi_level,omitempty"`
 }
 type msgAWSShadowUpdateState struct {
 	Reported msgAWSShadowUpdateReported
@@ -372,6 +372,40 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) error {
 		return err
 	}
 	return nil
+}
+
+// TODO: this definition should be somewhere else
+type msgUpdTS struct {
+	Timestamp int
+}
+
+type msgAWSShadowUpdateAcceptedMetadataReported struct {
+	Cooling      *msgUpdTS `json:"cooling,omitempty"`
+	Door         *msgUpdTS `json:"door,omitempty"`
+	FirmwareNCU  *msgUpdTS `json:"firmware_ncu,omitempty"`
+	HumidA       *msgUpdTS `json:"humid_a,omitempty"`
+	HumidB       *msgUpdTS `json:"humid_b,omitempty"`
+	LightA       *msgUpdTS `json:"light_a,omitempty"`
+	LightB       *msgUpdTS `json:"light_b,omitempty"`
+	RecipeID     *msgUpdTS `json:"recipe_id,omitempty"`
+	TankLevel    *msgUpdTS `json:"tank_level,omitempty"`
+	TankLevelRaw *msgUpdTS `json:"tank_level_raw,omitempty"`
+	TempA        *msgUpdTS `json:"temp_a,omitempty"`
+	TempB        *msgUpdTS `json:"temp_b,omitempty"`
+	TempTank     *msgUpdTS `json:"temp_tank,omitempty"`
+	TotalOffset  *msgUpdTS `json:"total_offset,omitempty"`
+	Valve        *msgUpdTS `json:"valve,omitempty"`
+	WifiLevel    *msgUpdTS `json:"wifi_level,omitempty"`
+}
+type msgAWSShadowUpdateAcceptedMetadata struct {
+	Reported msgAWSShadowUpdateAcceptedMetadataReported
+}
+type msgAWSShadowUpdateAccepted struct {
+	State       msgAWSShadowUpdateState
+	Metadata    msgAWSShadowUpdateAcceptedMetadata
+	Version     int
+	Timestamp   int
+	ClientToken *string
 }
 
 func (d *Device) sendAWSUpdateAccepted(t time.Time) error {
