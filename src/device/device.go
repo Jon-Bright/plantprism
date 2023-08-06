@@ -3,6 +3,7 @@ package device
 import (
 	"errors"
 	"fmt"
+	paho "github.com/eclipse/paho.mqtt.golang"
 	"time"
 )
 
@@ -38,8 +39,9 @@ const (
 )
 
 type Device struct {
-	id       string
-	msgQueue chan *msgUnparsed
+	id         string
+	msgQueue   chan *msgUnparsed
+	mqttClient paho.Client
 }
 
 type msgUnparsed struct {

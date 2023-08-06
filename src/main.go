@@ -49,7 +49,7 @@ func messageHandler(c paho.Client, m paho.Message) {
 	event := matches[topicRe.SubexpIndex(TOPIC_EVENT_GRP)]
 	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", deviceID, prefix, event)
 
-	device, err := device.Get(deviceID)
+	device, err := device.Get(deviceID, c)
 	if err != nil {
 		log.Error.Printf("Couldn't get device: %v", err)
 		return

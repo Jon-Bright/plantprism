@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Jon-Bright/plantprism/logs"
+	paho "github.com/eclipse/paho.mqtt.golang"
 	"golang.org/x/exp/slices"
 	"strings"
 )
@@ -35,10 +36,10 @@ func (l *deviceList) Set(value string) error {
 	return nil
 }
 
-func Get(id string) (*Device, error) {
+func Get(id string, c paho.Client) (*Device, error) {
 	d, ok := deviceMap[id]
 	if !ok {
-		return instantiateDevice(id)
+		return instantiateDevice(id, c)
 	}
 	return d, nil
 }
@@ -47,13 +48,14 @@ func InitFlags() {
 	flag.Var(&allowedDevices, "device", "Allowed device ID. Can be specified multiple times.")
 }
 
-func instantiateDevice(id string) (*Device, error) {
+func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	if !slices.Contains(allowedDevices, id) {
 		return nil, fmt.Errorf("device ID '%s' is not an allowed device", id)
 	}
 	d := Device{}
 	d.id = id
 	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
+	d.mqttClient = c
 	deviceMap[id] = &d
 
 	go d.processingLoop()
