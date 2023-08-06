@@ -178,6 +178,53 @@ func TestParseAglMode(t *testing.T) {
 	}
 }
 
+func TestParseAglRecipeGet(t *testing.T) {
+	type test struct {
+		input     string
+		wantError bool
+		want      *msgAglRecipeGet
+	}
+	version7 := 7
+	formatBinary := "binary"
+	tests := []test{
+		{
+			input:     `{"version":7, "format": "binary" }`,
+			wantError: false,
+			want:      &msgAglRecipeGet{Version: &version7, Format: &formatBinary},
+		}, {
+			// Invalid: no version
+			input:     `{"format": "binary" }`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: no format
+			input:     `{"version":7 }`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: wrong version
+			input:     `{"version":8, "format": "binary" }`,
+			wantError: true,
+			want:      nil,
+		}, {
+			// Invalid: wrong format
+			input:     `{"version":8, "format": "yaml" }`,
+			wantError: true,
+			want:      nil,
+		},
+	}
+	for _, tc := range tests {
+		msg := msgUnparsed{"", "", []byte(tc.input)}
+		got, err := parseAglRecipeGet(&msg)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
+		}
+		if !tc.wantError && !reflect.DeepEqual(tc.want, got) {
+			t.Errorf("want: %s, got: %s", render.Render(tc.want), render.Render(got))
+		}
+	}
+}
+
 func TestParseAglShadowUpdate(t *testing.T) {
 	type test struct {
 		input     string

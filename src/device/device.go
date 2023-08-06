@@ -70,6 +70,8 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		err = d.processAglEventWarning(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "mode" {
 		err = d.processAglMode(msg)
+	} else if msg.prefix == "agl/prod" && msg.event == "recipe/get" {
+		err = d.processAglRecipeGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/get" {
 		err = d.processAglShadowGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
@@ -141,6 +143,21 @@ type msgAglMode struct {
 
 func (d *Device) processAglMode(msg *msgUnparsed) error {
 	m, err := parseAglMode(msg)
+	if err != nil {
+		return err
+	}
+	_ = m
+	return nil
+}
+
+// Example: {"version":7, "format": "binary" }
+type msgAglRecipeGet struct {
+	Version *int
+	Format  *string
+}
+
+func (d *Device) processAglRecipeGet(msg *msgUnparsed) error {
+	m, err := parseAglRecipeGet(msg)
 	if err != nil {
 		return err
 	}
