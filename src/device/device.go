@@ -1,10 +1,17 @@
 package device
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	paho "github.com/eclipse/paho.mqtt.golang"
+	"github.com/lupguo/go-render/render"
 	"time"
+)
+
+const (
+	MQTT_PUBLISH_TIMEOUT           = 30 * time.Second
+	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted"
 )
 
 type DeviceMode int
@@ -369,7 +376,7 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) error {
 	}
 	err = d.sendAWSUpdateAccepted(t)
 	if err != nil {
-		return err
+		return fmt.Errorf("AWS update accept failed: %v", err)
 	}
 	return nil
 }
@@ -405,9 +412,95 @@ type msgAWSShadowUpdateAccepted struct {
 	Metadata    msgAWSShadowUpdateAcceptedMetadata
 	Version     int
 	Timestamp   int
-	ClientToken *string
+	ClientToken string
 }
 
 func (d *Device) sendAWSUpdateAccepted(t time.Time) error {
+	var msg msgAWSShadowUpdateAccepted
+	r := &msg.State.Reported
+	m := &msg.Metadata.Reported
+	unix := int(t.Unix())
+
+	d.awsVersion++
+	msg.Version = d.awsVersion
+	msg.Timestamp = unix
+	msg.ClientToken = d.clientToken
+
+	if d.coolingT == t {
+		r.Cooling = &d.cooling
+		m.Cooling.Timestamp = unix
+	}
+	if d.doorT == t {
+		r.Door = &d.door
+		m.Door.Timestamp = unix
+	}
+	if d.firmwareNCUT == t {
+		r.FirmwareNCU = &d.firmwareNCU
+		m.FirmwareNCU.Timestamp = unix
+	}
+	if d.humidAT == t {
+		r.HumidA = &d.humidA
+		m.HumidA.Timestamp = unix
+	}
+	if d.humidBT == t {
+		r.HumidB = &d.humidB
+		m.HumidB.Timestamp = unix
+	}
+	if d.lightAT == t {
+		r.LightA = &d.lightA
+		m.LightA.Timestamp = unix
+	}
+	if d.lightBT == t {
+		r.LightB = &d.lightB
+		m.LightB.Timestamp = unix
+	}
+	if d.recipeIDT == t {
+		r.RecipeID = &d.recipeID
+		m.RecipeID.Timestamp = unix
+	}
+	if d.tankLevelT == t {
+		r.TankLevel = &d.tankLevel
+		m.TankLevel.Timestamp = unix
+	}
+	if d.tankLevelRawT == t {
+		r.TankLevelRaw = &d.tankLevelRaw
+		m.TankLevelRaw.Timestamp = unix
+	}
+	if d.tempAT == t {
+		r.TempA = &d.tempA
+		m.TempA.Timestamp = unix
+	}
+	if d.tempBT == t {
+		r.TempB = &d.tempB
+		m.TempB.Timestamp = unix
+	}
+	if d.tempTankT == t {
+		r.TempTank = &d.tempTank
+		m.TempTank.Timestamp = unix
+	}
+	if d.totalOffsetT == t {
+		r.TotalOffset = &d.totalOffset
+		m.TotalOffset.Timestamp = unix
+	}
+	if d.valveT == t {
+		r.Valve = &d.valve
+		m.Valve.Timestamp = unix
+	}
+	if d.wifiLevelT == t {
+		r.WifiLevel = &d.wifiLevel
+		m.WifiLevel.Timestamp = unix
+	}
+
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return fmt.Errorf("failed marshalling '%s': %v", render.Render(msg), err)
+	}
+	token := d.mqttClient.Publish(MQTT_TOPIC_AWS_UPDATE_ACCEPTED, 0, false, b)
+	if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
+		return errors.New("timeout publishing MQTT msg")
+	}
+	if token.Error() != nil {
+		return fmt.Errorf("failed publishing MQTT message: %v", err)
+	}
 	return nil
 }
