@@ -52,12 +52,14 @@ type Device struct {
 
 	clientToken string
 
-	// Reported values from Agl update messages
-	connected bool
-	ec        int
-
 	// Monotonically increasing ID sent out with update messages
 	awsVersion int
+
+	// Reported values from Agl update messages
+	connected  bool
+	connectedT time.Time
+	ec         int
+	ecT        time.Time
 
 	// Reported values from AWS update messages. These all need
 	// timestamps, for providing in published messages.
@@ -308,8 +310,12 @@ func (d *Device) processAWSShadowGet(msg *msgUnparsed) error {
 // Example: {"clientToken":"5975bc44","state":{"reported":{"door":true}}}
 
 type msgAWSShadowUpdateReported struct {
+	// `Connected` and `EC` shouldn't be reported by $aws/.../update,
+	// but they're here because they appear in .../update/accepted
+	Connected    *bool       `json:"connected,omitempty"`
 	Cooling      *bool       `json:"cooling,omitempty"`
 	Door         *bool       `json:"door,omitempty"`
+	EC           *int        `json:"ec,omitempty"`
 	FirmwareNCU  *int        `json:"firmware_ncu,omitempty"`
 	HumidA       *int        `json:"humid_a,omitempty"`
 	HumidB       *int        `json:"humid_b,omitempty"`
@@ -339,10 +345,16 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		return nil, err
 	}
 	if *m.ClientToken != d.clientToken {
-		return nil, fmt.Errorf("clientToken '%s' received, but device clienToken is '%s'", *m.ClientToken, d.clientToken)
+		return nil, fmt.Errorf("clientToken '%s' received, but device clientToken is '%s'", *m.ClientToken, d.clientToken)
 	}
 	t := time.Now()
 	r := m.State.Reported
+	if r.Connected != nil {
+		return nil, errors.New("unexpected Connected reported in AWS update")
+	}
+	if r.EC != nil {
+		return nil, errors.New("unexpected EC reported in AWS update")
+	}
 	if r.Cooling != nil {
 		d.cooling = *r.Cooling
 		d.coolingT = t
@@ -407,7 +419,7 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		d.wifiLevel = *r.WifiLevel
 		d.wifiLevelT = t
 	}
-	reply := d.getAWSUpdateAcceptedReply(t)
+	reply := d.getAWSUpdateAcceptedReply(t, false)
 	return []msgReply{reply}, nil
 }
 
@@ -417,8 +429,10 @@ type msgUpdTS struct {
 }
 
 type msgAWSShadowUpdateAcceptedMetadataReported struct {
+	Connected    *msgUpdTS `json:"connected,omitempty"`
 	Cooling      *msgUpdTS `json:"cooling,omitempty"`
 	Door         *msgUpdTS `json:"door,omitempty"`
+	EC           *msgUpdTS `json:"ec,omitempty"`
 	FirmwareNCU  *msgUpdTS `json:"firmware_ncu,omitempty"`
 	HumidA       *msgUpdTS `json:"humid_a,omitempty"`
 	HumidB       *msgUpdTS `json:"humid_b,omitempty"`
@@ -442,12 +456,15 @@ type msgAWSShadowUpdateAccepted struct {
 	Metadata    msgAWSShadowUpdateAcceptedMetadata `json:"metadata"`
 	Version     int                                `json:"version"`
 	Timestamp   int                                `json:"timestamp"`
-	ClientToken string                             `json:"clientToken"`
+	ClientToken string                             `json:"clientToken,omitempty"`
 }
 
 // Construct a reply featuring all values reported at the given timestamp,
 // along with metadata for each of those values with the timestamp.
-func (d *Device) getAWSUpdateAcceptedReply(t time.Time) msgReply {
+// /shadow/update to agl/prod _also_ triggers AWS updates, but these come
+// without a client token (possibly because from AWS's POV, they're coming
+// from a different client?).
+func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) msgReply {
 	msg := msgAWSShadowUpdateAccepted{}
 	r := &msg.State.Reported
 	m := &msg.Metadata.Reported
@@ -456,9 +473,15 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time) msgReply {
 	d.awsVersion++
 	msg.Version = d.awsVersion
 	msg.Timestamp = unix
-	msg.ClientToken = d.clientToken
+	if !omitClientToken {
+		msg.ClientToken = d.clientToken
+	}
 	ts := msgUpdTS{unix}
 
+	if d.connectedT == t {
+		r.Connected = &d.connected
+		m.Connected = &ts
+	}
 	if d.coolingT == t {
 		r.Cooling = &d.cooling
 		m.Cooling = &ts
@@ -466,6 +489,10 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time) msgReply {
 	if d.doorT == t {
 		r.Door = &d.door
 		m.Door = &ts
+	}
+	if d.ecT == t {
+		r.EC = &d.ec
+		m.EC = &ts
 	}
 	if d.firmwareNCUT == t {
 		r.FirmwareNCU = &d.firmwareNCU
