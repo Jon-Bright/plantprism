@@ -6,12 +6,15 @@ import (
 	"fmt"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lupguo/go-render/render"
+	"strings"
 	"time"
 )
 
 const (
 	MQTT_PUBLISH_TIMEOUT           = 30 * time.Second
-	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted"
+	MQTT_ID_TOKEN                  = "<ID>"
+	MQTT_TOPIC_AGL_GET_ACCEPTED    = "agl/all/things/" + MQTT_ID_TOKEN + "/shadow/get/accepted"
+	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 )
 
 type DeviceMode int
@@ -104,6 +107,7 @@ type msgUnparsed struct {
 }
 
 type msgReply interface {
+	topic() string
 }
 
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
@@ -162,7 +166,8 @@ func (d *Device) sendReplies(replies []msgReply) error {
 		if err != nil {
 			return fmt.Errorf("failed marshalling '%s': %v", render.Render(r), err)
 		}
-		token := d.mqttClient.Publish(MQTT_TOPIC_AWS_UPDATE_ACCEPTED, 0, false, b)
+		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.id)
+		token := d.mqttClient.Publish(topic, 0, false, b)
 		if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
 			return errors.New("timeout publishing MQTT msg")
 		}
@@ -461,6 +466,10 @@ type msgAWSShadowUpdateAccepted struct {
 	Version     int                                `json:"version"`
 	Timestamp   int                                `json:"timestamp"`
 	ClientToken string                             `json:"clientToken,omitempty"`
+}
+
+func (m *msgAWSShadowUpdateAccepted) topic() string {
+	return MQTT_TOPIC_AWS_UPDATE_ACCEPTED
 }
 
 // Construct a reply featuring all values reported at the given timestamp,
