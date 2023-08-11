@@ -106,6 +106,10 @@ type msgUnparsed struct {
 	content []byte
 }
 
+type msgUpdTS struct {
+	Timestamp int `json:"timestamp"`
+}
+
 type msgReply interface {
 	topic() string
 }
@@ -430,11 +434,6 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, false)
 	return []msgReply{reply}, nil
-}
-
-// TODO: this definition should be somewhere else
-type msgUpdTS struct {
-	Timestamp int `json:"timestamp"`
 }
 
 type msgAWSShadowUpdateAcceptedMetadataReported struct {
