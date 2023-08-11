@@ -101,6 +101,9 @@ type msgUnparsed struct {
 	content []byte
 }
 
+type msgReply interface {
+}
+
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
 	d.msgQueue <- &msgUnparsed{prefix, event, content}
 }
@@ -117,6 +120,7 @@ func (d *Device) processingLoop() {
 
 func (d *Device) processMessage(msg *msgUnparsed) error {
 	var err error
+	var replies []msgReply
 	if msg.prefix == "agl/all" && msg.event == "shadow/get" {
 		err = d.processAglShadowGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "events/software/info/put" {
@@ -131,11 +135,38 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		err = d.processAglShadowUpdate(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
 		err = d.processAWSShadowGet(msg)
+	} else if msg.prefix == "$aws" && msg.event == "shadow/update" {
+		replies, err = d.processAWSShadowUpdate(msg)
 	} else {
 		err = errors.New("no handler found")
 	}
 	if err != nil {
 		return fmt.Errorf("failed parsing prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
+	}
+
+	if replies != nil {
+		err = d.sendReplies(replies)
+		if err != nil {
+			return fmt.Errorf("failed reply for prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
+		}
+	}
+
+	return nil
+}
+
+func (d *Device) sendReplies(replies []msgReply) error {
+	for _, r := range replies {
+		b, err := json.Marshal(r)
+		if err != nil {
+			return fmt.Errorf("failed marshalling '%s': %v", render.Render(r), err)
+		}
+		token := d.mqttClient.Publish(MQTT_TOPIC_AWS_UPDATE_ACCEPTED, 0, false, b)
+		if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
+			return errors.New("timeout publishing MQTT msg")
+		}
+		if token.Error() != nil {
+			return fmt.Errorf("failed publishing MQTT message: %v", err)
+		}
 	}
 	return nil
 }
@@ -293,20 +324,20 @@ type msgAWSShadowUpdateReported struct {
 	WifiLevel    *int        `json:"wifi_level,omitempty"`
 }
 type msgAWSShadowUpdateState struct {
-	Reported msgAWSShadowUpdateReported
+	Reported msgAWSShadowUpdateReported `json:"reported"`
 }
 type msgAWSShadowUpdate struct {
 	ClientToken *string
 	State       msgAWSShadowUpdateState
 }
 
-func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) error {
+func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	m, err := parseAWSShadowUpdate(msg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if *m.ClientToken != d.clientToken {
-		return fmt.Errorf("clientToken '%s' received, but device clienToken is '%s'", *m.ClientToken, d.clientToken)
+		return nil, fmt.Errorf("clientToken '%s' received, but device clienToken is '%s'", *m.ClientToken, d.clientToken)
 	}
 	t := time.Now()
 	r := m.State.Reported
@@ -374,16 +405,13 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) error {
 		d.wifiLevel = *r.WifiLevel
 		d.wifiLevelT = t
 	}
-	err = d.sendAWSUpdateAccepted(t)
-	if err != nil {
-		return fmt.Errorf("AWS update accept failed: %v", err)
-	}
-	return nil
+	reply := d.getAWSUpdateAcceptedReply(t)
+	return []msgReply{reply}, nil
 }
 
 // TODO: this definition should be somewhere else
 type msgUpdTS struct {
-	Timestamp int
+	Timestamp int `json:"timestamp"`
 }
 
 type msgAWSShadowUpdateAcceptedMetadataReported struct {
@@ -405,18 +433,18 @@ type msgAWSShadowUpdateAcceptedMetadataReported struct {
 	WifiLevel    *msgUpdTS `json:"wifi_level,omitempty"`
 }
 type msgAWSShadowUpdateAcceptedMetadata struct {
-	Reported msgAWSShadowUpdateAcceptedMetadataReported
+	Reported msgAWSShadowUpdateAcceptedMetadataReported `json:"reported"`
 }
 type msgAWSShadowUpdateAccepted struct {
-	State       msgAWSShadowUpdateState
-	Metadata    msgAWSShadowUpdateAcceptedMetadata
-	Version     int
-	Timestamp   int
-	ClientToken string
+	State       msgAWSShadowUpdateState            `json:"state"`
+	Metadata    msgAWSShadowUpdateAcceptedMetadata `json:"metadata"`
+	Version     int                                `json:"version"`
+	Timestamp   int                                `json:"timestamp"`
+	ClientToken string                             `json:"clientToken"`
 }
 
-func (d *Device) sendAWSUpdateAccepted(t time.Time) error {
-	var msg msgAWSShadowUpdateAccepted
+func (d *Device) getAWSUpdateAcceptedReply(t time.Time) msgReply {
+	msg := msgAWSShadowUpdateAccepted{}
 	r := &msg.State.Reported
 	m := &msg.Metadata.Reported
 	unix := int(t.Unix())
@@ -425,82 +453,71 @@ func (d *Device) sendAWSUpdateAccepted(t time.Time) error {
 	msg.Version = d.awsVersion
 	msg.Timestamp = unix
 	msg.ClientToken = d.clientToken
+	ts := msgUpdTS{unix}
 
 	if d.coolingT == t {
 		r.Cooling = &d.cooling
-		m.Cooling.Timestamp = unix
+		m.Cooling = &ts
 	}
 	if d.doorT == t {
 		r.Door = &d.door
-		m.Door.Timestamp = unix
+		m.Door = &ts
 	}
 	if d.firmwareNCUT == t {
 		r.FirmwareNCU = &d.firmwareNCU
-		m.FirmwareNCU.Timestamp = unix
+		m.FirmwareNCU = &ts
 	}
 	if d.humidAT == t {
 		r.HumidA = &d.humidA
-		m.HumidA.Timestamp = unix
+		m.HumidA = &ts
 	}
 	if d.humidBT == t {
 		r.HumidB = &d.humidB
-		m.HumidB.Timestamp = unix
+		m.HumidB = &ts
 	}
 	if d.lightAT == t {
 		r.LightA = &d.lightA
-		m.LightA.Timestamp = unix
+		m.LightA = &ts
 	}
 	if d.lightBT == t {
 		r.LightB = &d.lightB
-		m.LightB.Timestamp = unix
+		m.LightB = &ts
 	}
 	if d.recipeIDT == t {
 		r.RecipeID = &d.recipeID
-		m.RecipeID.Timestamp = unix
+		m.RecipeID = &ts
 	}
 	if d.tankLevelT == t {
 		r.TankLevel = &d.tankLevel
-		m.TankLevel.Timestamp = unix
+		m.TankLevel = &ts
 	}
 	if d.tankLevelRawT == t {
 		r.TankLevelRaw = &d.tankLevelRaw
-		m.TankLevelRaw.Timestamp = unix
+		m.TankLevelRaw = &ts
 	}
 	if d.tempAT == t {
 		r.TempA = &d.tempA
-		m.TempA.Timestamp = unix
+		m.TempA = &ts
 	}
 	if d.tempBT == t {
 		r.TempB = &d.tempB
-		m.TempB.Timestamp = unix
+		m.TempB = &ts
 	}
 	if d.tempTankT == t {
 		r.TempTank = &d.tempTank
-		m.TempTank.Timestamp = unix
+		m.TempTank = &ts
 	}
 	if d.totalOffsetT == t {
 		r.TotalOffset = &d.totalOffset
-		m.TotalOffset.Timestamp = unix
+		m.TotalOffset = &ts
 	}
 	if d.valveT == t {
 		r.Valve = &d.valve
-		m.Valve.Timestamp = unix
+		m.Valve = &ts
 	}
 	if d.wifiLevelT == t {
 		r.WifiLevel = &d.wifiLevel
-		m.WifiLevel.Timestamp = unix
+		m.WifiLevel = &ts
 	}
-
-	b, err := json.Marshal(msg)
-	if err != nil {
-		return fmt.Errorf("failed marshalling '%s': %v", render.Render(msg), err)
-	}
-	token := d.mqttClient.Publish(MQTT_TOPIC_AWS_UPDATE_ACCEPTED, 0, false, b)
-	if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
-		return errors.New("timeout publishing MQTT msg")
-	}
-	if token.Error() != nil {
-		return fmt.Errorf("failed publishing MQTT message: %v", err)
-	}
-	return nil
+	return &msg
 }
