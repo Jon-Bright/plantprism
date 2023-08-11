@@ -134,7 +134,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	} else if msg.prefix == "agl/prod" && msg.event == "recipe/get" {
 		err = d.processAglRecipeGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
-		err = d.processAglShadowUpdate(msg)
+		replies, err = d.processAglShadowUpdate(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
 		err = d.processAWSShadowGet(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/update" {
@@ -264,19 +264,23 @@ type msgAglShadowUpdate struct {
 	State msgAglShadowUpdateState
 }
 
-func (d *Device) processAglShadowUpdate(msg *msgUnparsed) error {
+func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	m, err := parseAglShadowUpdate(msg)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	t := time.Now()
 	r := m.State.Reported
 	if r.Connected != nil {
 		d.connected = *r.Connected
+		d.connectedT = t
 	}
 	if r.EC != nil {
 		d.ec = *r.EC
+		d.ecT = t
 	}
-	return nil
+	reply := d.getAWSUpdateAcceptedReply(t, true)
+	return []msgReply{reply}, nil
 }
 
 func (d *Device) processAglShadowGet(msg *msgUnparsed) error {
