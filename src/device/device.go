@@ -11,6 +11,15 @@ import (
 )
 
 const (
+	// These values are theoretically changeable over time, but
+	// they're the values reported by the actual Agrilution
+	// replies and we have no reason to change them, so they're
+	// hard-coded.
+	FIXED_STAGE             = "prod"
+	FIXED_VERBOSE_REPORTING = false
+	FIXED_FIRMWARE_NCU      = 1667466618
+	FIXED_FIRMWARE_MCU      = 1667466618
+
 	MQTT_PUBLISH_TIMEOUT           = 30 * time.Second
 	MQTT_ID_TOKEN                  = "<ID>"
 	MQTT_TOPIC_AGL_GET_ACCEPTED    = "agl/all/things/" + MQTT_ID_TOKEN + "/shadow/get/accepted"
@@ -55,8 +64,16 @@ type Device struct {
 
 	clientToken string
 
+	// Configuration
+	timezone   string
+	userOffset int // Seconds by which the day/night cycle is shifted
+	mode       DeviceMode
+
 	// Monotonically increasing ID sent out with update messages
 	awsVersion int
+
+	// Everything below is a reported value. They all need
+	// timestamps for reporting back in update/accepted messages.
 
 	// Reported values from Agl update messages
 	connected  bool
@@ -64,8 +81,7 @@ type Device struct {
 	ec         int
 	ecT        time.Time
 
-	// Reported values from AWS update messages. These all need
-	// timestamps, for providing in published messages.
+	// Reported values from AWS update messages.
 	cooling       bool
 	coolingT      time.Time
 	door          bool
@@ -132,7 +148,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	var err error
 	var replies []msgReply
 	if msg.prefix == "agl/all" && msg.event == "shadow/get" {
-		err = d.processAglShadowGet(msg)
+		replies, err = d.processAglShadowGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "events/software/info/put" {
 		err = d.processAglEventInfo(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "events/software/warning/put" {
@@ -292,10 +308,54 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	return []msgReply{reply}, nil
 }
 
-func (d *Device) processAglShadowGet(msg *msgUnparsed) error {
+func (d *Device) processAglShadowGet(msg *msgUnparsed) ([]msgReply, error) {
 	// No parsing: the only time we see this, it has no content
-	// TODO: Actually process this. (Although this one, I think there might be nothing required.)
-	return nil
+	m, err := d.getAglShadowGetReply()
+	if err != nil {
+		return nil, err
+	}
+	return []msgReply{m}, nil
+}
+
+// Example: {"reported":{"timezone":"Europe/Berlin","user_offset":25200,"total_offset":68400,"mode":0,"stage":"prod","verbose_reporting":false,"recipe_id":1687013771,"firmware_ncu":1667466618,"firmware_mcu":1667466618}}
+type msgAglShadowGetAcceptedReported struct {
+	Timezone         string     `json:"timezone"`
+	UserOffset       int        `json:"user_offset"`
+	TotalOffset      int        `json:"total_offset"`
+	Mode             DeviceMode `json:"mode"`
+	Stage            string     `json:"stage"`
+	VerboseReporting bool       `json:"verbose_reporting"`
+	RecipeID         int        `json:"recipe_id"`
+	FirmwareNCU      int        `json:"firmware_ncu"`
+	FirmwareMCU      int        `json:"firmware_mcu"`
+}
+type msgAglShadowGetAccepted struct {
+	Reported msgAglShadowGetAcceptedReported `json:"reported"`
+}
+
+func (m *msgAglShadowGetAccepted) topic() string {
+	return MQTT_TOPIC_AGL_GET_ACCEPTED
+}
+
+func (d *Device) getAglShadowGetReply() (msgReply, error) {
+	if d.recipeID <= 1 {
+		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.recipeID, d.recipeIDT)
+	}
+	if d.timezone == "" {
+		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but timezone is empty")
+	}
+	msg := msgAglShadowGetAccepted{}
+	r := &msg.Reported
+	r.Timezone = d.timezone
+	r.UserOffset = d.userOffset
+	r.TotalOffset = d.totalOffset
+	r.Mode = d.mode
+	r.Stage = FIXED_STAGE
+	r.VerboseReporting = FIXED_VERBOSE_REPORTING
+	r.RecipeID = d.recipeID
+	r.FirmwareNCU = FIXED_FIRMWARE_NCU
+	r.FirmwareMCU = FIXED_FIRMWARE_MCU
+	return &msg, nil
 }
 
 // Example: {"clientToken":"5975bc44"}
