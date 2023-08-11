@@ -279,6 +279,7 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) error {
 
 func (d *Device) processAglShadowGet(msg *msgUnparsed) error {
 	// No parsing: the only time we see this, it has no content
+	// TODO: Actually process this. (Although this one, I think there might be nothing required.)
 	return nil
 }
 
@@ -292,6 +293,7 @@ func (d *Device) processAWSShadowGet(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
+	// TODO: Actually process this.
 	_ = m
 	return nil
 }
@@ -443,6 +445,8 @@ type msgAWSShadowUpdateAccepted struct {
 	ClientToken string                             `json:"clientToken"`
 }
 
+// Construct a reply featuring all values reported at the given timestamp,
+// along with metadata for each of those values with the timestamp.
 func (d *Device) getAWSUpdateAcceptedReply(t time.Time) msgReply {
 	msg := msgAWSShadowUpdateAccepted{}
 	r := &msg.State.Reported
