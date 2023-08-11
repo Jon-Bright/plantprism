@@ -10,6 +10,8 @@ require (
 require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/lupguo/go-render v0.1.0 // indirect
+	github.com/thlib/go-timezone-local v0.0.0-20210907160436-ef149e42d28e // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )
