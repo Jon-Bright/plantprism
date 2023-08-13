@@ -92,9 +92,10 @@ This is followed by a series of `period`s, each of which is 14 bytes long:
 This code is odd. To find the currently active period, the algorithm seems to
 be:
 
-1. Subtract the header's `cycle_start_time` from the current Unix time. The
-   cycle start time can be up to 6 months ago, so this potentially leaves a
-   remainder of several million seconds. Let's call that `remainder`.
+1. Subtract the header's `cycle_start_time` from the current Unix time _plus_
+   the `total_offset` (see the [MQTT docs](mqtt.md#total_offset)). The cycle
+   start time can be up to 6 months ago, so this potentially leaves a remainder
+   of several million seconds. Let's call that `remainder`.
 2. `repetition_count = 0`. Also, set current period to be the first period of
    the first block.
 3. If `remainder` is less than 0, finish, we found the period. (This very likely
@@ -110,14 +111,10 @@ The recipes seen have one block with a single period of 86400s (one day) and a
 `repetition_limit` that varies over time, as the distance from
 `cycle_start_time` increases (i.e. the recipe received from AWS was unchanged
 other than an increased `repetition_limit`).  The recipes then had a second
-block with two periods, one of 30600s (8h) and one of 55800s (15h). The
+block with two periods, one of 30600s (8.5h) and one of 55800s (15.5h). The
 algorithm above would therefore result in subtracting a bunch of whole days
 (the `repetition_limit` of the first block) before attempting to find the actual
 current period by looping through the second block.
-
-It is currently unclear why the two periods in the second block sum to 23h
-instead of 24h. The shorter period is presumably "sleep" and the longer
-"daytime".
 
 ### Recipe values seen
 

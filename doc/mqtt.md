@@ -64,7 +64,9 @@ The following keys have been seen in state reports:
 * `temp_b`, decimal, degrees C. Temperature in the lower layer.
 * `temp_tank`, decimal, degrees C. Temperature in the tank. Unclear where the
   sensor for this measurement is.
-* `total_offset`, integer. Appears to be a number of seconds, meaning unclear.
+* `total_offset`, integer. Appears to be `86400` (length of a day in seconds)
+  minus the time at which the "waking" (lights-on) period should start, _plus_
+  the relevant timezone offset from UTC/Unix time.<a id="total_offset"></a>
 * `valve`, integer, observed values:
   * `0`, water to bottom layer.
   * `1`, water to top layer.
