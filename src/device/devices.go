@@ -8,6 +8,7 @@ import (
 	"github.com/thlib/go-timezone-local/tzlocal"
 	"golang.org/x/exp/slices"
 	"strings"
+	"time"
 )
 
 const (
@@ -24,7 +25,10 @@ var (
 	allowedDevices deviceList
 	log            *logs.Loggers
 
-	timezone string
+	timezone       string
+	sunriseTimeStr string
+
+	totalOffset int
 )
 
 func SetLoggers(l *logs.Loggers) {
@@ -55,6 +59,28 @@ func InitFlags() {
 		panic(fmt.Sprintf("Failed to get timezone: %v", err))
 	}
 	flag.StringVar(&timezone, "timezone", defaultTZ, "Timezone to be sent to Plantcube. Default is this machine's timezone.")
+	flag.StringVar(&sunriseTimeStr, "sunrise", "07:00", "The time at which the Plantcube's sun rises.")
+}
+
+func ProcessFlags() error {
+	t, err := time.Parse("15:04", sunriseTimeStr)
+	if err != nil {
+		return fmt.Errorf("unable to parse sunrise '%s': %v", sunriseTimeStr, err)
+	}
+	zero, _ := time.Parse("15:04", "00:00") // This isn't going to error out
+	d := t.Sub(zero)
+	log.Info.Printf("Sunrise at %02d:%02d", d/time.Hour, (d%time.Hour)/time.Minute)
+
+	// The total_offset is one day minus sunrise _plus_ the timezone offset
+	tz, err := time.LoadLocation(timezone)
+	if err != nil {
+		return fmt.Errorf("unable to load zone '%s': %v", timezone, err)
+	}
+	_, current_offset := time.Now().In(tz).Zone()
+	totalOffset = int((24*time.Hour - d).Seconds()) + current_offset
+
+	log.Info.Printf("totalOffset %d sec", totalOffset)
+	return nil
 }
 
 func instantiateDevice(id string, c paho.Client) (*Device, error) {

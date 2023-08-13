@@ -69,9 +69,12 @@ func main() {
 	log.Info.Printf("Starting")
 
 	device.SetLoggers(log)
+	err := device.ProcessFlags()
+	if err != nil {
+		log.Critical.Fatalf("Device flags: %v", err)
+	}
 	topicRe = regexp.MustCompile(TOPIC_REGEX)
 
-	var err error
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
 		log.Critical.Fatalf("Unable to initialize MQTT: %v", err)
