@@ -347,8 +347,12 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	msg := msgAglShadowGetAccepted{}
 	r := &msg.Reported
 	r.Timezone = d.timezone
-	r.UserOffset = d.userOffset
-	r.TotalOffset = d.totalOffset
+	r.UserOffset = int(sunriseD.Seconds()) // This doesn't actually get used
+	var err error
+	r.TotalOffset, err = calcTotalOffset(d.timezone, sunriseD)
+	if err != nil {
+		return nil, fmt.Errorf("total offset calculation failed: %d", err)
+	}
 	r.Mode = d.mode
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
@@ -356,6 +360,19 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	r.FirmwareNCU = FIXED_FIRMWARE_NCU
 	r.FirmwareMCU = FIXED_FIRMWARE_MCU
 	return &msg, nil
+}
+
+func calcTotalOffset(tz string, sunrise time.Duration) (int, error) {
+	// The total_offset is one day minus sunrise _plus_ the timezone offset
+	loc, err := time.LoadLocation(tz)
+	if err != nil {
+		return 0, fmt.Errorf("unable to load zone '%s': %v", tz, err)
+	}
+	_, current_offset := time.Now().In(loc).Zone()
+	totalOffset := int((24*time.Hour - sunrise).Seconds()) + current_offset
+
+	log.Info.Printf("totalOffset %d sec", totalOffset)
+	return totalOffset, nil
 }
 
 // Example: {"clientToken":"5975bc44"}

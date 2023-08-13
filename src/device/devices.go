@@ -28,7 +28,7 @@ var (
 	timezone       string
 	sunriseTimeStr string
 
-	totalOffset int
+	sunriseD time.Duration
 )
 
 func SetLoggers(l *logs.Loggers) {
@@ -68,18 +68,9 @@ func ProcessFlags() error {
 		return fmt.Errorf("unable to parse sunrise '%s': %v", sunriseTimeStr, err)
 	}
 	zero, _ := time.Parse("15:04", "00:00") // This isn't going to error out
-	d := t.Sub(zero)
-	log.Info.Printf("Sunrise at %02d:%02d", d/time.Hour, (d%time.Hour)/time.Minute)
+	sunriseD = t.Sub(zero)
+	log.Info.Printf("Sunrise at %02d:%02d", sunriseD/time.Hour, (sunriseD%time.Hour)/time.Minute)
 
-	// The total_offset is one day minus sunrise _plus_ the timezone offset
-	tz, err := time.LoadLocation(timezone)
-	if err != nil {
-		return fmt.Errorf("unable to load zone '%s': %v", timezone, err)
-	}
-	_, current_offset := time.Now().In(tz).Zone()
-	totalOffset = int((24*time.Hour - d).Seconds()) + current_offset
-
-	log.Info.Printf("totalOffset %d sec", totalOffset)
 	return nil
 }
 
