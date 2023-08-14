@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	EXPECTED_NCU_MCU_FW_VERSION = 1667466618
+)
+
 // Example: {"clientToken":"5975bc44","state":{"reported":{"humid_b":75,"temp_a":22.99,"temp_b":24.19}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"temp_a":22.69,"firmware_ncu":1667466618,"door":false,"cooling":true,"total_offset":69299,"light_a":false,"light_b":false}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"wifi_level":0}}}
@@ -57,7 +61,7 @@ func (m *msgAWSShadowUpdateReported) validate() error {
 	if m.empty() {
 		return errors.New("update is empty")
 	}
-	if m.FirmwareNCU != nil && *m.FirmwareNCU < 1667466618 {
+	if m.FirmwareNCU != nil && *m.FirmwareNCU < EXPECTED_NCU_MCU_FW_VERSION {
 		return fmt.Errorf("NCU firmware too old: %d", *m.FirmwareNCU)
 	}
 	if m.HumidA != nil && (*m.HumidA < 30 || *m.HumidA > 100) {
@@ -130,7 +134,8 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		return nil, fmt.Errorf("clientToken '%s' received, but device clientToken is '%s'", *m.ClientToken, d.clientToken)
 	}
 	t := time.Now()
-	r := m.State.Reported
+	r := &m.State.Reported
+	dr := &d.reported
 	if r.Connected != nil {
 		return nil, errors.New("unexpected Connected reported in AWS update")
 	}
@@ -138,52 +143,52 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		return nil, errors.New("unexpected EC reported in AWS update")
 	}
 	if r.Cooling != nil {
-		d.cooling.update(*r.Cooling, t)
+		dr.cooling.update(*r.Cooling, t)
 	}
 	if r.Door != nil {
-		d.door.update(*r.Door, t)
+		dr.door.update(*r.Door, t)
 	}
 	if r.FirmwareNCU != nil {
-		d.firmwareNCU.update(*r.FirmwareNCU, t)
+		dr.firmwareNCU.update(*r.FirmwareNCU, t)
 	}
 	if r.HumidA != nil {
-		d.humidA.update(*r.HumidA, t)
+		dr.humidA.update(*r.HumidA, t)
 	}
 	if r.HumidB != nil {
-		d.humidB.update(*r.HumidB, t)
+		dr.humidB.update(*r.HumidB, t)
 	}
 	if r.LightA != nil {
-		d.lightA.update(*r.LightA, t)
+		dr.lightA.update(*r.LightA, t)
 	}
 	if r.LightB != nil {
-		d.lightB.update(*r.LightB, t)
+		dr.lightB.update(*r.LightB, t)
 	}
 	if r.RecipeID != nil {
-		d.recipeID.update(*r.RecipeID, t)
+		dr.recipeID.update(*r.RecipeID, t)
 	}
 	if r.TankLevel != nil {
-		d.tankLevel.update(*r.TankLevel, t)
+		dr.tankLevel.update(*r.TankLevel, t)
 	}
 	if r.TankLevelRaw != nil {
-		d.tankLevelRaw.update(*r.TankLevelRaw, t)
+		dr.tankLevelRaw.update(*r.TankLevelRaw, t)
 	}
 	if r.TempA != nil {
-		d.tempA.update(*r.TempA, t)
+		dr.tempA.update(*r.TempA, t)
 	}
 	if r.TempB != nil {
-		d.tempB.update(*r.TempB, t)
+		dr.tempB.update(*r.TempB, t)
 	}
 	if r.TempTank != nil {
-		d.tempTank.update(*r.TempTank, t)
+		dr.tempTank.update(*r.TempTank, t)
 	}
 	if r.TotalOffset != nil {
-		d.totalOffset.update(*r.TotalOffset, t)
+		dr.totalOffset.update(*r.TotalOffset, t)
 	}
 	if r.Valve != nil {
-		d.valve.update(*r.Valve, t)
+		dr.valve.update(*r.Valve, t)
 	}
 	if r.WifiLevel != nil {
-		d.wifiLevel.update(*r.WifiLevel, t)
+		dr.wifiLevel.update(*r.WifiLevel, t)
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, false)
 	return []msgReply{reply}, nil
@@ -242,77 +247,78 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) ms
 		msg.ClientToken = d.clientToken
 	}
 	ts := msgUpdTS{unix}
+	dr := &d.reported
 
-	if d.connected.wasUpdatedAt(t) {
-		r.Connected = &d.connected.v
+	if dr.connected.wasUpdatedAt(t) {
+		r.Connected = &dr.connected.v
 		m.Connected = &ts
 	}
-	if d.cooling.wasUpdatedAt(t) {
-		r.Cooling = &d.cooling.v
+	if dr.cooling.wasUpdatedAt(t) {
+		r.Cooling = &dr.cooling.v
 		m.Cooling = &ts
 	}
-	if d.door.wasUpdatedAt(t) {
-		r.Door = &d.door.v
+	if dr.door.wasUpdatedAt(t) {
+		r.Door = &dr.door.v
 		m.Door = &ts
 	}
-	if d.ec.wasUpdatedAt(t) {
-		r.EC = &d.ec.v
+	if dr.ec.wasUpdatedAt(t) {
+		r.EC = &dr.ec.v
 		m.EC = &ts
 	}
-	if d.firmwareNCU.wasUpdatedAt(t) {
-		r.FirmwareNCU = &d.firmwareNCU.v
+	if dr.firmwareNCU.wasUpdatedAt(t) {
+		r.FirmwareNCU = &dr.firmwareNCU.v
 		m.FirmwareNCU = &ts
 	}
-	if d.humidA.wasUpdatedAt(t) {
-		r.HumidA = &d.humidA.v
+	if dr.humidA.wasUpdatedAt(t) {
+		r.HumidA = &dr.humidA.v
 		m.HumidA = &ts
 	}
-	if d.humidB.wasUpdatedAt(t) {
-		r.HumidB = &d.humidB.v
+	if dr.humidB.wasUpdatedAt(t) {
+		r.HumidB = &dr.humidB.v
 		m.HumidB = &ts
 	}
-	if d.lightA.wasUpdatedAt(t) {
-		r.LightA = &d.lightA.v
+	if dr.lightA.wasUpdatedAt(t) {
+		r.LightA = &dr.lightA.v
 		m.LightA = &ts
 	}
-	if d.lightB.wasUpdatedAt(t) {
-		r.LightB = &d.lightB.v
+	if dr.lightB.wasUpdatedAt(t) {
+		r.LightB = &dr.lightB.v
 		m.LightB = &ts
 	}
-	if d.recipeID.wasUpdatedAt(t) {
-		r.RecipeID = &d.recipeID.v
+	if dr.recipeID.wasUpdatedAt(t) {
+		r.RecipeID = &dr.recipeID.v
 		m.RecipeID = &ts
 	}
-	if d.tankLevel.wasUpdatedAt(t) {
-		r.TankLevel = &d.tankLevel.v
+	if dr.tankLevel.wasUpdatedAt(t) {
+		r.TankLevel = &dr.tankLevel.v
 		m.TankLevel = &ts
 	}
-	if d.tankLevelRaw.wasUpdatedAt(t) {
-		r.TankLevelRaw = &d.tankLevelRaw.v
+	if dr.tankLevelRaw.wasUpdatedAt(t) {
+		r.TankLevelRaw = &dr.tankLevelRaw.v
 		m.TankLevelRaw = &ts
 	}
-	if d.tempA.wasUpdatedAt(t) {
-		r.TempA = &d.tempA.v
+	if dr.tempA.wasUpdatedAt(t) {
+		r.TempA = &dr.tempA.v
 		m.TempA = &ts
 	}
-	if d.tempB.wasUpdatedAt(t) {
-		r.TempB = &d.tempB.v
+	if dr.tempB.wasUpdatedAt(t) {
+		r.TempB = &dr.tempB.v
 		m.TempB = &ts
 	}
-	if d.tempTank.wasUpdatedAt(t) {
-		r.TempTank = &d.tempTank.v
+	if dr.tempTank.wasUpdatedAt(t) {
+		r.TempTank = &dr.tempTank.v
 		m.TempTank = &ts
 	}
-	if d.totalOffset.wasUpdatedAt(t) {
-		r.TotalOffset = &d.totalOffset.v
+	if dr.totalOffset.wasUpdatedAt(t) {
+		r.TotalOffset = &dr.totalOffset.v
 		m.TotalOffset = &ts
 	}
-	if d.valve.wasUpdatedAt(t) {
-		r.Valve = &d.valve.v
+	if dr.valve.wasUpdatedAt(t) {
+		r.Valve = &dr.valve.v
 		m.Valve = &ts
 	}
-	if d.wifiLevel.wasUpdatedAt(t) {
-		r.WifiLevel = &d.wifiLevel.v
+	if dr.wifiLevel.wasUpdatedAt(t) {
+		r.WifiLevel = &dr.wifiLevel.v
 		m.WifiLevel = &ts
 	}
 	return &msg

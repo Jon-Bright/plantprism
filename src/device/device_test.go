@@ -122,8 +122,10 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// Simple update, two values, both with the current timestamp
 			d: Device{
 				clientToken: "12345678",
-				cooling:     valueWithTimestamp[bool]{true, ts},
-				tempA:       valueWithTimestamp[float64]{22.31, ts},
+				reported: deviceReported{
+					cooling: valueWithTimestamp[bool]{true, ts},
+					tempA:   valueWithTimestamp[float64]{22.31, ts},
+				},
 			},
 			omitClientToken: false,
 			want: `{"state":{"reported":` +
@@ -136,8 +138,10 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// Update with an old timestamp for one value, which should be omitted
 			d: Device{
 				clientToken: "12345678",
-				cooling:     valueWithTimestamp[bool]{true, ts},
-				tempA:       valueWithTimestamp[float64]{22.31, tsOld},
+				reported: deviceReported{
+					cooling: valueWithTimestamp[bool]{true, ts},
+					tempA:   valueWithTimestamp[float64]{22.31, tsOld},
+				},
 			},
 			omitClientToken: false,
 			want: `{"state":{"reported":` +
@@ -148,25 +152,27 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		}, {
 			// Complete update
 			d: Device{
-				clientToken:  "12345678",
-				connected:    valueWithTimestamp[bool]{true, ts},
-				cooling:      valueWithTimestamp[bool]{true, ts},
-				door:         valueWithTimestamp[bool]{true, ts},
-				ec:           valueWithTimestamp[int]{1234, ts},
-				firmwareNCU:  valueWithTimestamp[int]{int(tsOld.Unix()), ts},
-				humidA:       valueWithTimestamp[int]{80, ts},
-				humidB:       valueWithTimestamp[int]{70, ts},
-				lightA:       valueWithTimestamp[bool]{true, ts},
-				lightB:       valueWithTimestamp[bool]{true, ts},
-				recipeID:     valueWithTimestamp[int]{int(tsOld.Unix()), ts},
-				tankLevel:    valueWithTimestamp[int]{2, ts},
-				tankLevelRaw: valueWithTimestamp[int]{2, ts},
-				tempA:        valueWithTimestamp[float64]{22.31, ts},
-				tempB:        valueWithTimestamp[float64]{23.45, ts},
-				tempTank:     valueWithTimestamp[float64]{24.56, ts},
-				totalOffset:  valueWithTimestamp[int]{68040, ts},
-				valve:        valueWithTimestamp[ValveState]{ValveClosed, ts},
-				wifiLevel:    valueWithTimestamp[int]{2, ts},
+				clientToken: "12345678",
+				reported: deviceReported{
+					connected:    valueWithTimestamp[bool]{true, ts},
+					cooling:      valueWithTimestamp[bool]{true, ts},
+					door:         valueWithTimestamp[bool]{true, ts},
+					ec:           valueWithTimestamp[int]{1234, ts},
+					firmwareNCU:  valueWithTimestamp[int]{int(tsOld.Unix()), ts},
+					humidA:       valueWithTimestamp[int]{80, ts},
+					humidB:       valueWithTimestamp[int]{70, ts},
+					lightA:       valueWithTimestamp[bool]{true, ts},
+					lightB:       valueWithTimestamp[bool]{true, ts},
+					recipeID:     valueWithTimestamp[int]{int(tsOld.Unix()), ts},
+					tankLevel:    valueWithTimestamp[int]{2, ts},
+					tankLevelRaw: valueWithTimestamp[int]{2, ts},
+					tempA:        valueWithTimestamp[float64]{22.31, ts},
+					tempB:        valueWithTimestamp[float64]{23.45, ts},
+					tempTank:     valueWithTimestamp[float64]{24.56, ts},
+					totalOffset:  valueWithTimestamp[int]{68040, ts},
+					valve:        valueWithTimestamp[ValveState]{ValveClosed, ts},
+					wifiLevel:    valueWithTimestamp[int]{2, ts},
+				},
 			},
 			want: `{"state":{"reported":` +
 				`{"connected":true,"cooling":true,"door":true,"ec":1234,` +
@@ -193,9 +199,11 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// agl/prod update, no client token. Also two old values.
 			d: Device{
 				clientToken: "12345678",
-				cooling:     valueWithTimestamp[bool]{true, tsOld},
-				ec:          valueWithTimestamp[int]{1234, ts},
-				tempA:       valueWithTimestamp[float64]{22.31, tsOld},
+				reported: deviceReported{
+					cooling: valueWithTimestamp[bool]{true, tsOld},
+					ec:      valueWithTimestamp[int]{1234, ts},
+					tempA:   valueWithTimestamp[float64]{22.31, tsOld},
+				},
 			},
 			omitClientToken: true,
 			want: `{"state":{"reported":` +

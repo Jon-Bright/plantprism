@@ -40,10 +40,10 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	t := time.Now()
 	r := m.State.Reported
 	if r.Connected != nil {
-		d.connected.update(*r.Connected, t)
+		d.reported.connected.update(*r.Connected, t)
 	}
 	if r.EC != nil {
-		d.ec.update(*r.EC, t)
+		d.reported.ec.update(*r.EC, t)
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, true)
 	return []msgReply{reply}, nil

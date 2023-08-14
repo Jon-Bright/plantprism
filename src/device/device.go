@@ -73,29 +73,12 @@ func (vmt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
 	return vmt.t == t
 }
 
-type Device struct {
-	id         string
-	msgQueue   chan *msgUnparsed
-	mqttClient paho.Client
-
-	clientToken string
-
-	// Configuration
-	timezone   string
-	userOffset int // Seconds by which the day/night cycle is shifted
-	mode       DeviceMode
-
-	// Monotonically increasing ID sent out with update messages
-	awsVersion int
-
-	// Everything below is a reported value. They all need
-	// timestamps for reporting back in update/accepted messages.
-
-	// Reported values from Agl update messages
+type deviceReported struct {
+	// Reported by Agl update messages
 	connected valueWithTimestamp[bool]
 	ec        valueWithTimestamp[int]
 
-	// Reported values from AWS update messages.
+	// Reported by AWS update messages
 	cooling      valueWithTimestamp[bool]
 	door         valueWithTimestamp[bool]
 	firmwareNCU  valueWithTimestamp[int]
@@ -112,6 +95,25 @@ type Device struct {
 	totalOffset  valueWithTimestamp[int]
 	valve        valueWithTimestamp[ValveState]
 	wifiLevel    valueWithTimestamp[int]
+}
+
+type Device struct {
+	id         string
+	msgQueue   chan *msgUnparsed
+	mqttClient paho.Client
+
+	clientToken string
+
+	// Configuration
+	timezone   string
+	userOffset int // Seconds by which the day/night cycle is shifted
+	mode       DeviceMode
+
+	// Monotonically increasing ID sent out with update messages
+	awsVersion int
+
+	// Values reported by the device
+	reported deviceReported
 }
 
 type msgUnparsed struct {
