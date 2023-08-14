@@ -349,10 +349,11 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	r.Timezone = d.timezone
 	r.UserOffset = int(sunriseD.Seconds()) // user_offset doesn't actually get used by the Plantcube
 	var err error
-	r.TotalOffset, err = calcTotalOffset(d.timezone, sunriseD)
+	r.TotalOffset, err = calcTotalOffset(d.timezone, time.Now(), sunriseD)
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %d", err)
 	}
+	log.Info.Printf("totalOffset %d sec", r.TotalOffset)
 	r.Mode = d.mode
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
@@ -362,16 +363,30 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	return &msg, nil
 }
 
-func calcTotalOffset(tz string, sunrise time.Duration) (int, error) {
+func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error) {
 	// The total_offset is one day minus sunrise _plus_ the timezone offset
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
 		return 0, fmt.Errorf("unable to load zone '%s': %v", tz, err)
 	}
-	_, current_offset := time.Now().In(loc).Zone()
+	_, current_offset := t.In(loc).Zone()
 	totalOffset := int((24*time.Hour - sunrise).Seconds()) + current_offset
 
-	log.Info.Printf("totalOffset %d sec", totalOffset)
+	// Total offset isn't allowed to be >=86400 (the Plantcube
+	// checks this). With a sunrise of 07:00, any timezone further
+	// east than UTC+7 will produce a value>86400. I could only
+	// check stuff in one timezone (Europe/Berlin), but did do a
+	// bunch of tests to try different behaviours, including
+	// setting the start of day to 23:30 and to 00:30. When
+	// setting sunrise to anything later than 18:00 in the app,
+	// it's clamped to 18:00, but times as early as 00:30 are
+	// fine. This appears to be an app thing, though - the correct
+	// settings go to the device.
+	//
+	// In any event, for the purpose of not exceeding 86400, a
+	// plain mod appears to be adequate.
+	totalOffset %= 86400
+
 	return totalOffset, nil
 }
 
