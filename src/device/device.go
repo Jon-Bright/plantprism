@@ -198,22 +198,6 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	return nil
 }
 
-// Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
-type msgAglMode struct {
-	PrevMode *DeviceMode `json:"prev_mode"`
-	Mode     *DeviceMode
-	Trigger  *ModeTrigger
-}
-
-func (d *Device) processAglMode(msg *msgUnparsed) error {
-	m, err := parseAglMode(msg)
-	if err != nil {
-		return err
-	}
-	_ = m
-	return nil
-}
-
 // Example: {"version":7, "format": "binary" }
 type msgAglRecipeGet struct {
 	Version *int
