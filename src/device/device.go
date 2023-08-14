@@ -1,11 +1,13 @@
 package device
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lupguo/go-render/render"
+	"io"
 	"strings"
 	"time"
 )
@@ -223,4 +225,18 @@ func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error)
 	totalOffset %= 86400
 
 	return totalOffset, nil
+}
+
+func pickyUnmarshal(data []byte, v any) error {
+	d := json.NewDecoder(bytes.NewReader(data))
+	d.DisallowUnknownFields()
+	err := d.Decode(v)
+	if err != nil {
+		return err
+	}
+	// The data should be one object and nothing more
+	if t, err := d.Token(); err != io.EOF {
+		return fmt.Errorf("trailing data after decode: %T / %v, err %w", t, t, err)
+	}
+	return nil
 }
