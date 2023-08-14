@@ -63,15 +63,22 @@ func InitFlags() {
 }
 
 func ProcessFlags() error {
-	t, err := time.Parse("15:04", sunriseTimeStr)
+	sunriseD, err := parseSunriseToDuration(sunriseTimeStr)
 	if err != nil {
-		return fmt.Errorf("unable to parse sunrise '%s': %v", sunriseTimeStr, err)
+		return err
 	}
-	zero, _ := time.Parse("15:04", "00:00") // This isn't going to error out
-	sunriseD = t.Sub(zero)
 	log.Info.Printf("Sunrise at %02d:%02d", sunriseD/time.Hour, (sunriseD%time.Hour)/time.Minute)
 
 	return nil
+}
+
+func parseSunriseToDuration(sunrise string) (time.Duration, error) {
+	t, err := time.Parse("15:04", sunrise)
+	if err != nil {
+		return 0, fmt.Errorf("unable to parse sunrise '%s': %v", sunrise, err)
+	}
+	zero, _ := time.Parse("15:04", "00:00") // This isn't going to error out
+	return t.Sub(zero), nil
 }
 
 func instantiateDevice(id string, c paho.Client) (*Device, error) {
