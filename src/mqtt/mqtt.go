@@ -49,7 +49,7 @@ func addCACert(opts *paho.ClientOptions, caCert string) (*paho.ClientOptions, er
 	// Read in the cert file
 	certs, err := ioutil.ReadFile(caCert)
 	if err != nil {
-		return nil, fmt.Errorf("failed to append %q to root CAs: %v", caCert, err)
+		return nil, fmt.Errorf("failed to append %q to root CAs: %w", caCert, err)
 	}
 
 	// Append our cert to the system pool
@@ -110,7 +110,7 @@ func (m *MQTT) Subscribe(topic string, handler paho.MessageHandler) error {
 	token.Wait()
 	err := token.Error()
 	if err != nil {
-		return fmt.Errorf("subscribe failed for topic '%s': %v", topic, err)
+		return fmt.Errorf("subscribe failed for topic '%s': %w", topic, err)
 	}
 	m.log.Info.Printf("Subscribed to '%s'", topic)
 	return nil

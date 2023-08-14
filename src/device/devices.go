@@ -75,7 +75,7 @@ func ProcessFlags() error {
 func parseSunriseToDuration(sunrise string) (time.Duration, error) {
 	t, err := time.Parse("15:04", sunrise)
 	if err != nil {
-		return 0, fmt.Errorf("unable to parse sunrise '%s': %v", sunrise, err)
+		return 0, fmt.Errorf("unable to parse sunrise '%s': %w", sunrise, err)
 	}
 	zero, _ := time.Parse("15:04", "00:00") // This isn't going to error out
 	return t.Sub(zero), nil

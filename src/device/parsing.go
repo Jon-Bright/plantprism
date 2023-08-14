@@ -17,7 +17,7 @@ func pickyUnmarshal(data []byte, v any) error {
 	}
 	// The data should be one object and nothing more
 	if t, err := d.Token(); err != io.EOF {
-		return fmt.Errorf("trailing data after decode: %T / %v, err %v", t, t, err)
+		return fmt.Errorf("trailing data after decode: %T / %v, err %w", t, t, err)
 	}
 	return nil
 }

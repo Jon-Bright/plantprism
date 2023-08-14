@@ -167,13 +167,13 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		err = errors.New("no handler found")
 	}
 	if err != nil {
-		return fmt.Errorf("failed parsing prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
+		return fmt.Errorf("failed parsing prefix '%s', event '%s': %w", msg.prefix, msg.event, err)
 	}
 
 	if replies != nil {
 		err = d.sendReplies(replies)
 		if err != nil {
-			return fmt.Errorf("failed reply for prefix '%s', event '%s': %v", msg.prefix, msg.event, err)
+			return fmt.Errorf("failed reply for prefix '%s', event '%s': %w", msg.prefix, msg.event, err)
 		}
 	}
 
@@ -184,7 +184,7 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	for _, r := range replies {
 		b, err := json.Marshal(r)
 		if err != nil {
-			return fmt.Errorf("failed marshalling '%s': %v", render.Render(r), err)
+			return fmt.Errorf("failed marshalling '%s': %w", render.Render(r), err)
 		}
 		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.id)
 		token := d.mqttClient.Publish(topic, 0, false, b)
@@ -192,7 +192,7 @@ func (d *Device) sendReplies(replies []msgReply) error {
 			return errors.New("timeout publishing MQTT msg")
 		}
 		if token.Error() != nil {
-			return fmt.Errorf("failed publishing MQTT message: %v", err)
+			return fmt.Errorf("failed publishing MQTT message: %w", err)
 		}
 	}
 	return nil
@@ -351,7 +351,7 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	var err error
 	r.TotalOffset, err = calcTotalOffset(d.timezone, time.Now(), sunriseD)
 	if err != nil {
-		return nil, fmt.Errorf("total offset calculation failed: %d", err)
+		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}
 	log.Info.Printf("totalOffset %d sec", r.TotalOffset)
 	r.Mode = d.mode
@@ -367,7 +367,7 @@ func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error)
 	// The total_offset is one day minus sunrise _plus_ the timezone offset
 	loc, err := time.LoadLocation(tz)
 	if err != nil {
-		return 0, fmt.Errorf("unable to load zone '%s': %v", tz, err)
+		return 0, fmt.Errorf("unable to load zone '%s': %w", tz, err)
 	}
 	_, current_offset := t.In(loc).Zone()
 	totalOffset := int((24*time.Hour - sunrise).Seconds()) + current_offset
