@@ -122,10 +122,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// Simple update, two values, both with the current timestamp
 			d: Device{
 				clientToken: "12345678",
-				cooling:     true,
-				coolingT:    ts,
-				tempA:       22.31,
-				tempAT:      ts,
+				cooling:     valueWithTimestamp[bool]{true, ts},
+				tempA:       valueWithTimestamp[float64]{22.31, ts},
 			},
 			omitClientToken: false,
 			want: `{"state":{"reported":` +
@@ -138,10 +136,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// Update with an old timestamp for one value, which should be omitted
 			d: Device{
 				clientToken: "12345678",
-				cooling:     true,
-				coolingT:    ts,
-				tempA:       22.31,
-				tempAT:      tsOld,
+				cooling:     valueWithTimestamp[bool]{true, ts},
+				tempA:       valueWithTimestamp[float64]{22.31, tsOld},
 			},
 			omitClientToken: false,
 			want: `{"state":{"reported":` +
@@ -152,50 +148,32 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		}, {
 			// Complete update
 			d: Device{
-				clientToken:   "12345678",
-				connected:     true,
-				connectedT:    ts,
-				cooling:       true,
-				coolingT:      ts,
-				door:          true,
-				doorT:         ts,
-				ec:            1234,
-				ecT:           ts,
-				firmwareNCU:   int(tsOld.Unix()),
-				firmwareNCUT:  ts,
-				humidA:        80,
-				humidAT:       ts,
-				humidB:        70,
-				humidBT:       ts,
-				lightA:        true,
-				lightAT:       ts,
-				lightB:        true,
-				lightBT:       ts,
-				recipeID:      int(tsOld.Unix()),
-				recipeIDT:     ts,
-				tankLevel:     2,
-				tankLevelT:    ts,
-				tankLevelRaw:  2,
-				tankLevelRawT: ts,
-				tempA:         22.31,
-				tempAT:        ts,
-				tempB:         23.45,
-				tempBT:        ts,
-				tempTank:      24.56,
-				tempTankT:     ts,
-				totalOffset:   68040,
-				totalOffsetT:  ts,
-				valve:         2,
-				valveT:        ts,
-				wifiLevel:     2,
-				wifiLevelT:    ts,
+				clientToken:  "12345678",
+				connected:    valueWithTimestamp[bool]{true, ts},
+				cooling:      valueWithTimestamp[bool]{true, ts},
+				door:         valueWithTimestamp[bool]{true, ts},
+				ec:           valueWithTimestamp[int]{1234, ts},
+				firmwareNCU:  valueWithTimestamp[int]{int(tsOld.Unix()), ts},
+				humidA:       valueWithTimestamp[int]{80, ts},
+				humidB:       valueWithTimestamp[int]{70, ts},
+				lightA:       valueWithTimestamp[bool]{true, ts},
+				lightB:       valueWithTimestamp[bool]{true, ts},
+				recipeID:     valueWithTimestamp[int]{int(tsOld.Unix()), ts},
+				tankLevel:    valueWithTimestamp[int]{2, ts},
+				tankLevelRaw: valueWithTimestamp[int]{2, ts},
+				tempA:        valueWithTimestamp[float64]{22.31, ts},
+				tempB:        valueWithTimestamp[float64]{23.45, ts},
+				tempTank:     valueWithTimestamp[float64]{24.56, ts},
+				totalOffset:  valueWithTimestamp[int]{68040, ts},
+				valve:        valueWithTimestamp[ValveState]{ValveClosed, ts},
+				wifiLevel:    valueWithTimestamp[int]{2, ts},
 			},
 			want: `{"state":{"reported":` +
 				`{"connected":true,"cooling":true,"door":true,"ec":1234,` +
 				`"firmware_ncu":1691777920,"humid_a":80,"humid_b":70,"light_a":true,` +
 				`"light_b":true,"recipe_id":1691777920,"tank_level":2,` +
 				`"tank_level_raw":2,"temp_a":22.31,"temp_b":23.45,"temp_tank":24.56,` +
-				`"total_offset":68040,"valve":2,"wifi_level":2}},` +
+				`"total_offset":68040,"valve":4,"wifi_level":2}},` +
 				`"metadata":{"reported":` +
 				`{"connected":{"timestamp":1691777926},` +
 				`"cooling":{"timestamp":1691777926},"door":{"timestamp":1691777926},` +
@@ -215,12 +193,9 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 			// agl/prod update, no client token. Also two old values.
 			d: Device{
 				clientToken: "12345678",
-				cooling:     true,
-				coolingT:    tsOld,
-				ec:          1234,
-				ecT:         ts,
-				tempA:       22.31,
-				tempAT:      tsOld,
+				cooling:     valueWithTimestamp[bool]{true, tsOld},
+				ec:          valueWithTimestamp[int]{1234, ts},
+				tempA:       valueWithTimestamp[float64]{22.31, tsOld},
 			},
 			omitClientToken: true,
 			want: `{"state":{"reported":` +

@@ -138,68 +138,52 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		return nil, errors.New("unexpected EC reported in AWS update")
 	}
 	if r.Cooling != nil {
-		d.cooling = *r.Cooling
-		d.coolingT = t
+		d.cooling.update(*r.Cooling, t)
 	}
 	if r.Door != nil {
-		d.door = *r.Door
-		d.doorT = t
+		d.door.update(*r.Door, t)
 	}
 	if r.FirmwareNCU != nil {
-		d.firmwareNCU = *r.FirmwareNCU
-		d.firmwareNCUT = t
+		d.firmwareNCU.update(*r.FirmwareNCU, t)
 	}
 	if r.HumidA != nil {
-		d.humidA = *r.HumidA
-		d.humidAT = t
+		d.humidA.update(*r.HumidA, t)
 	}
 	if r.HumidB != nil {
-		d.humidB = *r.HumidB
-		d.humidBT = t
+		d.humidB.update(*r.HumidB, t)
 	}
 	if r.LightA != nil {
-		d.lightA = *r.LightA
-		d.lightAT = t
+		d.lightA.update(*r.LightA, t)
 	}
 	if r.LightB != nil {
-		d.lightB = *r.LightB
-		d.lightBT = t
+		d.lightB.update(*r.LightB, t)
 	}
 	if r.RecipeID != nil {
-		d.recipeID = *r.RecipeID
-		d.recipeIDT = t
+		d.recipeID.update(*r.RecipeID, t)
 	}
 	if r.TankLevel != nil {
-		d.tankLevel = *r.TankLevel
-		d.tankLevelT = t
+		d.tankLevel.update(*r.TankLevel, t)
 	}
 	if r.TankLevelRaw != nil {
-		d.tankLevelRaw = *r.TankLevelRaw
-		d.tankLevelRawT = t
+		d.tankLevelRaw.update(*r.TankLevelRaw, t)
 	}
 	if r.TempA != nil {
-		d.tempA = *r.TempA
-		d.tempAT = t
+		d.tempA.update(*r.TempA, t)
 	}
 	if r.TempB != nil {
-		d.tempB = *r.TempB
-		d.tempBT = t
+		d.tempB.update(*r.TempB, t)
 	}
 	if r.TempTank != nil {
-		d.tempTank = *r.TempTank
-		d.tempTankT = t
+		d.tempTank.update(*r.TempTank, t)
 	}
 	if r.TotalOffset != nil {
-		d.totalOffset = *r.TotalOffset
-		d.totalOffsetT = t
+		d.totalOffset.update(*r.TotalOffset, t)
 	}
 	if r.Valve != nil {
-		d.valve = *r.Valve
-		d.valveT = t
+		d.valve.update(*r.Valve, t)
 	}
 	if r.WifiLevel != nil {
-		d.wifiLevel = *r.WifiLevel
-		d.wifiLevelT = t
+		d.wifiLevel.update(*r.WifiLevel, t)
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, false)
 	return []msgReply{reply}, nil
@@ -259,76 +243,76 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) ms
 	}
 	ts := msgUpdTS{unix}
 
-	if d.connectedT == t {
-		r.Connected = &d.connected
+	if d.connected.wasUpdatedAt(t) {
+		r.Connected = &d.connected.v
 		m.Connected = &ts
 	}
-	if d.coolingT == t {
-		r.Cooling = &d.cooling
+	if d.cooling.wasUpdatedAt(t) {
+		r.Cooling = &d.cooling.v
 		m.Cooling = &ts
 	}
-	if d.doorT == t {
-		r.Door = &d.door
+	if d.door.wasUpdatedAt(t) {
+		r.Door = &d.door.v
 		m.Door = &ts
 	}
-	if d.ecT == t {
-		r.EC = &d.ec
+	if d.ec.wasUpdatedAt(t) {
+		r.EC = &d.ec.v
 		m.EC = &ts
 	}
-	if d.firmwareNCUT == t {
-		r.FirmwareNCU = &d.firmwareNCU
+	if d.firmwareNCU.wasUpdatedAt(t) {
+		r.FirmwareNCU = &d.firmwareNCU.v
 		m.FirmwareNCU = &ts
 	}
-	if d.humidAT == t {
-		r.HumidA = &d.humidA
+	if d.humidA.wasUpdatedAt(t) {
+		r.HumidA = &d.humidA.v
 		m.HumidA = &ts
 	}
-	if d.humidBT == t {
-		r.HumidB = &d.humidB
+	if d.humidB.wasUpdatedAt(t) {
+		r.HumidB = &d.humidB.v
 		m.HumidB = &ts
 	}
-	if d.lightAT == t {
-		r.LightA = &d.lightA
+	if d.lightA.wasUpdatedAt(t) {
+		r.LightA = &d.lightA.v
 		m.LightA = &ts
 	}
-	if d.lightBT == t {
-		r.LightB = &d.lightB
+	if d.lightB.wasUpdatedAt(t) {
+		r.LightB = &d.lightB.v
 		m.LightB = &ts
 	}
-	if d.recipeIDT == t {
-		r.RecipeID = &d.recipeID
+	if d.recipeID.wasUpdatedAt(t) {
+		r.RecipeID = &d.recipeID.v
 		m.RecipeID = &ts
 	}
-	if d.tankLevelT == t {
-		r.TankLevel = &d.tankLevel
+	if d.tankLevel.wasUpdatedAt(t) {
+		r.TankLevel = &d.tankLevel.v
 		m.TankLevel = &ts
 	}
-	if d.tankLevelRawT == t {
-		r.TankLevelRaw = &d.tankLevelRaw
+	if d.tankLevelRaw.wasUpdatedAt(t) {
+		r.TankLevelRaw = &d.tankLevelRaw.v
 		m.TankLevelRaw = &ts
 	}
-	if d.tempAT == t {
-		r.TempA = &d.tempA
+	if d.tempA.wasUpdatedAt(t) {
+		r.TempA = &d.tempA.v
 		m.TempA = &ts
 	}
-	if d.tempBT == t {
-		r.TempB = &d.tempB
+	if d.tempB.wasUpdatedAt(t) {
+		r.TempB = &d.tempB.v
 		m.TempB = &ts
 	}
-	if d.tempTankT == t {
-		r.TempTank = &d.tempTank
+	if d.tempTank.wasUpdatedAt(t) {
+		r.TempTank = &d.tempTank.v
 		m.TempTank = &ts
 	}
-	if d.totalOffsetT == t {
-		r.TotalOffset = &d.totalOffset
+	if d.totalOffset.wasUpdatedAt(t) {
+		r.TotalOffset = &d.totalOffset.v
 		m.TotalOffset = &ts
 	}
-	if d.valveT == t {
-		r.Valve = &d.valve
+	if d.valve.wasUpdatedAt(t) {
+		r.Valve = &d.valve.v
 		m.Valve = &ts
 	}
-	if d.wifiLevelT == t {
-		r.WifiLevel = &d.wifiLevel
+	if d.wifiLevel.wasUpdatedAt(t) {
+		r.WifiLevel = &d.wifiLevel.v
 		m.WifiLevel = &ts
 	}
 	return &msg

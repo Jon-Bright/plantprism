@@ -59,6 +59,20 @@ const (
 	ValveClosed     ValveState = 4
 )
 
+type valueWithTimestamp[T any] struct {
+	v T
+	t time.Time
+}
+
+func (vwt valueWithTimestamp[T]) update(v T, t time.Time) {
+	vwt.v = v
+	vwt.t = t
+}
+
+func (vmt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
+	return vmt.t == t
+}
+
 type Device struct {
 	id         string
 	msgQueue   chan *msgUnparsed
@@ -78,44 +92,26 @@ type Device struct {
 	// timestamps for reporting back in update/accepted messages.
 
 	// Reported values from Agl update messages
-	connected  bool
-	connectedT time.Time
-	ec         int
-	ecT        time.Time
+	connected valueWithTimestamp[bool]
+	ec        valueWithTimestamp[int]
 
 	// Reported values from AWS update messages.
-	cooling       bool
-	coolingT      time.Time
-	door          bool
-	doorT         time.Time
-	firmwareNCU   int
-	firmwareNCUT  time.Time
-	humidA        int
-	humidAT       time.Time
-	humidB        int
-	humidBT       time.Time
-	lightA        bool
-	lightAT       time.Time
-	lightB        bool
-	lightBT       time.Time
-	recipeID      int
-	recipeIDT     time.Time
-	tankLevel     int
-	tankLevelT    time.Time
-	tankLevelRaw  int
-	tankLevelRawT time.Time
-	tempA         float64
-	tempAT        time.Time
-	tempB         float64
-	tempBT        time.Time
-	tempTank      float64
-	tempTankT     time.Time
-	totalOffset   int
-	totalOffsetT  time.Time
-	valve         ValveState
-	valveT        time.Time
-	wifiLevel     int
-	wifiLevelT    time.Time
+	cooling      valueWithTimestamp[bool]
+	door         valueWithTimestamp[bool]
+	firmwareNCU  valueWithTimestamp[int]
+	humidA       valueWithTimestamp[int]
+	humidB       valueWithTimestamp[int]
+	lightA       valueWithTimestamp[bool]
+	lightB       valueWithTimestamp[bool]
+	recipeID     valueWithTimestamp[int]
+	tankLevel    valueWithTimestamp[int]
+	tankLevelRaw valueWithTimestamp[int]
+	tempA        valueWithTimestamp[float64]
+	tempB        valueWithTimestamp[float64]
+	tempTank     valueWithTimestamp[float64]
+	totalOffset  valueWithTimestamp[int]
+	valve        valueWithTimestamp[ValveState]
+	wifiLevel    valueWithTimestamp[int]
 }
 
 type msgUnparsed struct {
