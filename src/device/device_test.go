@@ -7,6 +7,109 @@ import (
 	"time"
 )
 
+func TestCalcTotalOffset(t *testing.T) {
+	// For all of the "Observed from Plantcube comms" values
+	// below: these aren't the exact values observed. When setting
+	// sunrise via the app, the actual offset sent to the device
+	// varies by plus/minus 60s. This might be to smear load, so a
+	// whole bunch of devices don't wake up at the same second, or
+	// it might just be a bug. Either way, we don't need it and
+	// don't replicate it, so these times are rounded.
+	tests := []struct {
+		date     string
+		timezone string
+		sunrise  string
+		want     int
+	}{
+		{
+			// Observed from Plantcube comms
+			date:     "2023-06-30",
+			timezone: "Europe/Berlin",
+			sunrise:  "07:00",
+			want:     68400,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-06-30",
+			timezone: "Europe/Berlin",
+			sunrise:  "06:45",
+			want:     69300,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-06-30",
+			timezone: "Europe/Berlin",
+			sunrise:  "06:30",
+			want:     70200,
+		}, {
+			// Same as previous, but winter time
+			date:     "2023-02-28",
+			timezone: "Europe/Berlin",
+			sunrise:  "06:30",
+			want:     66600,
+		}, {
+			// Same as previous, but one timezone left
+			date:     "2023-02-28",
+			timezone: "Europe/London",
+			sunrise:  "06:30",
+			want:     63000,
+		}, {
+			// Same as previous, but rightmost timezone
+			date:     "2023-02-28",
+			timezone: "Pacific/Kiritimati",
+			sunrise:  "06:30",
+			want:     27000,
+		}, {
+			// Same as previous, but leftmost timezone
+			date:     "2023-02-28",
+			timezone: "Etc/GMT+12",
+			sunrise:  "06:30",
+			want:     19800,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-08-14",
+			timezone: "Europe/Berlin",
+			sunrise:  "20:30",
+			want:     19800,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-08-14",
+			timezone: "Europe/Berlin",
+			sunrise:  "23:30",
+			want:     9000,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-08-14",
+			timezone: "Europe/Berlin",
+			sunrise:  "00:30",
+			want:     5400,
+		}, {
+			// Observed from Plantcube comms
+			date:     "2023-08-14",
+			timezone: "Europe/Berlin",
+			sunrise:  "02:30",
+			want:     84600,
+		},
+	}
+	for _, tc := range tests {
+		sunriseD, err := parseSunriseToDuration(tc.sunrise)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// This date constant could be time.DateOnly, but the
+		// newest golang on RasPi doesn't have that yet.
+		date, err := time.Parse("2006-01-02", tc.date)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := calcTotalOffset(tc.timezone, date, sunriseD)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != tc.want {
+			t.Errorf("calcTotalOffset for tz '%s', sunrise '%s', got %d, want %d", tc.timezone, tc.sunrise, got, tc.want)
+		}
+	}
+}
+
 func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 	ts := time.Unix(1691777926, 0)
 	tsOld := time.Unix(1691777920, 0)
