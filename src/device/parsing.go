@@ -22,27 +22,6 @@ func pickyUnmarshal(data []byte, v any) error {
 	return nil
 }
 
-func parseAglRecipeGet(msg *msgUnparsed) (*msgAglRecipeGet, error) {
-	var m msgAglRecipeGet
-	err := pickyUnmarshal(msg.content, &m)
-	if err != nil {
-		return nil, err
-	}
-	if m.Version == nil {
-		return nil, errors.New("missing version")
-	}
-	if m.Format == nil {
-		return nil, errors.New("missing format")
-	}
-	if *m.Version != 7 {
-		return nil, fmt.Errorf("invalid version: %d", *m.Version)
-	}
-	if *m.Format != "binary" {
-		return nil, fmt.Errorf("invalid format: '%s'", *m.Format)
-	}
-	return &m, nil
-}
-
 func parseAglShadowUpdate(msg *msgUnparsed) (*msgAglShadowUpdate, error) {
 	var m msgAglShadowUpdate
 	err := pickyUnmarshal(msg.content, &m)

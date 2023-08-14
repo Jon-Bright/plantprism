@@ -198,21 +198,6 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	return nil
 }
 
-// Example: {"version":7, "format": "binary" }
-type msgAglRecipeGet struct {
-	Version *int
-	Format  *string
-}
-
-func (d *Device) processAglRecipeGet(msg *msgUnparsed) error {
-	m, err := parseAglRecipeGet(msg)
-	if err != nil {
-		return err
-	}
-	_ = m
-	return nil
-}
-
 // Example: {"state":{"reported":{"connected": true}}}
 // Example: {"state":{"reported":{"ec": 1306}}}
 type msgAglShadowUpdateReported struct {
