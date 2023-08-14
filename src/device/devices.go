@@ -96,6 +96,9 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	d.timezone = timezone
 	d.userOffset = DEFAULT_USER_OFFSET
 	d.mode = ModeDefault
+	if deviceMap == nil {
+		deviceMap = make(map[string]*Device)
+	}
 
 	deviceMap[id] = &d
 
