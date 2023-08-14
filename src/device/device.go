@@ -75,26 +75,26 @@ func (vmt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
 
 type deviceReported struct {
 	// Reported by Agl update messages
-	connected valueWithTimestamp[bool]
-	ec        valueWithTimestamp[int]
+	Connected valueWithTimestamp[bool]
+	EC        valueWithTimestamp[int]
 
 	// Reported by AWS update messages
-	cooling      valueWithTimestamp[bool]
-	door         valueWithTimestamp[bool]
-	firmwareNCU  valueWithTimestamp[int]
-	humidA       valueWithTimestamp[int]
-	humidB       valueWithTimestamp[int]
-	lightA       valueWithTimestamp[bool]
-	lightB       valueWithTimestamp[bool]
-	recipeID     valueWithTimestamp[int]
-	tankLevel    valueWithTimestamp[int]
-	tankLevelRaw valueWithTimestamp[int]
-	tempA        valueWithTimestamp[float64]
-	tempB        valueWithTimestamp[float64]
-	tempTank     valueWithTimestamp[float64]
-	totalOffset  valueWithTimestamp[int]
-	valve        valueWithTimestamp[ValveState]
-	wifiLevel    valueWithTimestamp[int]
+	Cooling      valueWithTimestamp[bool]
+	Door         valueWithTimestamp[bool]
+	FirmwareNCU  valueWithTimestamp[int]
+	HumidA       valueWithTimestamp[int]
+	HumidB       valueWithTimestamp[int]
+	LightA       valueWithTimestamp[bool]
+	LightB       valueWithTimestamp[bool]
+	RecipeID     valueWithTimestamp[int]
+	TankLevel    valueWithTimestamp[int]
+	TankLevelRaw valueWithTimestamp[int]
+	TempA        valueWithTimestamp[float64]
+	TempB        valueWithTimestamp[float64]
+	TempTank     valueWithTimestamp[float64]
+	TotalOffset  valueWithTimestamp[int]
+	Valve        valueWithTimestamp[ValveState]
+	WifiLevel    valueWithTimestamp[int]
 }
 
 type Device struct {

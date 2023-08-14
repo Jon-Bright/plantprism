@@ -143,52 +143,52 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		return nil, errors.New("unexpected EC reported in AWS update")
 	}
 	if r.Cooling != nil {
-		dr.cooling.update(*r.Cooling, t)
+		dr.Cooling.update(*r.Cooling, t)
 	}
 	if r.Door != nil {
-		dr.door.update(*r.Door, t)
+		dr.Door.update(*r.Door, t)
 	}
 	if r.FirmwareNCU != nil {
-		dr.firmwareNCU.update(*r.FirmwareNCU, t)
+		dr.FirmwareNCU.update(*r.FirmwareNCU, t)
 	}
 	if r.HumidA != nil {
-		dr.humidA.update(*r.HumidA, t)
+		dr.HumidA.update(*r.HumidA, t)
 	}
 	if r.HumidB != nil {
-		dr.humidB.update(*r.HumidB, t)
+		dr.HumidB.update(*r.HumidB, t)
 	}
 	if r.LightA != nil {
-		dr.lightA.update(*r.LightA, t)
+		dr.LightA.update(*r.LightA, t)
 	}
 	if r.LightB != nil {
-		dr.lightB.update(*r.LightB, t)
+		dr.LightB.update(*r.LightB, t)
 	}
 	if r.RecipeID != nil {
-		dr.recipeID.update(*r.RecipeID, t)
+		dr.RecipeID.update(*r.RecipeID, t)
 	}
 	if r.TankLevel != nil {
-		dr.tankLevel.update(*r.TankLevel, t)
+		dr.TankLevel.update(*r.TankLevel, t)
 	}
 	if r.TankLevelRaw != nil {
-		dr.tankLevelRaw.update(*r.TankLevelRaw, t)
+		dr.TankLevelRaw.update(*r.TankLevelRaw, t)
 	}
 	if r.TempA != nil {
-		dr.tempA.update(*r.TempA, t)
+		dr.TempA.update(*r.TempA, t)
 	}
 	if r.TempB != nil {
-		dr.tempB.update(*r.TempB, t)
+		dr.TempB.update(*r.TempB, t)
 	}
 	if r.TempTank != nil {
-		dr.tempTank.update(*r.TempTank, t)
+		dr.TempTank.update(*r.TempTank, t)
 	}
 	if r.TotalOffset != nil {
-		dr.totalOffset.update(*r.TotalOffset, t)
+		dr.TotalOffset.update(*r.TotalOffset, t)
 	}
 	if r.Valve != nil {
-		dr.valve.update(*r.Valve, t)
+		dr.Valve.update(*r.Valve, t)
 	}
 	if r.WifiLevel != nil {
-		dr.wifiLevel.update(*r.WifiLevel, t)
+		dr.WifiLevel.update(*r.WifiLevel, t)
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, false)
 	return []msgReply{reply}, nil
@@ -249,76 +249,76 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) ms
 	ts := msgUpdTS{unix}
 	dr := &d.reported
 
-	if dr.connected.wasUpdatedAt(t) {
-		r.Connected = &dr.connected.v
+	if dr.Connected.wasUpdatedAt(t) {
+		r.Connected = &dr.Connected.v
 		m.Connected = &ts
 	}
-	if dr.cooling.wasUpdatedAt(t) {
-		r.Cooling = &dr.cooling.v
+	if dr.Cooling.wasUpdatedAt(t) {
+		r.Cooling = &dr.Cooling.v
 		m.Cooling = &ts
 	}
-	if dr.door.wasUpdatedAt(t) {
-		r.Door = &dr.door.v
+	if dr.Door.wasUpdatedAt(t) {
+		r.Door = &dr.Door.v
 		m.Door = &ts
 	}
-	if dr.ec.wasUpdatedAt(t) {
-		r.EC = &dr.ec.v
+	if dr.EC.wasUpdatedAt(t) {
+		r.EC = &dr.EC.v
 		m.EC = &ts
 	}
-	if dr.firmwareNCU.wasUpdatedAt(t) {
-		r.FirmwareNCU = &dr.firmwareNCU.v
+	if dr.FirmwareNCU.wasUpdatedAt(t) {
+		r.FirmwareNCU = &dr.FirmwareNCU.v
 		m.FirmwareNCU = &ts
 	}
-	if dr.humidA.wasUpdatedAt(t) {
-		r.HumidA = &dr.humidA.v
+	if dr.HumidA.wasUpdatedAt(t) {
+		r.HumidA = &dr.HumidA.v
 		m.HumidA = &ts
 	}
-	if dr.humidB.wasUpdatedAt(t) {
-		r.HumidB = &dr.humidB.v
+	if dr.HumidB.wasUpdatedAt(t) {
+		r.HumidB = &dr.HumidB.v
 		m.HumidB = &ts
 	}
-	if dr.lightA.wasUpdatedAt(t) {
-		r.LightA = &dr.lightA.v
+	if dr.LightA.wasUpdatedAt(t) {
+		r.LightA = &dr.LightA.v
 		m.LightA = &ts
 	}
-	if dr.lightB.wasUpdatedAt(t) {
-		r.LightB = &dr.lightB.v
+	if dr.LightB.wasUpdatedAt(t) {
+		r.LightB = &dr.LightB.v
 		m.LightB = &ts
 	}
-	if dr.recipeID.wasUpdatedAt(t) {
-		r.RecipeID = &dr.recipeID.v
+	if dr.RecipeID.wasUpdatedAt(t) {
+		r.RecipeID = &dr.RecipeID.v
 		m.RecipeID = &ts
 	}
-	if dr.tankLevel.wasUpdatedAt(t) {
-		r.TankLevel = &dr.tankLevel.v
+	if dr.TankLevel.wasUpdatedAt(t) {
+		r.TankLevel = &dr.TankLevel.v
 		m.TankLevel = &ts
 	}
-	if dr.tankLevelRaw.wasUpdatedAt(t) {
-		r.TankLevelRaw = &dr.tankLevelRaw.v
+	if dr.TankLevelRaw.wasUpdatedAt(t) {
+		r.TankLevelRaw = &dr.TankLevelRaw.v
 		m.TankLevelRaw = &ts
 	}
-	if dr.tempA.wasUpdatedAt(t) {
-		r.TempA = &dr.tempA.v
+	if dr.TempA.wasUpdatedAt(t) {
+		r.TempA = &dr.TempA.v
 		m.TempA = &ts
 	}
-	if dr.tempB.wasUpdatedAt(t) {
-		r.TempB = &dr.tempB.v
+	if dr.TempB.wasUpdatedAt(t) {
+		r.TempB = &dr.TempB.v
 		m.TempB = &ts
 	}
-	if dr.tempTank.wasUpdatedAt(t) {
-		r.TempTank = &dr.tempTank.v
+	if dr.TempTank.wasUpdatedAt(t) {
+		r.TempTank = &dr.TempTank.v
 		m.TempTank = &ts
 	}
-	if dr.totalOffset.wasUpdatedAt(t) {
-		r.TotalOffset = &dr.totalOffset.v
+	if dr.TotalOffset.wasUpdatedAt(t) {
+		r.TotalOffset = &dr.TotalOffset.v
 		m.TotalOffset = &ts
 	}
-	if dr.valve.wasUpdatedAt(t) {
-		r.Valve = &dr.valve.v
+	if dr.Valve.wasUpdatedAt(t) {
+		r.Valve = &dr.Valve.v
 		m.Valve = &ts
 	}
-	if dr.wifiLevel.wasUpdatedAt(t) {
-		r.WifiLevel = &dr.wifiLevel.v
+	if dr.WifiLevel.wasUpdatedAt(t) {
+		r.WifiLevel = &dr.WifiLevel.v
 		m.WifiLevel = &ts
 	}
 	return &msg

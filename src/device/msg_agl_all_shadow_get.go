@@ -35,8 +35,8 @@ func (d *Device) processAglShadowGet(msg *msgUnparsed) ([]msgReply, error) {
 }
 
 func (d *Device) getAglShadowGetReply() (msgReply, error) {
-	if d.reported.recipeID.v <= 1 {
-		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.reported.recipeID.v, d.reported.recipeID.t)
+	if d.reported.RecipeID.v <= 1 {
+		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.reported.RecipeID.v, d.reported.RecipeID.t)
 	}
 	if d.timezone == "" {
 		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but timezone is empty")
@@ -54,7 +54,7 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	r.Mode = d.mode
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
-	r.RecipeID = d.reported.recipeID.v
+	r.RecipeID = d.reported.RecipeID.v
 	r.FirmwareNCU = FIXED_FIRMWARE_NCU
 	r.FirmwareMCU = FIXED_FIRMWARE_MCU
 	return &msg, nil
