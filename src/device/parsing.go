@@ -22,20 +22,6 @@ func pickyUnmarshal(data []byte, v any) error {
 	return nil
 }
 
-func parseAglShadowUpdate(msg *msgUnparsed) (*msgAglShadowUpdate, error) {
-	var m msgAglShadowUpdate
-	err := pickyUnmarshal(msg.content, &m)
-	if err != nil {
-		return nil, err
-	}
-	if m.State.Reported.Connected == nil && m.State.Reported.EC == nil {
-		return nil, errors.New("no fields set")
-	}
-	// Never seen them both set at the same time, but there's no
-	// real reason they shouldn't be, so not checking that.
-	return &m, nil
-}
-
 func parseAWSShadowGet(msg *msgUnparsed) (*msgAWSShadowGet, error) {
 	var m msgAWSShadowGet
 	err := pickyUnmarshal(msg.content, &m)

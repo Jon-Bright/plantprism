@@ -198,38 +198,6 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	return nil
 }
 
-// Example: {"state":{"reported":{"connected": true}}}
-// Example: {"state":{"reported":{"ec": 1306}}}
-type msgAglShadowUpdateReported struct {
-	Connected *bool
-	EC        *int
-}
-type msgAglShadowUpdateState struct {
-	Reported msgAglShadowUpdateReported
-}
-type msgAglShadowUpdate struct {
-	State msgAglShadowUpdateState
-}
-
-func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
-	m, err := parseAglShadowUpdate(msg)
-	if err != nil {
-		return nil, err
-	}
-	t := time.Now()
-	r := m.State.Reported
-	if r.Connected != nil {
-		d.connected = *r.Connected
-		d.connectedT = t
-	}
-	if r.EC != nil {
-		d.ec = *r.EC
-		d.ecT = t
-	}
-	reply := d.getAWSUpdateAcceptedReply(t, true)
-	return []msgReply{reply}, nil
-}
-
 func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error) {
 	// The total_offset is one day minus sunrise _plus_ the timezone offset
 	loc, err := time.LoadLocation(tz)
