@@ -1,5 +1,10 @@
 package device
 
+import (
+	"fmt"
+	"time"
+)
+
 // Example: {"reported":{"timezone":"Europe/Berlin","user_offset":25200,"total_offset":68400,"mode":0,"stage":"prod","verbose_reporting":false,"recipe_id":1687013771,"firmware_ncu":1667466618,"firmware_mcu":1667466618}}
 type msgAglShadowGetAcceptedReported struct {
 	Timezone         string     `json:"timezone"`
