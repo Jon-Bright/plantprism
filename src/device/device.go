@@ -198,29 +198,6 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	return nil
 }
 
-// Example: {"label":"MCU_MODE_STATE","timestamp":1687686053,"payload":{"mode":"ECO_MODE","state":"0","layer":"APPLIANCE"}}
-type msgAglEventInfoPayload struct {
-	Mode  *string
-	State *string
-	Layer *string
-}
-
-type msgAglEventInfo struct {
-	Label     *string
-	Timestamp *int
-	Payload   msgAglEventInfoPayload
-}
-
-func (d *Device) processAglEventInfo(msg *msgUnparsed) error {
-	m, err := parseAglEventInfo(msg)
-	if err != nil {
-		return err
-	}
-	log.Info.Printf("Plantcube info, time %s, label '%s', mode '%s', state '%s', layer '%s'", time.Unix(int64(*m.Timestamp), 0).String(), *m.Label, *m.Payload.Mode, *m.Payload.State, *m.Payload.Layer)
-
-	return nil
-}
-
 // Example: {"label":"NCU_SYS_LOG","timestamp":1687329836,"payload":{"error_log":"MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state
 //
 //	timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","function_name":"aws_shadow_grp_handler"}}
@@ -306,61 +283,6 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	}
 	reply := d.getAWSUpdateAcceptedReply(t, true)
 	return []msgReply{reply}, nil
-}
-
-func (d *Device) processAglShadowGet(msg *msgUnparsed) ([]msgReply, error) {
-	// No parsing: the only time we see this, it has no content
-	m, err := d.getAglShadowGetReply()
-	if err != nil {
-		return nil, err
-	}
-	return []msgReply{m}, nil
-}
-
-// Example: {"reported":{"timezone":"Europe/Berlin","user_offset":25200,"total_offset":68400,"mode":0,"stage":"prod","verbose_reporting":false,"recipe_id":1687013771,"firmware_ncu":1667466618,"firmware_mcu":1667466618}}
-type msgAglShadowGetAcceptedReported struct {
-	Timezone         string     `json:"timezone"`
-	UserOffset       int        `json:"user_offset"`
-	TotalOffset      int        `json:"total_offset"`
-	Mode             DeviceMode `json:"mode"`
-	Stage            string     `json:"stage"`
-	VerboseReporting bool       `json:"verbose_reporting"`
-	RecipeID         int        `json:"recipe_id"`
-	FirmwareNCU      int        `json:"firmware_ncu"`
-	FirmwareMCU      int        `json:"firmware_mcu"`
-}
-type msgAglShadowGetAccepted struct {
-	Reported msgAglShadowGetAcceptedReported `json:"reported"`
-}
-
-func (m *msgAglShadowGetAccepted) topic() string {
-	return MQTT_TOPIC_AGL_GET_ACCEPTED
-}
-
-func (d *Device) getAglShadowGetReply() (msgReply, error) {
-	if d.recipeID <= 1 {
-		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.recipeID, d.recipeIDT)
-	}
-	if d.timezone == "" {
-		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but timezone is empty")
-	}
-	msg := msgAglShadowGetAccepted{}
-	r := &msg.Reported
-	r.Timezone = d.timezone
-	r.UserOffset = int(sunriseD.Seconds()) // user_offset doesn't actually get used by the Plantcube
-	var err error
-	r.TotalOffset, err = calcTotalOffset(d.timezone, time.Now(), sunriseD)
-	if err != nil {
-		return nil, fmt.Errorf("total offset calculation failed: %w", err)
-	}
-	log.Info.Printf("totalOffset %d sec", r.TotalOffset)
-	r.Mode = d.mode
-	r.Stage = FIXED_STAGE
-	r.VerboseReporting = FIXED_VERBOSE_REPORTING
-	r.RecipeID = d.recipeID
-	r.FirmwareNCU = FIXED_FIRMWARE_NCU
-	r.FirmwareMCU = FIXED_FIRMWARE_MCU
-	return &msg, nil
 }
 
 func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error) {
