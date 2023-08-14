@@ -22,22 +22,6 @@ func pickyUnmarshal(data []byte, v any) error {
 	return nil
 }
 
-func parseAWSShadowGet(msg *msgUnparsed) (*msgAWSShadowGet, error) {
-	var m msgAWSShadowGet
-	err := pickyUnmarshal(msg.content, &m)
-	if err != nil {
-		return nil, err
-	}
-	if m.ClientToken == nil {
-		return nil, errors.New("no ClientToken")
-	} else if len(*m.ClientToken) < 8 {
-		return nil, fmt.Errorf("ClientToken '%s' too short", *m.ClientToken)
-	}
-	// Could theoretically check if it's hex, which the
-	// Plantcube's all are, but do we care?
-	return &m, nil
-}
-
 func (m *msgAWSShadowUpdateReported) empty() bool {
 	return m.Cooling == nil && m.Door == nil && m.FirmwareNCU == nil && m.HumidA == nil && m.HumidB == nil &&
 		m.LightA == nil && m.LightB == nil && m.RecipeID == nil && m.TankLevel == nil &&

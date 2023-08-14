@@ -225,21 +225,6 @@ func calcTotalOffset(tz string, t time.Time, sunrise time.Duration) (int, error)
 	return totalOffset, nil
 }
 
-// Example: {"clientToken":"5975bc44"}
-type msgAWSShadowGet struct {
-	ClientToken *string
-}
-
-func (d *Device) processAWSShadowGet(msg *msgUnparsed) error {
-	m, err := parseAWSShadowGet(msg)
-	if err != nil {
-		return err
-	}
-	// TODO: Actually process this.
-	_ = m
-	return nil
-}
-
 // Example: {"clientToken":"5975bc44","state":{"reported":{"humid_b":75,"temp_a":22.99,"temp_b":24.19}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"temp_a":22.69,"firmware_ncu":1667466618,"door":false,"cooling":true,"total_offset":69299,"light_a":false,"light_b":false}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"wifi_level":0}}}
