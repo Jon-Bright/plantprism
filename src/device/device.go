@@ -198,30 +198,6 @@ func (d *Device) sendReplies(replies []msgReply) error {
 	return nil
 }
 
-// Example: {"label":"NCU_SYS_LOG","timestamp":1687329836,"payload":{"error_log":"MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state
-//
-//	timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","function_name":"aws_shadow_grp_handler"}}
-type msgAglEventWarningPayload struct {
-	ErrorLog     *string `json:"error_log"`
-	FunctionName *string `json:"function_name"`
-}
-
-type msgAglEventWarning struct {
-	Label     *string
-	Timestamp *int
-	Payload   msgAglEventWarningPayload
-}
-
-func (d *Device) processAglEventWarning(msg *msgUnparsed) error {
-	m, err := parseAglEventWarning(msg)
-	if err != nil {
-		return err
-	}
-	log.Warn.Printf("Plantcube warning, time %s, label '%s', function '%s', log '%s'", time.Unix(int64(*m.Timestamp), 0).String(), *m.Label, *m.Payload.FunctionName, *m.Payload.ErrorLog)
-
-	return nil
-}
-
 // Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
 type msgAglMode struct {
 	PrevMode *DeviceMode `json:"prev_mode"`
