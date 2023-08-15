@@ -85,6 +85,7 @@ func main() {
 		log.Critical.Fatalf("Device flags: %v", err)
 	}
 	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
+	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
 
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
