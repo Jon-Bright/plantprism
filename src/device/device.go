@@ -65,7 +65,7 @@ type valueWithTimestamp[T any] struct {
 	Time  time.Time
 }
 
-func (vwt valueWithTimestamp[T]) update(v T, t time.Time) {
+func (vwt *valueWithTimestamp[T]) update(v T, t time.Time) {
 	vwt.Value = v
 	vwt.Time = t
 }
