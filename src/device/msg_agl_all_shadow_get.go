@@ -50,12 +50,12 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}
-	log.Info.Printf("totalOffset %d sec", r.TotalOffset)
 	r.Mode = d.Mode
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
 	r.RecipeID = d.Reported.RecipeID.Value
 	r.FirmwareNCU = FIXED_FIRMWARE_NCU
 	r.FirmwareMCU = FIXED_FIRMWARE_MCU
+	log.Info.Printf("Reporting timezone '%s', userOffset %ds, totalOffset %ds, mode %d, recipe ID %d", r.Timezone, r.UserOffset, r.TotalOffset, r.Mode, r.RecipeID)
 	return &msg, nil
 }
