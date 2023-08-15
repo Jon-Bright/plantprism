@@ -62,7 +62,8 @@ func InitFlags() {
 }
 
 func ProcessFlags() error {
-	sunriseD, err := parseSunriseToDuration(sunriseTimeStr)
+	var err error
+	sunriseD, err = parseSunriseToDuration(sunriseTimeStr)
 	if err != nil {
 		return err
 	}
