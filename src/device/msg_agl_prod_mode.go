@@ -42,6 +42,7 @@ func (d *Device) processAglMode(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
+	// TODO : Process this
 	_ = m
 	return nil
 }

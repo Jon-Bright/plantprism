@@ -37,6 +37,7 @@ func (d *Device) processAglRecipeGet(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
+	// TODO : Process this
 	_ = m
 	return nil
 }
