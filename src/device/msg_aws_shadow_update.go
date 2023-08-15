@@ -21,8 +21,9 @@ const (
 // Example: {"clientToken":"5975bc44","state":{"reported":{"door":true}}}
 
 type msgAWSShadowUpdateReported struct {
-	// `Connected` and `EC` shouldn't be reported by $aws/.../update,
-	// but they're here because they appear in .../update/accepted
+	// `Mode`, `Connected` and `EC` shouldn't be reported by
+	// $aws/.../update, but they're here because they appear in
+	// .../update/accepted
 	Connected    *bool       `json:"connected,omitempty"`
 	Cooling      *bool       `json:"cooling,omitempty"`
 	Door         *bool       `json:"door,omitempty"`
@@ -32,6 +33,7 @@ type msgAWSShadowUpdateReported struct {
 	HumidB       *int        `json:"humid_b,omitempty"`
 	LightA       *bool       `json:"light_a,omitempty"`
 	LightB       *bool       `json:"light_b,omitempty"`
+	Mode         *DeviceMode `json:"mode,omitempty"`
 	RecipeID     *int        `json:"recipe_id,omitempty"`
 	TankLevel    *int        `json:"tank_level,omitempty"`
 	TankLevelRaw *int        `json:"tank_level_raw,omitempty"`
@@ -136,6 +138,9 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	t := time.Now()
 	r := &m.State.Reported
 	dr := &d.Reported
+	if r.Mode != nil {
+		return nil, errors.New("unexpected Mode reported in AWS update")
+	}
 	if r.Connected != nil {
 		return nil, errors.New("unexpected Connected reported in AWS update")
 	}
@@ -204,6 +209,7 @@ type msgAWSShadowUpdateAcceptedMetadataReported struct {
 	HumidB       *msgUpdTS `json:"humid_b,omitempty"`
 	LightA       *msgUpdTS `json:"light_a,omitempty"`
 	LightB       *msgUpdTS `json:"light_b,omitempty"`
+	Mode         *msgUpdTS `json:"mode,omitempty"`
 	RecipeID     *msgUpdTS `json:"recipe_id,omitempty"`
 	TankLevel    *msgUpdTS `json:"tank_level,omitempty"`
 	TankLevelRaw *msgUpdTS `json:"tank_level_raw,omitempty"`
@@ -284,6 +290,10 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) ms
 	if dr.LightB.wasUpdatedAt(t) {
 		r.LightB = &dr.LightB.Value
 		m.LightB = &ts
+	}
+	if dr.Mode.wasUpdatedAt(t) {
+		r.Mode = &dr.Mode.Value
+		m.Mode = &ts
 	}
 	if dr.RecipeID.wasUpdatedAt(t) {
 		r.RecipeID = &dr.RecipeID.Value

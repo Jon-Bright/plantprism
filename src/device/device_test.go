@@ -27,6 +27,7 @@ func TestMarshalUnmarshal(t *testing.T) {
   "ID": "a8d39911-7955-47d3-981b-fbd9d52f9221",
   "ClientToken": "12345678",
   "Reported": {
+    "Mode": {},
     "Connected": {},
     "EC": {},
     "Cooling": {
@@ -263,7 +264,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				`"valve":{"timestamp":1691777926},"wifi_level":{"timestamp":1691777926}` +
 				`}},"version":1,"timestamp":1691777926,"clientToken":"12345678"}`,
 		}, {
-			// agl/prod update, no client token. Also two old values.
+			// agl/prod/.../shadow/update, no client token. Also two old values.
 			d: Device{
 				ClientToken: "12345678",
 				Reported: deviceReported{
@@ -277,6 +278,22 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				`{"ec":1234}},` +
 				`"metadata":{"reported":` +
 				`{"ec":{"timestamp":1691777926}}},` +
+				`"version":1,"timestamp":1691777926}`,
+		}, {
+			// agl/prod/.../mode, no client token. Also two old values.
+			d: Device{
+				ClientToken: "12345678",
+				Reported: deviceReported{
+					LightA:   valueWithTimestamp[bool]{true, tsOld},
+					Mode:     valueWithTimestamp[DeviceMode]{ModeCinema, ts},
+					TempTank: valueWithTimestamp[float64]{22.31, tsOld},
+				},
+			},
+			omitClientToken: true,
+			want: `{"state":{"reported":` +
+				`{"mode":8}},` +
+				`"metadata":{"reported":` +
+				`{"mode":{"timestamp":1691777926}}},` +
 				`"version":1,"timestamp":1691777926}`,
 		},
 	}

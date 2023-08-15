@@ -3,6 +3,7 @@ package device
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 // Example: {"prev_mode": 0,"mode": 8, "trigger": 1}
@@ -42,8 +43,11 @@ func (d *Device) processAglMode(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
+	if *m.PrevMode != d.Reported.Mode.Value {
+		log.Warn.Printf("Previous mode %v doesn't match our previous mode %v, accepting mode change anyway", *m.PrevMode, d.Reported.Mode.Value)
+	}
 	log.Info.Printf("Device mode changed from %v to %v, trigger %v", *m.PrevMode, *m.Mode, *m.Trigger)
-	d.Mode = *m.Mode
+	d.Reported.Mode.update(*m.Mode, time.Now())
 	// TODO : In response to some mode changes, we should display
 	// stuff for the end user (e.g. during cleaning, tank pumping,
 	// etc.)

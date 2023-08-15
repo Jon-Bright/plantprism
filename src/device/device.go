@@ -30,6 +30,9 @@ const (
 )
 
 type deviceReported struct {
+	// Reported by Agl mode messages
+	Mode valueWithTimestamp[DeviceMode]
+
 	// Reported by Agl update messages
 	Connected valueWithTimestamp[bool]
 	EC        valueWithTimestamp[int]
@@ -62,8 +65,7 @@ type Device struct {
 	ClientToken string `json:",omitempty"`
 
 	// Configuration
-	Timezone string     `json:",omitempty"`
-	Mode     DeviceMode `json:",omitempty"`
+	Timezone string `json:",omitempty"`
 
 	// Monotonically increasing ID sent out with update messages
 	AWSVersion int `json:",omitempty"`

@@ -50,7 +50,7 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}
-	r.Mode = d.Mode
+	r.Mode = d.Reported.Mode.Value
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
 	r.RecipeID = d.Reported.RecipeID.Value

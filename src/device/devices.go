@@ -99,9 +99,10 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 			return nil, fmt.Errorf("restored device has incorrect ID, want '%s', got '%s'", id, d.ID)
 		}
 	} else {
+		t := time.Now()
 		d.Timezone = timezone
-		d.Mode = ModeDefault
-		d.Reported.RecipeID.update(1234, time.Now()) // TODO: use an actual recipe ID/timestamp
+		d.Reported.Mode.update(ModeDefault, t)
+		d.Reported.RecipeID.update(1234, t) // TODO: use an actual recipe ID
 		err := d.Save()
 		if err != nil {
 			return nil, fmt.Errorf("device id '%s', failed to save defaults: %v", id, err)
