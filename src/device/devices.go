@@ -100,7 +100,7 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	} else {
 		d.Timezone = timezone
 		d.Mode = ModeDefault
-		d.Reported.RecipeID.Value = 1234 // TODO: use an actual recipe ID/timestamp
+		d.Reported.RecipeID.update(1234, time.Now()) // TODO: use an actual recipe ID/timestamp
 		err := d.Save()
 		if err != nil {
 			return nil, fmt.Errorf("device id '%s', failed to save defaults: %v", id, err)
