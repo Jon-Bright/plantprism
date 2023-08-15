@@ -14,8 +14,7 @@ import (
 const (
 	// We sometimes see sprees of 3 or 4 messages. This should be
 	// enough buffer to prevent blocking in those situations.
-	MSG_QUEUE_BUFFER    = 5
-	DEFAULT_USER_OFFSET = 7 * 60 * 60 // Sun rises at 7am
+	MSG_QUEUE_BUFFER = 5
 )
 
 type deviceList []string
@@ -86,16 +85,28 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 		return nil, fmt.Errorf("device ID '%s' is not an allowed device", id)
 	}
 	d := Device{}
-	d.id = id
+	d.ID = id
 	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
 	d.mqttClient = c
 
-	// TODO: should load previous state here and only set defaults
-	// if there's no previous state.
+	if d.IsSaved() {
+		err := d.RestoreFromFile()
+		if err != nil {
+			return nil, fmt.Errorf("restore from file failed for device ID '%s': %v", id, err)
+		}
+		if d.ID != id {
+			return nil, fmt.Errorf("restored device has incorrect ID, want '%s', got '%s'", id, d.ID)
+		}
+	} else {
+		d.Timezone = timezone
+		d.Mode = ModeDefault
+		d.Reported.RecipeID.Value = 1234 // TODO: use an actual recipe ID/timestamp
+		err := d.Save()
+		if err != nil {
+			return nil, fmt.Errorf("device id '%s', failed to save defaults: %v", id, err)
+		}
+	}
 
-	d.timezone = timezone
-	d.userOffset = DEFAULT_USER_OFFSET
-	d.mode = ModeDefault
 	if deviceMap == nil {
 		deviceMap = make(map[string]*Device)
 	}

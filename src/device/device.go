@@ -8,6 +8,7 @@ import (
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lupguo/go-render/render"
 	"io"
+	"os"
 	"strings"
 	"time"
 )
@@ -60,17 +61,31 @@ const (
 )
 
 type valueWithTimestamp[T any] struct {
-	v T
-	t time.Time
+	Value T
+	Time  time.Time
 }
 
 func (vwt valueWithTimestamp[T]) update(v T, t time.Time) {
-	vwt.v = v
-	vwt.t = t
+	vwt.Value = v
+	vwt.Time = t
 }
 
-func (vmt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
-	return vmt.t == t
+func (vwt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
+	return vwt.Time == t
+}
+
+func (vwt valueWithTimestamp[T]) MarshalJSON() ([]byte, error) {
+	if vwt.Time.IsZero() {
+		return []byte("{}"), nil
+	}
+	s := struct {
+		Value T
+		Time  time.Time
+	}{
+		vwt.Value,
+		vwt.Time,
+	}
+	return json.Marshal(&s)
 }
 
 type deviceReported struct {
@@ -98,22 +113,22 @@ type deviceReported struct {
 }
 
 type Device struct {
-	id         string
+	ID string `json:",omitempty"`
+
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
 
-	clientToken string
+	ClientToken string `json:",omitempty"`
 
 	// Configuration
-	timezone   string
-	userOffset int // Seconds by which the day/night cycle is shifted
-	mode       DeviceMode
+	Timezone string     `json:",omitempty"`
+	Mode     DeviceMode `json:",omitempty"`
 
 	// Monotonically increasing ID sent out with update messages
-	awsVersion int
+	AWSVersion int `json:",omitempty"`
 
 	// Values reported by the device
-	reported deviceReported
+	Reported deviceReported `json:",omitempty"`
 }
 
 type msgUnparsed struct {
@@ -128,6 +143,47 @@ type msgUpdTS struct {
 
 type msgReply interface {
 	topic() string
+}
+
+func (d *Device) saveName() string {
+	return fmt.Sprintf("plantcube-%s.json", d.ID)
+}
+
+// IsSaved returns whether a file exists with saved metadata for the
+// device.
+func (d *Device) IsSaved() bool {
+	sn := d.saveName()
+	_, err := os.Stat(sn)
+	return !errors.Is(err, os.ErrNotExist)
+}
+
+// RestoreFromFile loads all the device's metadata from a file,
+// returning any error that happens while doing that.
+func (d *Device) RestoreFromFile() error {
+	sn := d.saveName()
+	m, err := os.ReadFile(sn)
+	if err != nil {
+		return fmt.Errorf("failed to read '%s': %w", sn, err)
+	}
+	err = pickyUnmarshal(m, d)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal '%s': %w", m, err)
+	}
+	return nil
+}
+
+// Save saves the device's metadata to a file.
+func (d *Device) Save() error {
+	b, err := json.MarshalIndent(d, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal device '%s': %w", d.ID, err)
+	}
+	sn := d.saveName()
+	err = os.WriteFile(sn, b, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write '%s': %w", sn, err)
+	}
+	return nil
 }
 
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
@@ -186,7 +242,7 @@ func (d *Device) sendReplies(replies []msgReply) error {
 		if err != nil {
 			return fmt.Errorf("failed marshalling '%s': %w", render.Render(r), err)
 		}
-		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.id)
+		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.ID)
 		token := d.mqttClient.Publish(topic, 0, false, b)
 		if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
 			return errors.New("timeout publishing MQTT msg")

@@ -3,9 +3,76 @@ package device
 import (
 	"encoding/json"
 	"github.com/lupguo/go-render/render"
+	"reflect"
 	"testing"
 	"time"
 )
+
+func TestMarshalUnmarshal(t *testing.T) {
+	ts := time.Unix(1691777926, 0)
+	tests := []struct {
+		d    Device
+		want string
+	}{
+		{
+			d: Device{
+				ID:          "a8d39911-7955-47d3-981b-fbd9d52f9221",
+				ClientToken: "12345678",
+				Reported: deviceReported{
+					Cooling: valueWithTimestamp[bool]{true, ts},
+					TempA:   valueWithTimestamp[float64]{22.31, ts},
+				},
+			},
+			want: `{
+  "ID": "a8d39911-7955-47d3-981b-fbd9d52f9221",
+  "ClientToken": "12345678",
+  "Reported": {
+    "Connected": {},
+    "EC": {},
+    "Cooling": {
+      "Value": true,
+      "Time": "2023-08-11T20:18:46+02:00"
+    },
+    "Door": {},
+    "FirmwareNCU": {},
+    "HumidA": {},
+    "HumidB": {},
+    "LightA": {},
+    "LightB": {},
+    "RecipeID": {},
+    "TankLevel": {},
+    "TankLevelRaw": {},
+    "TempA": {
+      "Value": 22.31,
+      "Time": "2023-08-11T20:18:46+02:00"
+    },
+    "TempB": {},
+    "TempTank": {},
+    "TotalOffset": {},
+    "Valve": {},
+    "WifiLevel": {}
+  }
+}`,
+		},
+	}
+	for _, tc := range tests {
+		got, err := json.MarshalIndent(tc.d, "", "  ")
+		if err != nil {
+			t.Fatalf("Failed to marshal device '%s': %v", render.Render(tc.d), err)
+		}
+		if !reflect.DeepEqual([]byte(tc.want), got) {
+			t.Errorf("Marshalling device '%s', got:\n%s\nwant:\n%s", render.Render(tc.d), string(got), tc.want)
+		}
+		var gotDev Device
+		err = pickyUnmarshal(got, &gotDev)
+		if err != nil {
+			t.Fatalf("Failed to unmarshal JSON '%s': %v", string(got), err)
+		}
+		if !reflect.DeepEqual(&tc.d, &gotDev) {
+			t.Errorf("Unmarshalling, got:\n%s\nwant:\n%s", render.Render(gotDev), render.Render(tc.d))
+		}
+	}
+}
 
 func TestCalcTotalOffset(t *testing.T) {
 	// For all of the "Observed from Plantcube comms" values
@@ -121,8 +188,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		{
 			// Simple update, two values, both with the current timestamp
 			d: Device{
-				clientToken: "12345678",
-				reported: deviceReported{
+				ClientToken: "12345678",
+				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, ts},
 					TempA:   valueWithTimestamp[float64]{22.31, ts},
 				},
@@ -137,8 +204,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		}, {
 			// Update with an old timestamp for one value, which should be omitted
 			d: Device{
-				clientToken: "12345678",
-				reported: deviceReported{
+				ClientToken: "12345678",
+				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, ts},
 					TempA:   valueWithTimestamp[float64]{22.31, tsOld},
 				},
@@ -152,8 +219,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		}, {
 			// Complete update
 			d: Device{
-				clientToken: "12345678",
-				reported: deviceReported{
+				ClientToken: "12345678",
+				Reported: deviceReported{
 					Connected:    valueWithTimestamp[bool]{true, ts},
 					Cooling:      valueWithTimestamp[bool]{true, ts},
 					Door:         valueWithTimestamp[bool]{true, ts},
@@ -198,8 +265,8 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		}, {
 			// agl/prod update, no client token. Also two old values.
 			d: Device{
-				clientToken: "12345678",
-				reported: deviceReported{
+				ClientToken: "12345678",
+				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, tsOld},
 					EC:      valueWithTimestamp[int]{1234, ts},
 					TempA:   valueWithTimestamp[float64]{22.31, tsOld},

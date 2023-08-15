@@ -35,26 +35,26 @@ func (d *Device) processAglShadowGet(msg *msgUnparsed) ([]msgReply, error) {
 }
 
 func (d *Device) getAglShadowGetReply() (msgReply, error) {
-	if d.reported.RecipeID.v <= 1 {
-		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.reported.RecipeID.v, d.reported.RecipeID.t)
+	if d.Reported.RecipeID.Value <= 1 {
+		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.Reported.RecipeID.Value, d.Reported.RecipeID.Time)
 	}
-	if d.timezone == "" {
+	if d.Timezone == "" {
 		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but timezone is empty")
 	}
 	msg := msgAglShadowGetAccepted{}
 	r := &msg.Reported
-	r.Timezone = d.timezone
+	r.Timezone = d.Timezone
 	r.UserOffset = int(sunriseD.Seconds()) // user_offset doesn't actually get used by the Plantcube
 	var err error
-	r.TotalOffset, err = calcTotalOffset(d.timezone, time.Now(), sunriseD)
+	r.TotalOffset, err = calcTotalOffset(d.Timezone, time.Now(), sunriseD)
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}
 	log.Info.Printf("totalOffset %d sec", r.TotalOffset)
-	r.Mode = d.mode
+	r.Mode = d.Mode
 	r.Stage = FIXED_STAGE
 	r.VerboseReporting = FIXED_VERBOSE_REPORTING
-	r.RecipeID = d.reported.RecipeID.v
+	r.RecipeID = d.Reported.RecipeID.Value
 	r.FirmwareNCU = FIXED_FIRMWARE_NCU
 	r.FirmwareMCU = FIXED_FIRMWARE_MCU
 	return &msg, nil

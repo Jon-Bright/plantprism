@@ -130,12 +130,12 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if err != nil {
 		return nil, err
 	}
-	if *m.ClientToken != d.clientToken {
-		return nil, fmt.Errorf("clientToken '%s' received, but device clientToken is '%s'", *m.ClientToken, d.clientToken)
+	if *m.ClientToken != d.ClientToken {
+		return nil, fmt.Errorf("clientToken '%s' received, but device clientToken is '%s'", *m.ClientToken, d.ClientToken)
 	}
 	t := time.Now()
 	r := &m.State.Reported
-	dr := &d.reported
+	dr := &d.Reported
 	if r.Connected != nil {
 		return nil, errors.New("unexpected Connected reported in AWS update")
 	}
@@ -240,85 +240,85 @@ func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) ms
 	m := &msg.Metadata.Reported
 	unix := int(t.Unix())
 
-	d.awsVersion++
-	msg.Version = d.awsVersion
+	d.AWSVersion++
+	msg.Version = d.AWSVersion
 	msg.Timestamp = unix
 	if !omitClientToken {
-		msg.ClientToken = d.clientToken
+		msg.ClientToken = d.ClientToken
 	}
 	ts := msgUpdTS{unix}
-	dr := &d.reported
+	dr := &d.Reported
 
 	if dr.Connected.wasUpdatedAt(t) {
-		r.Connected = &dr.Connected.v
+		r.Connected = &dr.Connected.Value
 		m.Connected = &ts
 	}
 	if dr.Cooling.wasUpdatedAt(t) {
-		r.Cooling = &dr.Cooling.v
+		r.Cooling = &dr.Cooling.Value
 		m.Cooling = &ts
 	}
 	if dr.Door.wasUpdatedAt(t) {
-		r.Door = &dr.Door.v
+		r.Door = &dr.Door.Value
 		m.Door = &ts
 	}
 	if dr.EC.wasUpdatedAt(t) {
-		r.EC = &dr.EC.v
+		r.EC = &dr.EC.Value
 		m.EC = &ts
 	}
 	if dr.FirmwareNCU.wasUpdatedAt(t) {
-		r.FirmwareNCU = &dr.FirmwareNCU.v
+		r.FirmwareNCU = &dr.FirmwareNCU.Value
 		m.FirmwareNCU = &ts
 	}
 	if dr.HumidA.wasUpdatedAt(t) {
-		r.HumidA = &dr.HumidA.v
+		r.HumidA = &dr.HumidA.Value
 		m.HumidA = &ts
 	}
 	if dr.HumidB.wasUpdatedAt(t) {
-		r.HumidB = &dr.HumidB.v
+		r.HumidB = &dr.HumidB.Value
 		m.HumidB = &ts
 	}
 	if dr.LightA.wasUpdatedAt(t) {
-		r.LightA = &dr.LightA.v
+		r.LightA = &dr.LightA.Value
 		m.LightA = &ts
 	}
 	if dr.LightB.wasUpdatedAt(t) {
-		r.LightB = &dr.LightB.v
+		r.LightB = &dr.LightB.Value
 		m.LightB = &ts
 	}
 	if dr.RecipeID.wasUpdatedAt(t) {
-		r.RecipeID = &dr.RecipeID.v
+		r.RecipeID = &dr.RecipeID.Value
 		m.RecipeID = &ts
 	}
 	if dr.TankLevel.wasUpdatedAt(t) {
-		r.TankLevel = &dr.TankLevel.v
+		r.TankLevel = &dr.TankLevel.Value
 		m.TankLevel = &ts
 	}
 	if dr.TankLevelRaw.wasUpdatedAt(t) {
-		r.TankLevelRaw = &dr.TankLevelRaw.v
+		r.TankLevelRaw = &dr.TankLevelRaw.Value
 		m.TankLevelRaw = &ts
 	}
 	if dr.TempA.wasUpdatedAt(t) {
-		r.TempA = &dr.TempA.v
+		r.TempA = &dr.TempA.Value
 		m.TempA = &ts
 	}
 	if dr.TempB.wasUpdatedAt(t) {
-		r.TempB = &dr.TempB.v
+		r.TempB = &dr.TempB.Value
 		m.TempB = &ts
 	}
 	if dr.TempTank.wasUpdatedAt(t) {
-		r.TempTank = &dr.TempTank.v
+		r.TempTank = &dr.TempTank.Value
 		m.TempTank = &ts
 	}
 	if dr.TotalOffset.wasUpdatedAt(t) {
-		r.TotalOffset = &dr.TotalOffset.v
+		r.TotalOffset = &dr.TotalOffset.Value
 		m.TotalOffset = &ts
 	}
 	if dr.Valve.wasUpdatedAt(t) {
-		r.Valve = &dr.Valve.v
+		r.Valve = &dr.Valve.Value
 		m.Valve = &ts
 	}
 	if dr.WifiLevel.wasUpdatedAt(t) {
-		r.WifiLevel = &dr.WifiLevel.v
+		r.WifiLevel = &dr.WifiLevel.Value
 		m.WifiLevel = &ts
 	}
 	return &msg
