@@ -38,18 +38,23 @@ func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
 	return &m, nil
 }
 
-func (d *Device) processAglMode(msg *msgUnparsed) error {
+func (d *Device) processAglMode(msg *msgUnparsed) ([]msgReply, error) {
 	m, err := parseAglMode(msg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if *m.PrevMode != d.Reported.Mode.Value {
 		log.Warn.Printf("Previous mode %v doesn't match our previous mode %v, accepting mode change anyway", *m.PrevMode, d.Reported.Mode.Value)
 	}
 	log.Info.Printf("Device mode changed from %v to %v, trigger %v", *m.PrevMode, *m.Mode, *m.Trigger)
-	d.Reported.Mode.update(*m.Mode, time.Now())
+	t := time.Now()
+	d.Reported.Mode.update(*m.Mode, t)
+
+	reply := d.getAWSUpdateAcceptedReply(t, true)
+
 	// TODO : In response to some mode changes, we should display
 	// stuff for the end user (e.g. during cleaning, tank pumping,
 	// etc.)
-	return nil
+
+	return []msgReply{reply}, nil
 }

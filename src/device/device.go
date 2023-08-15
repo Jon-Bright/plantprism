@@ -153,7 +153,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	} else if msg.prefix == "agl/prod" && msg.event == "events/software/warning/put" {
 		err = d.processAglEventWarning(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "mode" {
-		err = d.processAglMode(msg)
+		replies, err = d.processAglMode(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "recipe/get" {
 		err = d.processAglRecipeGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
