@@ -29,34 +29,6 @@ const (
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 )
 
-type valueWithTimestamp[T any] struct {
-	Value T
-	Time  time.Time
-}
-
-func (vwt *valueWithTimestamp[T]) update(v T, t time.Time) {
-	vwt.Value = v
-	vwt.Time = t
-}
-
-func (vwt valueWithTimestamp[T]) wasUpdatedAt(t time.Time) bool {
-	return vwt.Time == t
-}
-
-func (vwt valueWithTimestamp[T]) MarshalJSON() ([]byte, error) {
-	if vwt.Time.IsZero() {
-		return []byte("{}"), nil
-	}
-	s := struct {
-		Value T
-		Time  time.Time
-	}{
-		vwt.Value,
-		vwt.Time,
-	}
-	return json.Marshal(&s)
-}
-
 type deviceReported struct {
 	// Reported by Agl update messages
 	Connected valueWithTimestamp[bool]
