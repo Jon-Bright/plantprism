@@ -106,7 +106,7 @@ func (m *MQTT) Connect() error {
 }
 
 func (m *MQTT) Subscribe(topic string, handler paho.MessageHandler) error {
-	token := m.c.Subscribe(topic, 0, handler)
+	token := m.c.Subscribe(topic, 1, handler)
 	token.Wait()
 	err := token.Error()
 	if err != nil {

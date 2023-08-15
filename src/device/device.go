@@ -243,7 +243,7 @@ func (d *Device) sendReplies(replies []msgReply) error {
 			return fmt.Errorf("failed marshalling '%s': %w", render.Render(r), err)
 		}
 		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.ID)
-		token := d.mqttClient.Publish(topic, 0, false, b)
+		token := d.mqttClient.Publish(topic, 1, false, b)
 		if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
 			return errors.New("timeout publishing MQTT msg")
 		}
