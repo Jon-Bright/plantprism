@@ -29,37 +29,6 @@ const (
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 )
 
-type DeviceMode int
-
-const (
-	ModeDefault           DeviceMode = 0
-	ModeDebug             DeviceMode = 1
-	ModeRinseEnd          DeviceMode = 2
-	ModeTankDrainCleaning DeviceMode = 3
-	ModeTankDrainExplicit DeviceMode = 4
-	ModeCleaning          DeviceMode = 5
-	ModeUnknown           DeviceMode = 6
-	ModeSilent            DeviceMode = 7
-	ModeCinema            DeviceMode = 8
-	ModeOutOfRange        DeviceMode = 9
-)
-
-type ModeTrigger int
-
-const (
-	ModeTriggerApp        ModeTrigger = 0
-	ModeTriggerDevice     ModeTrigger = 1
-	ModeTriggerOutOfRange ModeTrigger = 2
-)
-
-type ValveState int
-
-const (
-	ValveOpenLayerB ValveState = 0
-	ValveOpenLayerA ValveState = 1
-	ValveClosed     ValveState = 4
-)
-
 type valueWithTimestamp[T any] struct {
 	Value T
 	Time  time.Time
