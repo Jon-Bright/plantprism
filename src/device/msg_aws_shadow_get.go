@@ -31,7 +31,11 @@ func (d *Device) processAWSShadowGet(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
-	// TODO: Actually process this.
-	_ = m
+	if d.ClientToken != "" && d.ClientToken != *m.ClientToken {
+		return fmt.Errorf("ClientToken changed. want '%s', got '%s'", d.ClientToken, *m.ClientToken)
+	}
+	d.ClientToken = *m.ClientToken
+	log.Info.Printf("Set ClientToken to '%s'", d.ClientToken)
+	// NB: there's no reply to this message
 	return nil
 }
