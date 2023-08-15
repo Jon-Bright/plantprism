@@ -23,11 +23,6 @@ const (
 	TOPIC_OUTGOING_REGEX = "^" +
 		"(agl/prod|agl/all|\\$aws)/things/" + TOPIC_DEVICE_ID_REGEX + "/" +
 		"(shadow/get/accepted)$"
-
-	// MQTT's # wildcard must be at end of string and matches
-	// anything following the specified prefix.  This is therefore
-	// "all topics".
-	TOPIC_WILDCARD = "#"
 )
 
 var (
@@ -35,14 +30,39 @@ var (
 	mq              *mqtt.MQTT
 	topicIncomingRe *regexp.Regexp
 	topicOutgoingRe *regexp.Regexp
+
+	// Mosquitto won't deliver topics that start with dollar signs
+	// unless they're explicitly subscribed to - a wildcard
+	// subscription is insufficient. Therefore, we subscribe to
+	// them explicitly and use a wildcard for everything else.
+	subTopics = []string{
+		"#",
+		"$aws/things/+/shadow/get",
+		"$aws/things/+/shadow/update",
+	}
 )
 
 func connectHandler(c paho.Client) {
 	log.Info.Printf("MQTT connected")
-	err := mq.Subscribe(TOPIC_WILDCARD, messageHandler)
-	if err != nil {
-		log.Critical.Fatalf("Post-connect subscribe failed: %v", err)
+	var (
+		i     int
+		topic string
+	)
+	mh := messageHandler
+	for i, topic = range subTopics {
+		err := mq.Subscribe(topic, mh)
+		if err != nil {
+			log.Critical.Fatalf("Post-connect subscribe for '%s' failed: %v", topic, err)
+		}
+		// We only want to set a message handler for the first
+		// subscription (which is the wildcard
+		// subscription). For the others, we do want to
+		// subscribe, but we don't want that subscription to
+		// call messageHandler - they'll match the wildcard at
+		// _our_ end even if they don't at the broker's end.
+		mh = nil
 	}
+	log.Info.Printf("Subscribed to %d topics", i)
 }
 
 func messageHandler(c paho.Client, m paho.Message) {
