@@ -11,12 +11,18 @@ import (
 )
 
 const (
-	TOPIC_PREFIX_GRP = "Prefix"
-	TOPIC_DEVICE_GRP = "Device"
-	TOPIC_EVENT_GRP  = "Event"
-	TOPIC_REGEX      = "^(?P<" + TOPIC_PREFIX_GRP + ">agl/prod|agl/all|\\$aws)/things/" + // Prefix
-		"(?P<" + TOPIC_DEVICE_GRP + ">[[:xdigit:]]{8}(?:-[[:xdigit:]]{4}){3}-[[:xdigit:]]{12})/" + // Device UUID
-		"(?P<" + TOPIC_EVENT_GRP + ">events/software/(info|warning)/put|mode|recipe/get|shadow/(get|update))$" // Actual event
+	TOPIC_PREFIX_GRP      = "Prefix"
+	TOPIC_DEVICE_GRP      = "Device"
+	TOPIC_EVENT_GRP       = "Event"
+	TOPIC_DEVICE_ID_REGEX = "[[:xdigit:]]{8}(?:-[[:xdigit:]]{4}){3}-[[:xdigit:]]{12}"
+	TOPIC_INCOMING_REGEX  = "^" +
+		"(?P<" + TOPIC_PREFIX_GRP + ">agl/prod|agl/all|\\$aws)/things/" + // Prefix
+		"(?P<" + TOPIC_DEVICE_GRP + ">" + TOPIC_DEVICE_ID_REGEX + ")/" + // Device UUID
+		"(?P<" + TOPIC_EVENT_GRP + ">events/software/(info|warning)/put|mode|recipe/get|shadow/(get|update))" + // Actual event
+		"$"
+	TOPIC_OUTGOING_REGEX = "^" +
+		"(agl/prod|agl/all|\\$aws)/things/" + TOPIC_DEVICE_ID_REGEX + "/" +
+		"(shadow/get/accepted)$"
 
 	// MQTT's # wildcard must be at end of string and matches
 	// anything following the specified prefix.  This is therefore
@@ -25,9 +31,10 @@ const (
 )
 
 var (
-	log     *logs.Loggers
-	mq      *mqtt.MQTT
-	topicRe *regexp.Regexp
+	log             *logs.Loggers
+	mq              *mqtt.MQTT
+	topicIncomingRe *regexp.Regexp
+	topicOutgoingRe *regexp.Regexp
 )
 
 func connectHandler(c paho.Client) {
@@ -39,14 +46,18 @@ func connectHandler(c paho.Client) {
 }
 
 func messageHandler(c paho.Client, m paho.Message) {
-	matches := topicRe.FindStringSubmatch(m.Topic())
+	matches := topicIncomingRe.FindStringSubmatch(m.Topic())
 	if matches == nil {
-		log.Error.Printf("Message topic '%s' unknown, ignoring", m.Topic())
+		if !topicOutgoingRe.MatchString(m.Topic()) {
+			log.Error.Printf("Message topic '%s' unknown, ignoring", m.Topic())
+			return
+		}
+		log.Info.Printf("Outgoing topic '%s' seen", m.Topic())
 		return
 	}
-	prefix := matches[topicRe.SubexpIndex(TOPIC_PREFIX_GRP)]
-	deviceID := matches[topicRe.SubexpIndex(TOPIC_DEVICE_GRP)]
-	event := matches[topicRe.SubexpIndex(TOPIC_EVENT_GRP)]
+	prefix := matches[topicIncomingRe.SubexpIndex(TOPIC_PREFIX_GRP)]
+	deviceID := matches[topicIncomingRe.SubexpIndex(TOPIC_DEVICE_GRP)]
+	event := matches[topicIncomingRe.SubexpIndex(TOPIC_EVENT_GRP)]
 	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", deviceID, prefix, event)
 
 	device, err := device.Get(deviceID, c)
@@ -73,7 +84,7 @@ func main() {
 	if err != nil {
 		log.Critical.Fatalf("Device flags: %v", err)
 	}
-	topicRe = regexp.MustCompile(TOPIC_REGEX)
+	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
 
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
