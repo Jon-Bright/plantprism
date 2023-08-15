@@ -19,11 +19,11 @@ func parseAglMode(msg *msgUnparsed) (*msgAglMode, error) {
 		return nil, err
 	}
 	if m.PrevMode == nil {
-		return nil, errors.New("No prev_mode field")
+		return nil, errors.New("no prev_mode field")
 	} else if m.Mode == nil {
-		return nil, errors.New("No mode field")
+		return nil, errors.New("no mode field")
 	} else if m.Trigger == nil {
-		return nil, errors.New("No trigger field")
+		return nil, errors.New("no trigger field")
 	} else if *m.PrevMode < ModeDefault || *m.PrevMode >= ModeOutOfRange {
 		return nil, fmt.Errorf("PrevMode %d is invalid", *m.PrevMode)
 	} else if *m.Mode < ModeDefault || *m.Mode >= ModeOutOfRange {
@@ -42,7 +42,10 @@ func (d *Device) processAglMode(msg *msgUnparsed) error {
 	if err != nil {
 		return err
 	}
-	// TODO : Process this
-	_ = m
+	log.Info.Printf("Device mode changed from %v to %v, trigger %v", *m.PrevMode, *m.Mode, *m.Trigger)
+	d.Mode = *m.Mode
+	// TODO : In response to some mode changes, we should display
+	// stuff for the end user (e.g. during cleaning, tank pumping,
+	// etc.)
 	return nil
 }
