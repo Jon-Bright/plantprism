@@ -132,8 +132,8 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 		Blocks: []recipeBlock{},
 	}
 	r.Layers = []recipeLayer{
-		layerB,
 		layerA,
+		layerB,
 		emptyLayer,
 	}
 	return &r, nil

@@ -114,11 +114,11 @@ func TestMarshalRecipe(t *testing.T) {
 			dayLength:       time.Hour * 15,
 			layerAActive:    false,
 			layerBActive:    true,
-			want: `86 7b d6 64 80 3f cc 64  02 07 02 01 00 01 06 02` +
-				`64 01 64 80 51 01 00 00  00 00 00 fc 08 46 00 ff` +
-				`ff f0 d2 00 00 05 06 07  08 fc 08 46 00 80 70 90` +
-				`7e 00 00 00 00 00 00 d0  07 00 00 80 70 80 51 01` +
-				`00 00 00 00 00 fc 08 46  00 ff ff`,
+			want: `86 7b d6 64 80 3f cc 64  02 07 01 02 00 01 64 01` +
+				`06 02 64 80 51 01 00 00  00 00 00 fc 08 46 00 ff` +
+				`ff 80 51 01 00 00 00 00  00 fc 08 46 00 ff ff f0` +
+				`d2 00 00 05 06 07 08 fc  08 46 00 80 70 90 7e 00` +
+				`00 00 00 00 00 d0 07 00  00 80 70`,
 		}, {
 			name:            "Layer B inactive",
 			asOf:            ts,
@@ -130,11 +130,11 @@ func TestMarshalRecipe(t *testing.T) {
 			dayLength:       time.Hour * 15,
 			layerAActive:    true,
 			layerBActive:    false,
-			want: `86 7b d6 64 80 3f cc 64  02 07 01 02 00 01 64 01` +
-				`06 02 64 80 51 01 00 00  00 00 00 fc 08 46 00 ff` +
-				`ff 80 51 01 00 00 00 00  00 fc 08 46 00 ff ff f0` +
-				`d2 00 00 05 06 07 08 fc  08 46 00 80 70 90 7e 00` +
-				`00 00 00 00 00 d0 07 00  00 80 70`,
+			want: `86 7b d6 64 80 3f cc 64  02 07 02 01 00 01 06 02` +
+				`64 01 64 80 51 01 00 00  00 00 00 fc 08 46 00 ff` +
+				`ff f0 d2 00 00 05 06 07  08 fc 08 46 00 80 70 90` +
+				`7e 00 00 00 00 00 00 d0  07 00 00 80 70 80 51 01` +
+				`00 00 00 00 00 fc 08 46  00 ff ff`,
 		}, {
 			name:            "Both layers inactive",
 			asOf:            ts,
