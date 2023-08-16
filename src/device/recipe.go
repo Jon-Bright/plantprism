@@ -50,7 +50,7 @@ type recipe struct {
 // only have two examples. Those examples are exactly 94 days apart,
 // at Thu Dec 29th 2022 and Sun Apr 02nd 2023, but 94*4 is not a
 // year.)
-func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTargetNight float64, waterTarget int, waterDelay time.Duration, dayLength time.Duration) (*recipe, error) {
+func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTargetNight float64, waterTarget int, waterDelay time.Duration, dayLength time.Duration, layerAActive bool, layerBActive bool) (*recipe, error) {
 
 	if len(ledVals) != 4 {
 		return nil, fmt.Errorf("wrong ledVals length, want 4, got %d", len(ledVals))
@@ -79,6 +79,10 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 		periods:  []recipePeriod{skipPeriod},
 		repCount: CycleStartDaysAgo - 1,
 	}
+	inactiveBlock := recipeBlock{
+		periods:  []recipePeriod{skipPeriod},
+		repCount: 100, // Unclear why there should even be a limit
+	}
 
 	dayPeriod := recipePeriod{
 		duration:    dayLenSec,
@@ -102,18 +106,34 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 		repCount: 100, // Unclear why there should even be a limit
 	}
 
-	filledLayer := recipeLayer{
+	activeLayer := recipeLayer{
 		blocks: []recipeBlock{
 			skipBlock,
 			dayNightBlock,
 		},
 	}
+	inactiveLayer := recipeLayer{
+		blocks: []recipeBlock{
+			inactiveBlock,
+		},
+	}
+	var layerA, layerB recipeLayer
+	if layerAActive {
+		layerA = activeLayer
+	} else {
+		layerA = inactiveLayer
+	}
+	if layerBActive {
+		layerB = activeLayer
+	} else {
+		layerB = inactiveLayer
+	}
 	emptyLayer := recipeLayer{
 		blocks: []recipeBlock{},
 	}
 	r.layers = []recipeLayer{
-		filledLayer,
-		filledLayer,
+		layerB,
+		layerA,
 		emptyLayer,
 	}
 	return &r, nil
