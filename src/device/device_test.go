@@ -298,7 +298,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		reply := tc.d.getAWSUpdateAcceptedReply(ts, tc.omitClientToken)
+		reply := tc.d.getAWSShadowReply(ts, tc.omitClientToken, false)
 		b, err := json.Marshal(reply)
 		if err != nil {
 			t.Fatalf("shadow update accepted reply for device '%s',\nts %d, error %v", render.Render(tc.d), ts.Unix(), err)

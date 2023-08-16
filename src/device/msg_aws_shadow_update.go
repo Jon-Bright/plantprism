@@ -195,7 +195,7 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if r.WifiLevel != nil {
 		dr.WifiLevel.update(*r.WifiLevel, t)
 	}
-	reply := d.getAWSUpdateAcceptedReply(t, false)
+	reply := d.getAWSShadowReply(t, false, false)
 	return []msgReply{reply}, nil
 }
 
@@ -223,7 +223,12 @@ type msgAWSShadowUpdateAcceptedMetadataReported struct {
 type msgAWSShadowUpdateAcceptedMetadata struct {
 	Reported msgAWSShadowUpdateAcceptedMetadataReported `json:"reported"`
 }
-type msgAWSShadowUpdateAccepted struct {
+type msgAWSShadowUpdateReply struct {
+	// Whether this message should be sent as .../update/accepted or
+	// .../update/delta. The messages are identical, just in different
+	// topics.
+	delta bool
+
 	State       msgAWSShadowUpdateState            `json:"state"`
 	Metadata    msgAWSShadowUpdateAcceptedMetadata `json:"metadata"`
 	Version     int                                `json:"version"`
@@ -231,7 +236,10 @@ type msgAWSShadowUpdateAccepted struct {
 	ClientToken string                             `json:"clientToken,omitempty"`
 }
 
-func (m *msgAWSShadowUpdateAccepted) topic() string {
+func (m *msgAWSShadowUpdateReply) topic() string {
+	if m.delta {
+		return MQTT_TOPIC_AWS_UPDATE_DELTA
+	}
 	return MQTT_TOPIC_AWS_UPDATE_ACCEPTED
 }
 
@@ -240,13 +248,14 @@ func (m *msgAWSShadowUpdateAccepted) topic() string {
 // /shadow/update to agl/prod _also_ triggers AWS updates, but these come
 // without a client token (possibly because from AWS's POV, they're coming
 // from a different client?).
-func (d *Device) getAWSUpdateAcceptedReply(t time.Time, omitClientToken bool) msgReply {
-	msg := msgAWSShadowUpdateAccepted{}
+func (d *Device) getAWSShadowReply(t time.Time, omitClientToken bool, delta bool) msgReply {
+	msg := msgAWSShadowUpdateReply{}
 	r := &msg.State.Reported
 	m := &msg.Metadata.Reported
 	unix := int(t.Unix())
 
 	d.AWSVersion++
+	msg.delta = delta
 	msg.Version = d.AWSVersion
 	msg.Timestamp = unix
 	if !omitClientToken {

@@ -45,6 +45,6 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if r.EC != nil {
 		d.Reported.EC.update(*r.EC, t)
 	}
-	reply := d.getAWSUpdateAcceptedReply(t, true)
+	reply := d.getAWSShadowReply(t, true, false)
 	return []msgReply{reply}, nil
 }
