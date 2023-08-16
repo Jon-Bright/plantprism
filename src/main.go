@@ -22,7 +22,7 @@ const (
 		"$"
 	TOPIC_OUTGOING_REGEX = "^" +
 		"(agl/prod|agl/all|\\$aws)/things/" + TOPIC_DEVICE_ID_REGEX + "/" +
-		"(shadow/get/accepted)$"
+		"(shadow/get/accepted|recipe)$"
 )
 
 var (
