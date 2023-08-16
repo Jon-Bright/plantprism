@@ -21,26 +21,26 @@ var (
 )
 
 type recipePeriod struct {
-	duration    int32
-	ledVals     [4]byte
-	tempTarget  int16
-	waterTarget int16
-	waterDelay  int16
+	Duration    int32
+	LEDVals     [4]byte
+	TempTarget  int16
+	WaterTarget int16
+	WaterDelay  int16
 }
 
 type recipeBlock struct {
-	periods  []recipePeriod
-	repCount byte
+	Periods  []recipePeriod
+	RepCount byte
 }
 
 type recipeLayer struct {
-	blocks []recipeBlock
+	Blocks []recipeBlock
 }
 
 type recipe struct {
-	id         int32
-	cycleStart int32
-	layers     []recipeLayer
+	ID         int32
+	CycleStart int32
+	Layers     []recipeLayer
 }
 
 // Returns a recipe with the specified values on both layers. The
@@ -57,8 +57,8 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 	}
 
 	r := recipe{}
-	r.id = int32(asOf.Unix())
-	r.cycleStart = int32(asOf.AddDate(0, 0, -CycleStartDaysAgo).Truncate(DayDuration).Unix())
+	r.ID = int32(asOf.Unix())
+	r.CycleStart = int32(asOf.AddDate(0, 0, -CycleStartDaysAgo).Truncate(DayDuration).Unix())
 
 	dayLenSec := int32(dayLength / time.Second)
 	nightLenSec := int32((DayDuration - dayLength) / time.Second)
@@ -69,51 +69,51 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 	i16WaterDelay := int16(waterDelay / time.Second)
 
 	skipPeriod := recipePeriod{
-		duration:    int32(DayDuration / time.Second),
-		ledVals:     ledsOff,
-		tempTarget:  i16TempDay,
-		waterTarget: i16WaterTarget,
-		waterDelay:  -1,
+		Duration:    int32(DayDuration / time.Second),
+		LEDVals:     ledsOff,
+		TempTarget:  i16TempDay,
+		WaterTarget: i16WaterTarget,
+		WaterDelay:  -1,
 	}
 	skipBlock := recipeBlock{
-		periods:  []recipePeriod{skipPeriod},
-		repCount: CycleStartDaysAgo - 1,
+		Periods:  []recipePeriod{skipPeriod},
+		RepCount: CycleStartDaysAgo - 1,
 	}
 	inactiveBlock := recipeBlock{
-		periods:  []recipePeriod{skipPeriod},
-		repCount: 100, // Unclear why there should even be a limit
+		Periods:  []recipePeriod{skipPeriod},
+		RepCount: 100, // Unclear why there should even be a limit
 	}
 
 	dayPeriod := recipePeriod{
-		duration:    dayLenSec,
-		ledVals:     arrLEDVals,
-		tempTarget:  i16TempDay,
-		waterTarget: i16WaterTarget,
-		waterDelay:  i16WaterDelay,
+		Duration:    dayLenSec,
+		LEDVals:     arrLEDVals,
+		TempTarget:  i16TempDay,
+		WaterTarget: i16WaterTarget,
+		WaterDelay:  i16WaterDelay,
 	}
 	nightPeriod := recipePeriod{
-		duration:    nightLenSec,
-		ledVals:     ledsOff,
-		tempTarget:  i16TempNight,
-		waterTarget: 0,
-		waterDelay:  i16WaterDelay,
+		Duration:    nightLenSec,
+		LEDVals:     ledsOff,
+		TempTarget:  i16TempNight,
+		WaterTarget: 0,
+		WaterDelay:  i16WaterDelay,
 	}
 	dayNightBlock := recipeBlock{
-		periods: []recipePeriod{
+		Periods: []recipePeriod{
 			dayPeriod,
 			nightPeriod,
 		},
-		repCount: 100, // Unclear why there should even be a limit
+		RepCount: 100, // Unclear why there should even be a limit
 	}
 
 	activeLayer := recipeLayer{
-		blocks: []recipeBlock{
+		Blocks: []recipeBlock{
 			skipBlock,
 			dayNightBlock,
 		},
 	}
 	inactiveLayer := recipeLayer{
-		blocks: []recipeBlock{
+		Blocks: []recipeBlock{
 			inactiveBlock,
 		},
 	}
@@ -129,9 +129,9 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 		layerB = inactiveLayer
 	}
 	emptyLayer := recipeLayer{
-		blocks: []recipeBlock{},
+		Blocks: []recipeBlock{},
 	}
-	r.layers = []recipeLayer{
+	r.Layers = []recipeLayer{
 		layerB,
 		layerA,
 		emptyLayer,
@@ -140,32 +140,32 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 }
 
 func (p *recipePeriod) Marshal(buf *bytes.Buffer) error {
-	err := binary.Write(buf, binary.LittleEndian, p.duration)
+	err := binary.Write(buf, binary.LittleEndian, p.Duration)
 	if err != nil {
-		return fmt.Errorf("failed writing duration %d: %w", p.duration, err)
+		return fmt.Errorf("failed writing duration %d: %w", p.Duration, err)
 	}
-	err = binary.Write(buf, binary.LittleEndian, p.ledVals)
+	err = binary.Write(buf, binary.LittleEndian, p.LEDVals)
 	if err != nil {
-		return fmt.Errorf("failed writing ledVals {%d,%d,%d,%d}: %w", p.ledVals[0], p.ledVals[1], p.ledVals[2], p.ledVals[3], err)
+		return fmt.Errorf("failed writing ledVals {%d,%d,%d,%d}: %w", p.LEDVals[0], p.LEDVals[1], p.LEDVals[2], p.LEDVals[3], err)
 	}
-	err = binary.Write(buf, binary.LittleEndian, p.tempTarget)
+	err = binary.Write(buf, binary.LittleEndian, p.TempTarget)
 	if err != nil {
-		return fmt.Errorf("failed writing temp target %d: %w", p.tempTarget, err)
+		return fmt.Errorf("failed writing temp target %d: %w", p.TempTarget, err)
 	}
-	err = binary.Write(buf, binary.LittleEndian, p.waterTarget)
+	err = binary.Write(buf, binary.LittleEndian, p.WaterTarget)
 	if err != nil {
-		return fmt.Errorf("failed writing water target %d: %w", p.waterTarget, err)
+		return fmt.Errorf("failed writing water target %d: %w", p.WaterTarget, err)
 	}
-	err = binary.Write(buf, binary.LittleEndian, p.waterDelay)
+	err = binary.Write(buf, binary.LittleEndian, p.WaterDelay)
 	if err != nil {
-		return fmt.Errorf("failed writing water delay %d: %w", p.waterDelay, err)
+		return fmt.Errorf("failed writing water delay %d: %w", p.WaterDelay, err)
 	}
 
 	return nil
 }
 
 func (blk *recipeBlock) Marshal(buf *bytes.Buffer) error {
-	for i, p := range blk.periods {
+	for i, p := range blk.Periods {
 		err := p.Marshal(buf)
 		if err != nil {
 			return fmt.Errorf("failed marshalling period %d: %w", i, err)
@@ -175,22 +175,22 @@ func (blk *recipeBlock) Marshal(buf *bytes.Buffer) error {
 }
 
 func (l *recipeLayer) MarshalHeader(buf *bytes.Buffer) error {
-	for i, blk := range l.blocks {
-		b := byte(len(blk.periods))
+	for i, blk := range l.Blocks {
+		b := byte(len(blk.Periods))
 		err := binary.Write(buf, binary.LittleEndian, b)
 		if err != nil {
 			return fmt.Errorf("failed writing block %d period len %d: %w", i, b, err)
 		}
-		err = binary.Write(buf, binary.LittleEndian, blk.repCount)
+		err = binary.Write(buf, binary.LittleEndian, blk.RepCount)
 		if err != nil {
-			return fmt.Errorf("failed writing block %d repCount %d: %w", i, blk.repCount, err)
+			return fmt.Errorf("failed writing block %d repCount %d: %w", i, blk.RepCount, err)
 		}
 	}
 	return nil
 }
 
 func (l *recipeLayer) MarshalContent(buf *bytes.Buffer) error {
-	for i, blk := range l.blocks {
+	for i, blk := range l.Blocks {
 		err := blk.Marshal(buf)
 		if err != nil {
 			return fmt.Errorf("failed writing block %d content: %w", i, err)
@@ -201,15 +201,15 @@ func (l *recipeLayer) MarshalContent(buf *bytes.Buffer) error {
 
 func (r *recipe) Marshal() ([]byte, error) {
 	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, r.id)
+	err := binary.Write(buf, binary.LittleEndian, r.ID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write ID %d: %w", r.id, err)
+		return nil, fmt.Errorf("failed to write ID %d: %w", r.ID, err)
 	}
-	err = binary.Write(buf, binary.LittleEndian, r.cycleStart)
+	err = binary.Write(buf, binary.LittleEndian, r.CycleStart)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write cycle start %d: %w", r.cycleStart, err)
+		return nil, fmt.Errorf("failed to write cycle start %d: %w", r.CycleStart, err)
 	}
-	b := byte(len(r.layers) - 1)
+	b := byte(len(r.Layers) - 1)
 	err = binary.Write(buf, binary.LittleEndian, b)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write layers len %d: %w", b, err)
@@ -219,20 +219,20 @@ func (r *recipe) Marshal() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to write recipe version %d: %w", b, err)
 	}
-	for i, l := range r.layers {
-		b = byte(len(l.blocks))
+	for i, l := range r.Layers {
+		b = byte(len(l.Blocks))
 		err = binary.Write(buf, binary.LittleEndian, b)
 		if err != nil {
 			return nil, fmt.Errorf("failed to write layer %d block len %d: %w", i, b, err)
 		}
 	}
-	for i, l := range r.layers {
+	for i, l := range r.Layers {
 		err = l.MarshalHeader(buf)
 		if err != nil {
 			return nil, fmt.Errorf("failed writing layer %d header: %w", i, err)
 		}
 	}
-	for i, l := range r.layers {
+	for i, l := range r.Layers {
 		err = l.MarshalContent(buf)
 		if err != nil {
 			return nil, fmt.Errorf("failed writing layer %d content: %w", i, err)
