@@ -224,9 +224,9 @@ type msgAWSShadowUpdateAcceptedMetadata struct {
 	Reported msgAWSShadowUpdateAcceptedMetadataReported `json:"reported"`
 }
 type msgAWSShadowUpdateReply struct {
-	// Whether this message should be sent as .../update/accepted or
-	// .../update/delta. The messages are identical, just in different
-	// topics.
+	// Whether this message should be sent as .../update/accepted
+	// or .../update/delta. The messages are identical, just in
+	// different topics.
 	delta bool
 
 	State       msgAWSShadowUpdateState            `json:"state"`
@@ -243,11 +243,11 @@ func (m *msgAWSShadowUpdateReply) topic() string {
 	return MQTT_TOPIC_AWS_UPDATE_ACCEPTED
 }
 
-// Construct a reply featuring all values reported at the given timestamp,
-// along with metadata for each of those values with the timestamp.
-// /shadow/update to agl/prod _also_ triggers AWS updates, but these come
-// without a client token (possibly because from AWS's POV, they're coming
-// from a different client?).
+// Construct a reply featuring all values reported at the given
+// timestamp, along with metadata for each of those values with the
+// timestamp.  /shadow/update to agl/prod _also_ triggers AWS updates,
+// but these come without a client token (possibly because from AWS's
+// POV, they're coming from a different client?).
 func (d *Device) getAWSShadowReply(t time.Time, omitClientToken bool, delta bool) msgReply {
 	msg := msgAWSShadowUpdateReply{}
 	r := &msg.State.Reported
