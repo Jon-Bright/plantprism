@@ -32,12 +32,13 @@ func parseAglRecipeGet(msg *msgUnparsed) (*msgAglRecipeGet, error) {
 	return &m, nil
 }
 
-func (d *Device) processAglRecipeGet(msg *msgUnparsed) error {
-	m, err := parseAglRecipeGet(msg)
+func (d *Device) processAglRecipeGet(msg *msgUnparsed) ([]msgReply, error) {
+	// We don't actually need the message itself, it has no unknown content
+	_, err := parseAglRecipeGet(msg)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// TODO : Process this
-	_ = m
-	return nil
+	log.Info.Printf("Sending current recipe (ID %d) in response to request", d.Recipe.ID)
+
+	return []msgReply{d.Recipe}, nil
 }

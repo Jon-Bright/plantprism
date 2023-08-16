@@ -43,6 +43,10 @@ type recipe struct {
 	Layers     []recipeLayer
 }
 
+func (r *recipe) topic() string {
+	return MQTT_TOPIC_AGL_RECIPE
+}
+
 // Returns a recipe with the specified values on both layers. The
 // recipe will have an ID of the specified time and a cycleStart 7
 // days earlier, clamped to midnight UTC. (I can't discern a reason

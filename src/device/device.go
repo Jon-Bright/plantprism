@@ -9,6 +9,7 @@ import (
 	"github.com/lupguo/go-render/render"
 	"io"
 	"os"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -26,6 +27,7 @@ const (
 	MQTT_PUBLISH_TIMEOUT           = 30 * time.Second
 	MQTT_ID_TOKEN                  = "<ID>"
 	MQTT_TOPIC_AGL_GET_ACCEPTED    = "agl/all/things/" + MQTT_ID_TOKEN + "/shadow/get/accepted"
+	MQTT_TOPIC_AGL_RECIPE          = "agl/prod/things/" + MQTT_ID_TOKEN + "/recipe"
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 )
 
@@ -87,6 +89,11 @@ type msgUpdTS struct {
 
 type msgReply interface {
 	topic() string
+}
+
+type msgReplyBinary interface {
+	msgReply
+	Marshal() ([]byte, error)
 }
 
 func (d *Device) saveName() string {
@@ -156,7 +163,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	} else if msg.prefix == "agl/prod" && msg.event == "mode" {
 		replies, err = d.processAglMode(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "recipe/get" {
-		err = d.processAglRecipeGet(msg)
+		replies, err = d.processAglRecipeGet(msg)
 	} else if msg.prefix == "agl/prod" && msg.event == "shadow/update" {
 		replies, err = d.processAglShadowUpdate(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
@@ -182,7 +189,16 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 
 func (d *Device) sendReplies(replies []msgReply) error {
 	for _, r := range replies {
-		b, err := json.Marshal(r)
+		var (
+			b   []byte
+			err error
+		)
+		rbType := reflect.TypeOf((*msgReplyBinary)(nil)).Elem()
+		if reflect.TypeOf(r).Implements(rbType) {
+			b, err = r.(msgReplyBinary).Marshal()
+		} else {
+			b, err = json.Marshal(r)
+		}
 		if err != nil {
 			return fmt.Errorf("failed marshalling '%s': %w", render.Render(r), err)
 		}
