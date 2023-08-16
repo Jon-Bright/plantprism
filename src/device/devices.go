@@ -15,6 +15,12 @@ const (
 	// We sometimes see sprees of 3 or 4 messages. This should be
 	// enough buffer to prevent blocking in those situations.
 	MSG_QUEUE_BUFFER = 5
+
+	defaultTempDay     = 23.0
+	defaultTempNight   = 20.0
+	defaultWaterTarget = 70
+	defaultWaterDelay  = 8 * time.Hour
+	defaultDayLength   = 15*time.Hour + 30*time.Minute
 )
 
 type deviceList []string
@@ -28,6 +34,8 @@ var (
 	sunriseTimeStr string
 
 	sunriseD time.Duration
+
+	defaultLEDVals = []byte{0x3d, 0x27, 0x21, 0x0a}
 )
 
 func SetLoggers(l *logs.Loggers) {
@@ -101,9 +109,14 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	} else {
 		t := time.Now()
 		d.Timezone = timezone
+		var err error
+		d.Recipe, err = CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, false, false)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create default recipe: %w", err)
+		}
 		d.Reported.Mode.update(ModeDefault, t)
-		d.Reported.RecipeID.update(1234, t) // TODO: use an actual recipe ID
-		err := d.Save()
+		d.Reported.RecipeID.update(int(d.Recipe.ID), t)
+		err = d.Save()
 		if err != nil {
 			return nil, fmt.Errorf("device id '%s', failed to save defaults: %v", id, err)
 		}

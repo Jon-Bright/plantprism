@@ -62,7 +62,8 @@ type Device struct {
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
 
-	ClientToken string `json:",omitempty"`
+	ClientToken string  `json:",omitempty"`
+	Recipe      *recipe `json:",omitempty"`
 
 	// Configuration
 	Timezone string `json:",omitempty"`
