@@ -335,7 +335,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						HumidB: &humid75,
 						TempA:  &temp2299,
 						TempB:  &temp2419,
@@ -348,7 +348,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						Cooling:     &bTrue,
 						Door:        &bFalse,
 						FirmwareNCU: &firmware,
@@ -365,7 +365,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						WifiLevel: &zero,
 					},
 				},
@@ -376,7 +376,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						TempTank: &temp2834,
 					},
 				},
@@ -387,7 +387,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						LightA: &bTrue,
 						LightB: &bTrue,
 					},
@@ -399,7 +399,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						TankLevelRaw: &two,
 					},
 				},
@@ -410,7 +410,7 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want: &msgAWSShadowUpdate{
 				ClientToken: &clientToken,
 				State: msgAWSShadowUpdateState{
-					Reported: msgAWSShadowUpdateReported{
+					Reported: msgAWSShadowUpdateData{
 						Door: &bTrue,
 					},
 				},

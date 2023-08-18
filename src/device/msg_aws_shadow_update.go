@@ -20,7 +20,11 @@ const (
 // Example: {"clientToken":"5975bc44","state":{"reported":{"tank_level_raw":2}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"door":true}}}
 
-type msgAWSShadowUpdateReported struct {
+// This struct does triple duty. We use it to interpret incoming
+// .../shadow/update messages, but we _also_ use it to construct
+// outgoing .../shadow/update/accepted and .../shadow/update/delta
+// messages.
+type msgAWSShadowUpdateData struct {
 	// `Mode`, `Connected` and `EC` shouldn't be reported by
 	// $aws/.../update, but they're here because they appear in
 	// .../update/accepted
@@ -45,21 +49,21 @@ type msgAWSShadowUpdateReported struct {
 	WifiLevel    *int        `json:"wifi_level,omitempty"`
 }
 type msgAWSShadowUpdateState struct {
-	Reported msgAWSShadowUpdateReported `json:"reported"`
+	Reported msgAWSShadowUpdateData `json:"reported"`
 }
 type msgAWSShadowUpdate struct {
 	ClientToken *string
 	State       msgAWSShadowUpdateState
 }
 
-func (m *msgAWSShadowUpdateReported) empty() bool {
+func (m *msgAWSShadowUpdateData) empty() bool {
 	return m.Cooling == nil && m.Door == nil && m.FirmwareNCU == nil && m.HumidA == nil && m.HumidB == nil &&
 		m.LightA == nil && m.LightB == nil && m.RecipeID == nil && m.TankLevel == nil &&
 		m.TankLevelRaw == nil && m.TempA == nil && m.TempB == nil && m.TempTank == nil &&
 		m.TotalOffset == nil && m.Valve == nil && m.WifiLevel == nil
 }
 
-func (m *msgAWSShadowUpdateReported) validate() error {
+func (m *msgAWSShadowUpdateData) validate() error {
 	if m.empty() {
 		return errors.New("update is empty")
 	}
@@ -127,7 +131,7 @@ func parseAWSShadowUpdate(msg *msgUnparsed) (*msgAWSShadowUpdate, error) {
 	return &m, nil
 }
 
-func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
+func (d *Device) processAWSShadowUpdate(msg *msgUnparsed, t time.Time) ([]msgReply, error) {
 	m, err := parseAWSShadowUpdate(msg)
 	if err != nil {
 		return nil, err
@@ -135,7 +139,6 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if *m.ClientToken != d.ClientToken {
 		return nil, fmt.Errorf("clientToken '%s' received, but device clientToken is '%s'", *m.ClientToken, d.ClientToken)
 	}
-	t := time.Now()
 	r := &m.State.Reported
 	dr := &d.Reported
 	if r.Mode != nil {
@@ -195,11 +198,35 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if r.WifiLevel != nil {
 		dr.WifiLevel.update(*r.WifiLevel, t)
 	}
-	reply := d.getAWSShadowReply(t, false, false)
-	return []msgReply{reply}, nil
+	replies := []msgReply{
+		d.getAWSShadowUpdateAcceptedReply(t, false),
+	}
+	if d.Recipe != nil && dr.RecipeID.Value != int(d.Recipe.ID) {
+		// We need to generate a delta message that just
+		// covers the Recipe ID.  We therefore add a
+		// nanosecond to the previous update time, set the
+		// desired Recipe ID with that timestamp, then revert
+		// it (the Plantcube will reply with a
+		// .../shadow/update message once it has the new
+		// recipe). A nanosecond is enough that
+		// getAWSShadowReply will see the value (and only this
+		// value) as updated at this time, but tiny enough
+		// that we don't need to worry about Unix timestamps
+		// on the wire moving back and forth in time.
+		deltaD := Device{
+			AWSVersion: d.AWSVersion,
+		}
+		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
+		//deltaT := t.Add(time.Nanosecond)
+		//prevRecipeID := dr.RecipeID
+		//dr.RecipeID.update(int(d.Recipe.ID), deltaT)
+		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(t))
+		//dr.RecipeID = prevRecipeID
+	}
+	return replies, nil
 }
 
-type msgAWSShadowUpdateAcceptedMetadataReported struct {
+type msgAWSShadowUpdateMetadata struct {
 	Connected    *msgUpdTS `json:"connected,omitempty"`
 	Cooling      *msgUpdTS `json:"cooling,omitempty"`
 	Door         *msgUpdTS `json:"door,omitempty"`
@@ -221,14 +248,9 @@ type msgAWSShadowUpdateAcceptedMetadataReported struct {
 	WifiLevel    *msgUpdTS `json:"wifi_level,omitempty"`
 }
 type msgAWSShadowUpdateAcceptedMetadata struct {
-	Reported msgAWSShadowUpdateAcceptedMetadataReported `json:"reported"`
+	Reported msgAWSShadowUpdateMetadata `json:"reported"`
 }
-type msgAWSShadowUpdateReply struct {
-	// Whether this message should be sent as .../update/accepted
-	// or .../update/delta. The messages are identical, just in
-	// different topics.
-	delta bool
-
+type msgAWSShadowUpdateAcceptedReply struct {
 	State       msgAWSShadowUpdateState            `json:"state"`
 	Metadata    msgAWSShadowUpdateAcceptedMetadata `json:"metadata"`
 	Version     int                                `json:"version"`
@@ -236,109 +258,133 @@ type msgAWSShadowUpdateReply struct {
 	ClientToken string                             `json:"clientToken,omitempty"`
 }
 
-func (m *msgAWSShadowUpdateReply) topic() string {
-	if m.delta {
-		return MQTT_TOPIC_AWS_UPDATE_DELTA
-	}
+func (m *msgAWSShadowUpdateAcceptedReply) topic() string {
 	return MQTT_TOPIC_AWS_UPDATE_ACCEPTED
 }
 
 // Construct a reply featuring all values reported at the given
 // timestamp, along with metadata for each of those values with the
 // timestamp.  /shadow/update to agl/prod _also_ triggers AWS updates,
-// but these come without a client token (possibly because from AWS's
-// POV, they're coming from a different client?).
-func (d *Device) getAWSShadowReply(t time.Time, omitClientToken bool, delta bool) msgReply {
-	msg := msgAWSShadowUpdateReply{}
+// as does agl/prod/.../mode, but these come without a client token
+// (possibly because they're making it into AWS's shadow via
+// Agrilution code, not via a client?), so allow generating these
+// without a client ID.
+func (d *Device) getAWSShadowUpdateAcceptedReply(t time.Time, omitClientToken bool) msgReply {
+	msg := msgAWSShadowUpdateAcceptedReply{}
 	r := &msg.State.Reported
 	m := &msg.Metadata.Reported
-	unix := int(t.Unix())
 
 	d.AWSVersion++
-	msg.delta = delta
 	msg.Version = d.AWSVersion
-	msg.Timestamp = unix
+	msg.Timestamp = int(t.Unix())
 	if !omitClientToken {
 		msg.ClientToken = d.ClientToken
 	}
-	ts := msgUpdTS{unix}
-	dr := &d.Reported
+	d.fillAWSUpdateDataMetadata(t, r, m)
+	return &msg
+}
 
+func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateData, m *msgAWSShadowUpdateMetadata) {
+	dr := &dev.Reported
+
+	ts := msgUpdTS{int(t.Unix())}
 	if dr.Connected.wasUpdatedAt(t) {
-		r.Connected = &dr.Connected.Value
+		d.Connected = &dr.Connected.Value
 		m.Connected = &ts
 	}
 	if dr.Cooling.wasUpdatedAt(t) {
-		r.Cooling = &dr.Cooling.Value
+		d.Cooling = &dr.Cooling.Value
 		m.Cooling = &ts
 	}
 	if dr.Door.wasUpdatedAt(t) {
-		r.Door = &dr.Door.Value
+		d.Door = &dr.Door.Value
 		m.Door = &ts
 	}
 	if dr.EC.wasUpdatedAt(t) {
-		r.EC = &dr.EC.Value
+		d.EC = &dr.EC.Value
 		m.EC = &ts
 	}
 	if dr.FirmwareNCU.wasUpdatedAt(t) {
-		r.FirmwareNCU = &dr.FirmwareNCU.Value
+		d.FirmwareNCU = &dr.FirmwareNCU.Value
 		m.FirmwareNCU = &ts
 	}
 	if dr.HumidA.wasUpdatedAt(t) {
-		r.HumidA = &dr.HumidA.Value
+		d.HumidA = &dr.HumidA.Value
 		m.HumidA = &ts
 	}
 	if dr.HumidB.wasUpdatedAt(t) {
-		r.HumidB = &dr.HumidB.Value
+		d.HumidB = &dr.HumidB.Value
 		m.HumidB = &ts
 	}
 	if dr.LightA.wasUpdatedAt(t) {
-		r.LightA = &dr.LightA.Value
+		d.LightA = &dr.LightA.Value
 		m.LightA = &ts
 	}
 	if dr.LightB.wasUpdatedAt(t) {
-		r.LightB = &dr.LightB.Value
+		d.LightB = &dr.LightB.Value
 		m.LightB = &ts
 	}
 	if dr.Mode.wasUpdatedAt(t) {
-		r.Mode = &dr.Mode.Value
+		d.Mode = &dr.Mode.Value
 		m.Mode = &ts
 	}
 	if dr.RecipeID.wasUpdatedAt(t) {
-		r.RecipeID = &dr.RecipeID.Value
+		d.RecipeID = &dr.RecipeID.Value
 		m.RecipeID = &ts
 	}
 	if dr.TankLevel.wasUpdatedAt(t) {
-		r.TankLevel = &dr.TankLevel.Value
+		d.TankLevel = &dr.TankLevel.Value
 		m.TankLevel = &ts
 	}
 	if dr.TankLevelRaw.wasUpdatedAt(t) {
-		r.TankLevelRaw = &dr.TankLevelRaw.Value
+		d.TankLevelRaw = &dr.TankLevelRaw.Value
 		m.TankLevelRaw = &ts
 	}
 	if dr.TempA.wasUpdatedAt(t) {
-		r.TempA = &dr.TempA.Value
+		d.TempA = &dr.TempA.Value
 		m.TempA = &ts
 	}
 	if dr.TempB.wasUpdatedAt(t) {
-		r.TempB = &dr.TempB.Value
+		d.TempB = &dr.TempB.Value
 		m.TempB = &ts
 	}
 	if dr.TempTank.wasUpdatedAt(t) {
-		r.TempTank = &dr.TempTank.Value
+		d.TempTank = &dr.TempTank.Value
 		m.TempTank = &ts
 	}
 	if dr.TotalOffset.wasUpdatedAt(t) {
-		r.TotalOffset = &dr.TotalOffset.Value
+		d.TotalOffset = &dr.TotalOffset.Value
 		m.TotalOffset = &ts
 	}
 	if dr.Valve.wasUpdatedAt(t) {
-		r.Valve = &dr.Valve.Value
+		d.Valve = &dr.Valve.Value
 		m.Valve = &ts
 	}
 	if dr.WifiLevel.wasUpdatedAt(t) {
-		r.WifiLevel = &dr.WifiLevel.Value
+		d.WifiLevel = &dr.WifiLevel.Value
 		m.WifiLevel = &ts
 	}
+}
+
+// Example: {"version":944757,"timestamp":1687710613,"state":{"recipe_id":1687710613},"metadata":{"recipe_id":{"timestamp":1687710613}}}
+type msgAWSShadowUpdateDeltaReply struct {
+	Version   int                        `json:"version"`
+	Timestamp int                        `json:"timestamp"`
+	State     msgAWSShadowUpdateData     `json:"state"`
+	Metadata  msgAWSShadowUpdateMetadata `json:"metadata"`
+}
+
+func (m *msgAWSShadowUpdateDeltaReply) topic() string {
+	return MQTT_TOPIC_AWS_UPDATE_DELTA
+}
+
+func (d *Device) getAWSShadowUpdateDeltaReply(t time.Time) msgReply {
+	msg := msgAWSShadowUpdateDeltaReply{}
+	s := &msg.State
+	m := &msg.Metadata
+
+	msg.Version = d.AWSVersion
+	msg.Timestamp = int(t.Unix())
+	d.fillAWSUpdateDataMetadata(t, s, m)
 	return &msg
 }

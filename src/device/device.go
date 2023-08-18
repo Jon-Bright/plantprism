@@ -170,7 +170,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
 		err = d.processAWSShadowGet(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/update" {
-		replies, err = d.processAWSShadowUpdate(msg)
+		replies, err = d.processAWSShadowUpdate(msg, time.Now())
 	} else {
 		err = errors.New("no handler found")
 	}

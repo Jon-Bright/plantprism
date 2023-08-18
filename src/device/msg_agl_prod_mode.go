@@ -50,7 +50,7 @@ func (d *Device) processAglMode(msg *msgUnparsed) ([]msgReply, error) {
 	t := time.Now()
 	d.Reported.Mode.update(*m.Mode, t)
 
-	reply := d.getAWSShadowReply(t, true, false)
+	reply := d.getAWSShadowUpdateAcceptedReply(t, true)
 
 	// TODO : In response to some mode changes, we should display
 	// stuff for the end user (e.g. during cleaning, tank pumping,

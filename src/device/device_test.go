@@ -178,6 +178,113 @@ func TestCalcTotalOffset(t *testing.T) {
 	}
 }
 
+func TestProcessAWSShadowUpdate(t *testing.T) {
+	ts := time.Unix(1691777926, 0)
+	tsNew := time.Unix(1691777930, 0)
+	recipe, err := CreateRecipe(ts, defaultLEDVals, defaultTempDay, defaultTempNight,
+		defaultWaterTarget, defaultWaterDelay, defaultDayLength, true, true)
+	if err != nil {
+		t.Fatalf("failed to create recipe: %v", err)
+	}
+	tests := []struct {
+		d           Device
+		msgContent  string
+		wantReplies []string
+		wantDevice  Device
+	}{
+		{
+			// Simple update, two values, both with the current timestamp,
+			// one unaffected value.
+			d: Device{
+				ClientToken: "12345678",
+				AWSVersion:  9876,
+				Reported: deviceReported{
+					Cooling: valueWithTimestamp[bool]{true, ts},
+					Door:    valueWithTimestamp[bool]{true, ts},
+					TempA:   valueWithTimestamp[float64]{22.31, ts},
+				},
+			},
+			msgContent: `{"clientToken":"12345678",` +
+				`"state":{"reported":` +
+				`{"cooling":false,"temp_a":19.86}}}`,
+			wantReplies: []string{
+				`{"state":{"reported":` +
+					`{"cooling":false,"temp_a":19.86}},` +
+					`"metadata":{"reported":` +
+					`{"cooling":{"timestamp":1691777930},` +
+					`"temp_a":{"timestamp":1691777930}}},` +
+					`"version":9877,"timestamp":1691777930,"clientToken":"12345678"}`,
+			},
+			wantDevice: Device{
+				ClientToken: "12345678",
+				AWSVersion:  9877,
+				Reported: deviceReported{
+					Cooling: valueWithTimestamp[bool]{false, tsNew},
+					Door:    valueWithTimestamp[bool]{true, ts},
+					TempA:   valueWithTimestamp[float64]{19.86, tsNew},
+				},
+			},
+		}, {
+			// Recipe update, two replies (accepted and delta)
+			d: Device{
+				ClientToken: "12345678",
+				AWSVersion:  9876,
+				Recipe:      recipe,
+				Reported: deviceReported{
+					RecipeID: valueWithTimestamp[int]{int(recipe.ID), ts},
+				},
+			},
+			msgContent: `{"clientToken":"12345678",` +
+				`"state":{"reported":` +
+				`{"recipe_id":1}}}`,
+			wantReplies: []string{
+				`{"state":{"reported":{` +
+					`"recipe_id":1}},` +
+					`"metadata":{"reported":{` +
+					`"recipe_id":{"timestamp":1691777930}}},` +
+					`"version":9877,"timestamp":1691777930,"clientToken":"12345678"}`,
+				`{"version":9877,"timestamp":1691777930,"state":{` +
+					`"recipe_id":1691777926},` +
+					`"metadata":{` +
+					`"recipe_id":{"timestamp":1691777930}}}`,
+			},
+			wantDevice: Device{
+				ClientToken: "12345678",
+				AWSVersion:  9877,
+				Recipe:      recipe,
+				Reported: deviceReported{
+					RecipeID: valueWithTimestamp[int]{1, tsNew},
+				},
+			},
+		},
+	}
+	for i, tc := range tests {
+		mu := msgUnparsed{
+			content: []byte(tc.msgContent),
+		}
+		replies, err := tc.d.processAWSShadowUpdate(&mu, tsNew)
+		if err != nil {
+			t.Fatalf("case %d: processAWSShadowUpdate failed: %v", i, err)
+		}
+		if len(replies) != len(tc.wantReplies) {
+			t.Errorf("case %d: incorrect number of replies, got %d, want %d, replies %s", i, len(replies), len(tc.wantReplies), render.Render(replies))
+		}
+		for j, wr := range tc.wantReplies {
+			var b []byte
+			b, err = json.Marshal(replies[j])
+			if err != nil {
+				t.Fatalf("case %d: unable to marshal reply %d: %v", i, j, err)
+			}
+			if !reflect.DeepEqual(b, []byte(wr)) {
+				t.Errorf("case %d, reply %d doesn't match, got '%s', want '%s'", i, j, string(b), wr)
+			}
+		}
+		if !reflect.DeepEqual(tc.d, tc.wantDevice) {
+			t.Errorf("case %d, device doesn't match\ngot:\n%s\nwant:\n%s", i, render.Render(tc.d), render.Render(tc.wantDevice))
+		}
+	}
+}
+
 func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 	ts := time.Unix(1691777926, 0)
 	tsOld := time.Unix(1691777920, 0)
@@ -298,7 +405,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		reply := tc.d.getAWSShadowReply(ts, tc.omitClientToken, false)
+		reply := tc.d.getAWSShadowUpdateAcceptedReply(ts, tc.omitClientToken)
 		b, err := json.Marshal(reply)
 		if err != nil {
 			t.Fatalf("shadow update accepted reply for device '%s',\nts %d, error %v", render.Render(tc.d), ts.Unix(), err)
