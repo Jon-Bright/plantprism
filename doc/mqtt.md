@@ -13,6 +13,101 @@ in all cases is the Plantcube's UUID.
 * `agl/all/things/<DEVICE ID>/shadow/get/accepted`
 * `agl/prod/things/<DEVICE ID>/recipe`
 
+## Accepted messages from app
+
+We don't have captured messages from the app (and haven't disassembled the app
+yet). From the `.../shadow/accepted` messages that we see in response to its
+updates, though, we can say a few things:
+
+* Layer A is the bottom layer. Layer B is the top layer.
+* In addition to the normal values within `state{reported{`, the app has a
+  `plants` map, indexed by slot.
+* The slots are named e.g. `b9`. The letter is the layer, the number is
+  back-to-front, left-to-right. So `1` is back left, `3` is back right, `9` is
+  front right.
+* Each slot has entries:
+  * `harvest_ready`, a Unix timestamp when the plant is ready for harvest.
+  * `plant_id`. We don't know what IDs are actually used, because this is only
+    seen on harvest. The planting message that contains it is presumably one of
+    the rejected ones.
+  * `planted`. Presumably a Unix timestamp of when the thing was planted. Same
+    difficulty as above.
+  * `germination_duration`. Presumably a seconds-count for how long it needs to
+    germinate. Same difficulty as above.
+
+We can also say that the (Android) app appears to have bugs - its updates
+regularly result in update rejections.
+
+### Example planting
+
+```
+{
+  "state":{
+    "reported":{
+	  "plants":{
+	    "b9":{
+		  "harvest_ready":1687620600
+	    }
+	  }
+	}
+  },
+  "metadata":{
+    "reported":{
+	  "plants":{
+	    "b9":{
+		  "harvest_ready":{
+		    "timestamp":1687013649
+		  }
+	    }
+	  }
+	}
+  },
+  "version":938695,
+  "timestamp":1687013649
+}
+```
+
+### Example harvest
+
+```
+{
+  "state":{
+    "reported":{
+	  "plants":{
+	    "b7":{
+		  "status":"empty",
+		  "plant_id":null,
+		  "planted":null,
+		  "germination_duration":null
+	    }
+	  }
+	}
+  },
+  "metadata":{
+    "reported":{
+	  "plants":{
+	    "b7":{
+		  "status":{
+		    "timestamp":1687329839
+		  },
+		  "plant_id":{
+		    "timestamp":1687329839
+		  },
+		  "planted":{
+		    "timestamp":1687329839
+		  },
+		  "germination_duration":{
+		    "timestamp":1687329839
+		  }
+	    }
+	  }
+	}
+  },
+  "version":941306,
+  "timestamp":1687329839
+}
+```
+
 ## AWS status reporting
 
 The Plantcube regularly reports on the status of values of its choice - possibly
