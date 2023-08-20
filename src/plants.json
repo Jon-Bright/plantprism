@@ -1,0 +1,19 @@
+[
+    {
+	"Names":{
+	    "en": "Basil",
+	    "de": "Basilikum"
+	},
+	"Germination":"4d",
+	"HarvestFrom":"4w",
+	"HarvestBy":"6w"
+    },{
+	"Names":{
+	    "en": "Watercress",
+	    "de": "Brunnenkresse"
+	},
+	"Germination":"2d",
+	"HarvestFrom":"2w",
+	"HarvestBy":"5w"
+    }
+]

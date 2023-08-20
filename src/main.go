@@ -107,6 +107,11 @@ func main() {
 	}
 	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
 	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
+	plants, err := LoadPlants()
+	_ = plants
+	if err != nil {
+		log.Critical.Fatalf("Failed to load plants: %v", err)
+	}
 
 	err = ui.Init()
 	if err != nil {
