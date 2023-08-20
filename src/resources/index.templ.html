@@ -1,0 +1,170 @@
+{{define "button"}}
+  {{if .Planted}}
+    <button class="slot-plant" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
+      <img class="sprout" src="static/sprout.png"/>
+      {{.PlantName}}
+    </button>
+  {{- else}}
+    <button class="slot-empty">
+      <img class="empty" src="static/blank.png"/>
+      &nbsp;
+    </button>
+  {{- end}}
+{{end}}  
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
+    <title>Plantprism</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+    <script>
+      $( function() {
+        var confirmHarvestDialog, plantInfoDialog;
+        confirmHarvestDialog = $("#confirm-harvest").dialog({
+          autoOpen: false,
+          model: true,
+          show: {
+            effect: "drop",
+            duration: 500
+          },
+          hide: {
+            effect: "explode",
+            duration: 1000
+          },
+          buttons: {
+            "Yes": function() {
+              $( this ).dialog( "close" );
+            },
+            "No": function() {
+              $( this ).dialog( "option", "hide", {effect: "drop", duration: 500});
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+	    
+        plantInfoDialog = $("#plant-info").dialog({
+          autoOpen: false,
+          modal: true,
+          show: {
+            effect: "drop",
+            duration: 500
+          },
+          hide: {
+            effect: "drop",
+            duration: 1000
+          },
+          buttons: {
+            "Harvest": function() {
+              confirmHarvestDialog.find("#confirmHarvest-Name").text($( this).find("#plantInfo-Name").text());
+              confirmHarvestDialog.dialog("open");
+              $( this ).dialog( "close" );
+            },
+            "OK": function() {
+              $( this ).dialog( "close" );
+            }
+          }
+        });
+        $("button.slot-plant").on("click", function( event ) {
+          event.preventDefault();
+          plantInfoDialog.find("#plantInfo-Name").text(event.currentTarget.dataset.name);
+          plantInfoDialog.find("#plantInfo-Planted").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.plantingtime*1000)));
+          plantInfoDialog.find("#plantInfo-HarvestFrom").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestfrom*1000)));
+          plantInfoDialog.find("#plantInfo-HarvestBy").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestby*1000)));
+          plantInfoDialog.dialog("open");
+        });
+      } );
+    </script>
+  </head>
+  <style>
+    body {
+	font-family:"Google Sans",Arial,sans-serif;
+    }
+    table {
+	width:100%;
+    }
+    img.sprout {
+	width:24mm;
+    }
+    img.empty {
+	width:24mm;
+    }
+    td.slot {
+	border:4px ridge;
+	text-align:center;
+    }
+    td.layer {
+	font-size:24pt;
+	writing-mode:vertical-lr;
+	text-align:center;
+    }
+    td.frontback {
+	text-align:center;
+    }
+  </style>
+  <body>
+    <div id="plant-info" title="Plant information">
+      <ul>
+        <li>Name: <span id="plantInfo-Name" />
+	<li>Planted: <span id="plantInfo-Planted" />
+	<li>Harvest from: <span id="plantInfo-HarvestFrom" />
+	<li>Harvest by: <span id="plantInfo-HarvestBy" />
+      </ul>
+    </div>
+    <div id="confirm-harvest" title="Really harvest?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Are you sure you want to harvest </span><span id="confirmHarvest-Name"></span><span> ?</span></p>
+    </div>
+    <table>
+      <tr>
+	<td rowspan="5" class="layer">TOP</td>
+	<td colspan="3" class="frontback">Back</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.b1}}</td>
+	<td class="slot">{{template "button" .Slots.b2}}</td>
+	<td class="slot">{{template "button" .Slots.b3}}</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.b4}}</td>
+	<td class="slot">{{template "button" .Slots.b5}}</td>
+	<td class="slot">{{template "button" .Slots.b6}}</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.b7}}</td>
+	<td class="slot">{{template "button" .Slots.b8}}</td>
+	<td class="slot">{{template "button" .Slots.b9}}</td>
+      </tr>
+      <tr>
+	<td colspan="3" class="frontback">Front</td>
+      </tr>
+      <tr>
+	<td colspan="4">&nbsp;</td>
+      </tr>
+      <tr>
+	<td rowspan="5" class="layer">BOTTOM</td>
+	<td colspan="3" class="frontback">Back</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.a1}}</td>
+	<td class="slot">{{template "button" .Slots.a2}}</td>
+	<td class="slot">{{template "button" .Slots.a3}}</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.a4}}</td>
+	<td class="slot">{{template "button" .Slots.a5}}</td>
+	<td class="slot">{{template "button" .Slots.a6}}</td>
+      </tr>
+      <tr>
+	<td class="slot">{{template "button" .Slots.a7}}</td>
+	<td class="slot">{{template "button" .Slots.a8}}</td>
+	<td class="slot">{{template "button" .Slots.a9}}</td>
+      </tr>
+      <tr>
+	<td colspan="3" class="frontback">Front</td>
+      </tr>
+    </table>
+    <a href="static/credits.html">Credits</a>
+  </body>
+</html>

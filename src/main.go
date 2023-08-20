@@ -7,6 +7,7 @@ import (
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/mqtt"
+	"github.com/Jon-Bright/plantprism/ui"
 	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -106,6 +107,11 @@ func main() {
 	}
 	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
 	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
+
+	err = ui.Init()
+	if err != nil {
+		log.Critical.Fatalf("Unable to start UI serving: %v", err)
+	}
 
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
