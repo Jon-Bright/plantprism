@@ -2,6 +2,11 @@ var plantDB;
 
 function processPlantDB(data) {
     plantDB = data;
+    var ptSel = $("#plantType");
+    $.each(plantDB, function(i, plant) {
+	var o = new Option(plant.Names["de"], i);
+	ptSel.append($(o));
+    });
 }
 
 function FetchPlantDB() {
@@ -9,10 +14,32 @@ function FetchPlantDB() {
 }
 
 function InitDialogs() {
-    var confirmHarvestDialog, plantInfoDialog;
+    var addPlantDialog, confirmHarvestDialog, plantInfoDialog;
+    addPlantDialog = $("#add-plant").dialog({
+	autoOpen: false,
+	modal: true,
+	show: {
+	    effect: "drop",
+	    duration: 500
+	},
+	hide: {
+	    effect: "scale",
+	    duration: 1000
+	},
+	buttons: {
+	    "OK": function() {
+		$( this ).dialog( "close" );
+	    },
+	    "Cancel": function() {
+		$( this ).dialog( "option", "hide", {effect: "drop", duration: 500});
+		$( this ).dialog( "close" );
+	    }
+	}
+    });
+
     confirmHarvestDialog = $("#confirm-harvest").dialog({
         autoOpen: false,
-        model: true,
+        modal: true,
         show: {
             effect: "drop",
             duration: 500
@@ -61,6 +88,10 @@ function InitDialogs() {
         plantInfoDialog.find("#plantInfo-HarvestFrom").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestfrom*1000)));
         plantInfoDialog.find("#plantInfo-HarvestBy").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestby*1000)));
         plantInfoDialog.dialog("open");
+    });
+    $("button.slot-empty").on("click", function( event ) {
+	event.preventDefault();
+	addPlantDialog.dialog("open");
     });
 }
 
