@@ -1,4 +1,4 @@
-package main
+package plant
 
 import (
 	"encoding/json"

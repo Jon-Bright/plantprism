@@ -7,6 +7,7 @@ import (
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/mqtt"
+	"github.com/Jon-Bright/plantprism/plant"
 	"github.com/Jon-Bright/plantprism/ui"
 	paho "github.com/eclipse/paho.mqtt.golang"
 )
@@ -31,6 +32,7 @@ var (
 	mq              *mqtt.MQTT
 	topicIncomingRe *regexp.Regexp
 	topicOutgoingRe *regexp.Regexp
+	plantDB         []plant.Plant
 
 	// Mosquitto won't deliver topics that start with dollar signs
 	// unless they're explicitly subscribed to - a wildcard
@@ -107,8 +109,7 @@ func main() {
 	}
 	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
 	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
-	plants, err := LoadPlants()
-	_ = plants
+	plantDB, err = plant.LoadPlants()
 	if err != nil {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
