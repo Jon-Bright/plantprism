@@ -114,7 +114,7 @@ func main() {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
 
-	err = ui.Init()
+	err = ui.Init(plantDB)
 	if err != nil {
 		log.Critical.Fatalf("Unable to start UI serving: %v", err)
 	}

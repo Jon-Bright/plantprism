@@ -3,8 +3,11 @@ package ui
 import (
 	"net/http"
 
+	"github.com/Jon-Bright/plantprism/plant"
 	"github.com/gin-gonic/gin"
 )
+
+var plantDB []plant.Plant
 
 func handler(c *gin.Context) {
 	type SlotData struct {
@@ -152,16 +155,22 @@ func handler(c *gin.Context) {
 	c.HTML(http.StatusOK, "index.templ.html", vd)
 }
 
+func plantDBHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, plantDB)
+}
+
 func streamHandler(c *gin.Context) {
 	// TODO
 }
 
-func Init() error {
+func Init(pdb []plant.Plant) error {
+	plantDB = pdb
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.LoadHTMLGlob("resources/*.templ.html")
 	r.Static("/static", "resources/static")
 	r.GET("/", handler)
+	r.GET("/plantdb.json", plantDBHandler)
 	r.GET("/stream", streamHandler)
 	return r.Run(":3000")
 }

@@ -1,3 +1,14 @@
+var plantDB;
+
+function processPlantDB(data) {
+    plantDB = data;
+    console.log("pdb: '"+plantDB+"'");
+}
+
+function FetchPlantDB() {
+    $.getJSON("plantdb.json", processPlantDB);
+}
+
 function InitDialogs() {
     var confirmHarvestDialog, plantInfoDialog;
     confirmHarvestDialog = $("#confirm-harvest").dialog({
