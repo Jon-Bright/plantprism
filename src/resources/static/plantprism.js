@@ -2,7 +2,6 @@ var plantDB;
 
 function processPlantDB(data) {
     plantDB = data;
-    console.log("pdb: '"+plantDB+"'");
 }
 
 function FetchPlantDB() {
