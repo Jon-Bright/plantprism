@@ -22,12 +22,9 @@ function InitDialogs() {
 	    effect: "drop",
 	    duration: 500
 	},
-	hide: {
-	    effect: "scale",
-	    duration: 1000
-	},
 	buttons: {
 	    "OK": function() {
+		$( this ).dialog( "option", "hide", {effect: "scale", duration: 1000});
 		$( this ).dialog( "close" );
 	    },
 	    "Cancel": function() {
@@ -44,12 +41,9 @@ function InitDialogs() {
             effect: "drop",
             duration: 500
         },
-        hide: {
-            effect: "explode",
-            duration: 1000
-        },
         buttons: {
             "Yes": function() {
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
 		$( this ).dialog( "close" );
             },
             "No": function() {
