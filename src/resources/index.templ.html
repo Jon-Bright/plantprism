@@ -20,9 +20,6 @@
     body {
 	font-family:"Google Sans",Arial,sans-serif;
     }
-    table {
-	width:100%;
-    }
     img.sprout {
 	width:24mm;
     }
@@ -118,12 +115,12 @@
 {{define "button"}}
   {{if .Planted}}
     <button class="slot-plant" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
-      <img class="sprout" src="static/sprout.png"/>
+      <img class="sprout" src="static/sprout.png"/><br />
       {{.PlantName}}
     </button>
   {{- else}}
     <button class="slot-empty">
-      <img class="empty" src="static/blank.png"/>
+      <img class="empty" src="static/blank.png"/><br />
       &nbsp;
     </button>
   {{- end}}
