@@ -11,6 +11,7 @@ var plantDB []plant.Plant
 
 func handler(c *gin.Context) {
 	type SlotData struct {
+		Slot         string
 		Planted      bool
 		PlantName    string
 		PlantingTime int
@@ -24,6 +25,7 @@ func handler(c *gin.Context) {
 	vd := ViewData{
 		Slots: map[string]SlotData{
 			"a1": SlotData{
+				Slot:         "a1",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -31,6 +33,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a2": SlotData{
+				Slot:         "a2",
 				Planted:      true,
 				PlantName:    "Basilikum",
 				PlantingTime: 1692456791,
@@ -38,6 +41,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    1696690455,
 			},
 			"a3": SlotData{
+				Slot:         "a3",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -45,6 +49,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a4": SlotData{
+				Slot:         "a4",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -52,6 +57,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a5": SlotData{
+				Slot:         "a5",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -59,6 +65,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a6": SlotData{
+				Slot:         "a6",
 				Planted:      true,
 				PlantName:    "Brunnenkresse",
 				PlantingTime: 1690642676,
@@ -66,6 +73,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    1693061925,
 			},
 			"a7": SlotData{
+				Slot:         "a7",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -73,6 +81,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a8": SlotData{
+				Slot:         "a8",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -80,6 +89,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"a9": SlotData{
+				Slot:         "a9",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -87,6 +97,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b1": SlotData{
+				Slot:         "b1",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -94,6 +105,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b2": SlotData{
+				Slot:         "b2",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -101,6 +113,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b3": SlotData{
+				Slot:         "b3",
 				Planted:      true,
 				PlantName:    "Basilikum",
 				PlantingTime: 1692456791,
@@ -108,6 +121,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    1696690455,
 			},
 			"b4": SlotData{
+				Slot:         "b4",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -115,6 +129,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b5": SlotData{
+				Slot:         "b5",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -122,6 +137,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b6": SlotData{
+				Slot:         "b6",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -129,6 +145,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b7": SlotData{
+				Slot:         "b7",
 				Planted:      true,
 				PlantName:    "Brunnenkresse",
 				PlantingTime: 1690642676,
@@ -136,6 +153,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    1693061925,
 			},
 			"b8": SlotData{
+				Slot:         "b8",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,
@@ -143,6 +161,7 @@ func handler(c *gin.Context) {
 				HarvestBy:    0,
 			},
 			"b9": SlotData{
+				Slot:         "b9",
 				Planted:      false,
 				PlantName:    "",
 				PlantingTime: 0,

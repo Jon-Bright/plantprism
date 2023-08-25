@@ -50,6 +50,7 @@
 	  <label for="plantType">Plant type</label>
 	  <select name="plantType" id="plantType">
 	  </select>
+	  <input type="hidden" name="slot" id="slot" value="zz" />
 	</fieldset>
       </form>
     </div>
@@ -118,12 +119,12 @@
 </html>
 {{define "button"}}
   {{if .Planted}}
-    <button class="slot-plant" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
+    <button class="slot-plant" data-slot="{{.Slot}}" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
       <img class="sprout" src="static/sprout.png"/><br />
       {{.PlantName}}
     </button>
   {{- else}}
-    <button class="slot-empty">
+    <button class="slot-empty" data-slot="{{.Slot}}">
       <img class="empty" src="static/blank.png"/><br />
       &nbsp;
     </button>

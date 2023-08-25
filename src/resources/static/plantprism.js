@@ -24,6 +24,7 @@ function InitDialogs() {
 	},
 	buttons: {
 	    "OK": function() {
+		$.post("addPlant", $( this ).find("form").serialize());
 		$( this ).dialog( "option", "hide", {effect: "scale", duration: 1000});
 		$( this ).dialog( "close" );
 	    },
@@ -85,6 +86,7 @@ function InitDialogs() {
     });
     $("button.slot-empty").on("click", function( event ) {
 	event.preventDefault();
+	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
 	addPlantDialog.dialog("open");
     });
 }
