@@ -101,8 +101,30 @@ function InitUI() {
     $("#tabs").tabs();
 }
 
-function plantUpdate(e) {
+function slotEvent(e) {
     var data = jQuery.parseJSON(e.data);
+    var btn = $("#slot-" + data["Slot"]);
+    var img = btn.find("img");
+    var div = btn.find("div");
+    if (data["Planted"]) {
+	btn.attr("class", "slot-plant");
+	btn.attr("data-name", data["PlantName"]);
+	btn.attr("data-plantingtime", data["PlantingTime"]);
+	btn.attr("data-harvestfrom", data["HarvestFrom"]);
+	btn.attr("data-harvestby", data["HarvestBy"]);
+	btn.off("click");
+	btn.on("click", plantClick);
+	img.attr("src", "static/sprout.png");
+	img.attr("class", "sprout");
+	div.text(data["PlantName"]);
+    } else {
+	btn.attr("class", "slot-empty");
+	btn.off("click");
+	btn.on("click", emptyClick);
+	img.attr("src", "static/blank.png");
+	img.attr("class", "empty");
+	div.text("&nbsp;");
+    }
 }
 
 function StartStream() {
@@ -111,5 +133,5 @@ function StartStream() {
 	return;
     }
     var stream = new EventSource('/stream?id='+deviceID);
-    stream.addEventListener('plant', plantUpdate, false);
+    stream.addEventListener('se', slotEvent, false);
 }
