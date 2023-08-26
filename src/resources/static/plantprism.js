@@ -44,6 +44,7 @@ function InitUI() {
         },
         buttons: {
             "Yes": function() {
+		$.post("harvestPlant", $( this ).find("form").serialize());
 		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
 		$( this ).dialog( "close" );
             },
@@ -67,7 +68,9 @@ function InitUI() {
         },
         buttons: {
             "Harvest": function() {
-		confirmHarvestDialog.find("#confirmHarvest-Name").text($( this).find("#plantInfo-Name").text());
+		confirmHarvestDialog.find("#id").val(deviceID);
+		confirmHarvestDialog.find("#slot").val($(this).find("#slot").val());
+		confirmHarvestDialog.find("#confirmHarvest-Name").text($(this).find("#plantInfo-Name").text());
 		confirmHarvestDialog.dialog("open");
 		$( this ).dialog( "close" );
             },
@@ -78,6 +81,7 @@ function InitUI() {
     });
     $("button.slot-plant").on("click", function( event ) {
         event.preventDefault();
+        plantInfoDialog.find("#slot").val(event.currentTarget.dataset.slot);
         plantInfoDialog.find("#plantInfo-Name").text(event.currentTarget.dataset.name);
         plantInfoDialog.find("#plantInfo-Planted").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.plantingtime*1000)));
         plantInfoDialog.find("#plantInfo-HarvestFrom").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestfrom*1000)));
@@ -86,6 +90,7 @@ function InitUI() {
     });
     $("button.slot-empty").on("click", function( event ) {
 	event.preventDefault();
+	addPlantDialog.find("#id").val(deviceID);
 	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
 	addPlantDialog.dialog("open");
     });

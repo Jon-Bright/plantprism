@@ -54,15 +54,19 @@
   <body>
     <div id="add-plant" title="Add plant">
       <form>
+	<input type="hidden" name="id" id="id" value="" />
+	<input type="hidden" name="slot" id="slot" value="" />
 	<fieldset>
 	  <label for="plantType">Plant type</label>
 	  <select name="plantType" id="plantType">
 	  </select>
-	  <input type="hidden" name="slot" id="slot" value="" />
 	</fieldset>
       </form>
     </div>
     <div id="plant-info" title="Plant information">
+      <form>
+	<input type="hidden" name="slot" id="slot" value="" />
+      </form>
       <ul>
         <li>Name: <span id="plantInfo-Name" />
 	<li>Planted: <span id="plantInfo-Planted" />
@@ -72,6 +76,10 @@
     </div>
     <div id="confirm-harvest" title="Really harvest?">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Are you sure you want to harvest </span><span id="confirmHarvest-Name"></span><span> ?</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+	<input type="hidden" name="slot" id="slot" value="" />
+      </form>
     </div>
     <div id="tabs">
       <ul>
