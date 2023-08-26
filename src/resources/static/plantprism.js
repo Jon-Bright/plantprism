@@ -1,4 +1,22 @@
 var plantDB;
+var addPlantDialog, confirmHarvestDialog, plantInfoDialog;
+
+var plantClick = function( event ) {
+        event.preventDefault();
+        plantInfoDialog.find("#slot").val(event.currentTarget.dataset.slot);
+        plantInfoDialog.find("#plantInfo-Name").text(event.currentTarget.dataset.name);
+        plantInfoDialog.find("#plantInfo-Planted").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.plantingtime*1000)));
+        plantInfoDialog.find("#plantInfo-HarvestFrom").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestfrom*1000)));
+        plantInfoDialog.find("#plantInfo-HarvestBy").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestby*1000)));
+        plantInfoDialog.dialog("open");
+};
+
+var emptyClick = function( event ) {
+	event.preventDefault();
+	addPlantDialog.find("#id").val(deviceID);
+	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
+	addPlantDialog.dialog("open");
+};
 
 function processPlantDB(data) {
     plantDB = data;
@@ -14,7 +32,6 @@ function FetchPlantDB() {
 }
 
 function InitUI() {
-    var addPlantDialog, confirmHarvestDialog, plantInfoDialog;
     addPlantDialog = $("#add-plant").dialog({
 	autoOpen: false,
 	modal: true,
@@ -54,7 +71,7 @@ function InitUI() {
             }
         }
     });
-    
+
     plantInfoDialog = $("#plant-info").dialog({
         autoOpen: false,
         modal: true,
@@ -79,21 +96,8 @@ function InitUI() {
             }
         }
     });
-    $("button.slot-plant").on("click", function( event ) {
-        event.preventDefault();
-        plantInfoDialog.find("#slot").val(event.currentTarget.dataset.slot);
-        plantInfoDialog.find("#plantInfo-Name").text(event.currentTarget.dataset.name);
-        plantInfoDialog.find("#plantInfo-Planted").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.plantingtime*1000)));
-        plantInfoDialog.find("#plantInfo-HarvestFrom").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestfrom*1000)));
-        plantInfoDialog.find("#plantInfo-HarvestBy").text($.datepicker.formatDate('dd M yy', new Date(event.currentTarget.dataset.harvestby*1000)));
-        plantInfoDialog.dialog("open");
-    });
-    $("button.slot-empty").on("click", function( event ) {
-	event.preventDefault();
-	addPlantDialog.find("#id").val(deviceID);
-	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
-	addPlantDialog.dialog("open");
-    });
+    $("button.slot-plant").on("click", plantClick);
+    $("button.slot-empty").on("click", emptyClick);
     $("#tabs").tabs();
 }
 
