@@ -32,7 +32,6 @@ var (
 	mq              *mqtt.MQTT
 	topicIncomingRe *regexp.Regexp
 	topicOutgoingRe *regexp.Regexp
-	plantDB         map[plant.PlantID]plant.Plant
 
 	// Mosquitto won't deliver topics that start with dollar signs
 	// unless they're explicitly subscribed to - a wildcard
@@ -110,12 +109,12 @@ func main() {
 	}
 	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
 	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
-	plantDB, err = plant.LoadPlants()
+	err = plant.LoadPlants()
 	if err != nil {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
 
-	ui.Init(log, plantDB)
+	ui.Init(log)
 
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {

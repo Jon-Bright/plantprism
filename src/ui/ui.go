@@ -13,9 +13,8 @@ import (
 )
 
 var (
-	log     *logs.Loggers
-	plantDB map[plant.PlantID]plant.Plant
-	mqtt    paho.Client
+	log  *logs.Loggers
+	mqtt paho.Client
 )
 
 func SetPahoClient(c paho.Client) {
@@ -72,10 +71,16 @@ func indexHandler(c *gin.Context) {
 		for sid, slot := range layer {
 			slotID := string(lid) + strconv.Itoa(int(sid))
 			if slot.Plant != 0 {
+				plant, err := plant.Get(slot.Plant)
+				if err != nil {
+					log.Error.Printf("couldn't find plant %d for slot %s", slot.Plant, slotID)
+					c.String(http.StatusInternalServerError, "Unable to find plant for slot")
+					return
+				}
 				vd.Slots[slotID] = SlotData{
 					Slot:         slotID,
 					Planted:      true,
-					PlantName:    plantDB[slot.Plant].Names["de"], //TODO: language
+					PlantName:    plant.Names["de"], //TODO: language
 					PlantingTime: slot.PlantingTime.Unix(),
 					HarvestFrom:  slot.HarvestFrom.Unix(),
 					HarvestBy:    slot.HarvestBy.Unix(),
@@ -93,7 +98,7 @@ func indexHandler(c *gin.Context) {
 }
 
 func plantDBHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, plantDB)
+	c.JSON(http.StatusOK, plant.GetDB())
 }
 
 func streamHandler(c *gin.Context) {
@@ -151,9 +156,8 @@ func addPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
+func Init(l *logs.Loggers) {
 	log = l
-	plantDB = pdb
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.LoadHTMLGlob("resources/*.templ.html")

@@ -24,6 +24,7 @@ type Plant struct {
 
 var (
 	weekDayRe = regexp.MustCompile(`^(?:([0-9]+)w)?(?:([0-9]+)d)?(?:([0-9]+)h)?`)
+	plants    map[PlantID]Plant
 )
 
 func parseWeeksDays(wd string) (string, error) {
@@ -82,15 +83,26 @@ func (pd *plantDuration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func LoadPlants() (map[PlantID]Plant, error) {
+func LoadPlants() error {
 	m, err := os.ReadFile("plants.json")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read plants.json: %w", err)
+		return fmt.Errorf("failed to read plants.json: %w", err)
 	}
-	var plants map[PlantID]Plant
 	err = json.Unmarshal(m, &plants)
 	if err != nil {
-		return nil, fmt.Errorf("failed unmarshalling plant JSON '%s': %w", string(m), err)
+		return fmt.Errorf("failed unmarshalling plant JSON '%s': %w", string(m), err)
 	}
-	return plants, nil
+	return nil
+}
+
+func Get(id PlantID) (*Plant, error) {
+	p, ok := plants[id]
+	if !ok {
+		return nil, fmt.Errorf("PlantID %d not found", id)
+	}
+	return &p, nil
+}
+
+func GetDB() any {
+	return &plants
 }
