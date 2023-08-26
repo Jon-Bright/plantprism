@@ -150,14 +150,14 @@
 </html>
 {{define "button"}}
   {{if .Planted}}
-    <button class="slot-plant" data-slot="{{.Slot}}" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
-      <img class="sprout" src="static/sprout.png"/><br />
-      {{.PlantName}}
+    <button id="slot-{{.Slot}}" class="slot-plant" data-slot="{{.Slot}}" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
+      <img class="sprout" src="static/sprout.png"/>
+      <div class="slot-name">{{.PlantName}}</div>
     </button>
   {{- else}}
-    <button class="slot-empty" data-slot="{{.Slot}}">
-      <img class="empty" src="static/blank.png"/><br />
-      &nbsp;
+    <button id="slot-{{.Slot}}" class="slot-empty" data-slot="{{.Slot}}">
+      <img class="empty" src="static/blank.png"/>
+      <div class="slot-name">&nbsp;</div>
     </button>
   {{- end}}
 {{end}}
