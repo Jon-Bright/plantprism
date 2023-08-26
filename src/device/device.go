@@ -172,7 +172,8 @@ func (d *Device) Save() error {
 }
 
 type SlotEvent struct {
-	SlotID string
+	Layer layerID
+	Slot  slotID
 }
 
 func (d *Device) GetSlotChan() chan *SlotEvent {
@@ -187,6 +188,13 @@ func (d *Device) DropSlotChan(drop chan *SlotEvent) {
 			d.slotChans = append(d.slotChans[:i], d.slotChans[i+1:]...)
 			return
 		}
+	}
+}
+
+func (d *Device) sendStreamingUpdate(l layerID, s slotID) {
+	se := SlotEvent{l, s}
+	for _, c := range d.slotChans {
+		c <- &se
 	}
 }
 
@@ -228,6 +236,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestFrom:  t.Add(time.Duration(p.HarvestFrom)),
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
+	d.sendStreamingUpdate(l, s)
 	return nil
 }
 

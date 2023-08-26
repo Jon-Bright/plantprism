@@ -115,10 +115,29 @@ func streamHandler(c *gin.Context) {
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case se := <-slotChan:
-			c.SSEvent("se", gin.H{
-				"SlotID": se.SlotID,
-				// TODO: actual event details
-			})
+			slot := d.Slots[se.Layer][se.Slot]
+			slotID := string(se.Layer) + strconv.Itoa(int(se.Slot))
+			planted := (slot.Plant != 0)
+			if planted {
+				p, err := plant.Get(slot.Plant)
+				if err != nil {
+					log.Error.Printf("couldn't get plant for ID '%v': %v", slot.Plant, err)
+					return false
+				}
+				c.SSEvent("se", gin.H{
+					"Slot":         slotID,
+					"Planted":      true,
+					"PlantName":    p.Names["de"], // TODO: language
+					"PlantingTime": slot.PlantingTime.Unix(),
+					"HarvestFrom":  slot.HarvestFrom.Unix(),
+					"HarvestBy":    slot.HarvestBy.Unix(),
+				})
+			} else {
+				c.SSEvent("se", gin.H{
+					"SlotID":  slotID,
+					"Planted": false,
+				})
+			}
 			return true
 		}
 		return false
