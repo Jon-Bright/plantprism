@@ -114,10 +114,7 @@ func main() {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
 
-	err = ui.Init(plantDB)
-	if err != nil {
-		log.Critical.Fatalf("Unable to start UI serving: %v", err)
-	}
+	ui.Init(log, plantDB)
 
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
@@ -128,5 +125,6 @@ func main() {
 		log.Critical.Fatalf("Unable to connect MQTT: %v", err)
 	}
 
+	log.Info.Printf("Initialization complete")
 	select {}
 }
