@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"io"
 	"net/http"
 	"strconv"
 
@@ -41,10 +42,12 @@ func handler(c *gin.Context) {
 		HarvestBy    int64
 	}
 	type ViewData struct {
-		Slots map[string]SlotData
+		DeviceID string
+		Slots    map[string]SlotData
 	}
 	vd := ViewData{
-		Slots: map[string]SlotData{},
+		DeviceID: id,
+		Slots:    map[string]SlotData{},
 	}
 	for lid, layer := range d.Slots {
 		for sid, slot := range layer {
@@ -75,7 +78,31 @@ func plantDBHandler(c *gin.Context) {
 }
 
 func streamHandler(c *gin.Context) {
-	// TODO
+	id, set := c.GetQuery("id")
+	if !set {
+		c.String(http.StatusBadRequest, "No Device ID specified")
+		return
+	}
+	d, err := device.Get(id, mqtt)
+	if err != nil {
+		c.String(http.StatusBadRequest, "Device ID '%s' invalid: %v", id, err)
+		return
+	}
+	slotChan := d.GetSlotChan()
+	defer func() {
+		d.DropSlotChan(slotChan)
+	}()
+	c.Stream(func(w io.Writer) bool {
+		select {
+		case se := <-slotChan:
+			c.SSEvent("se", gin.H{
+				"SlotID": se.SlotID,
+				// TODO: actual event details
+			})
+			return true
+		}
+		return false
+	})
 }
 
 func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
