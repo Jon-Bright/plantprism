@@ -95,7 +95,7 @@ type Device struct {
 	mqttClient paho.Client
 	slotChans  []chan *SlotEvent
 
-	Slots map[layerID]map[slotID]slot
+	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
 	ClientToken string  `json:",omitempty"`
 	Recipe      *recipe `json:",omitempty"`
