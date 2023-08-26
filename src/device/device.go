@@ -84,6 +84,7 @@ type deviceReported struct {
 type slot struct {
 	Plant        plant.PlantID
 	PlantingTime time.Time
+	GerminatedBy time.Time
 	HarvestFrom  time.Time
 	HarvestBy    time.Time
 }
@@ -208,7 +209,25 @@ func parseSlot(slot string) (layerID, slotID, error) {
 	return l, s, nil
 }
 
-func (d *Device) AddPlant(slot string, plantID int) error {
+func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) error {
+	l, s, err := parseSlot(slotStr)
+	if err != nil {
+		return err
+	}
+	if d.Slots[l][s].Plant != 0 {
+		return fmt.Errorf("can't plant in slot '%s', it already contains plant ID '%d'", slotStr, d.Slots[l][s].Plant)
+	}
+	p, err := plant.Get(plantID)
+	if err != nil {
+		return fmt.Errorf("can't plant in slot '%s': %w", slotStr, err)
+	}
+	d.Slots[l][s] = slot{
+		Plant:        plantID,
+		PlantingTime: t,
+		GerminatedBy: t.Add(time.Duration(p.Germination)),
+		HarvestFrom:  t.Add(time.Duration(p.HarvestFrom)),
+		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
+	}
 	return nil
 }
 

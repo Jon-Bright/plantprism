@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
@@ -148,7 +149,7 @@ func addPlantHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Invalid plantType specified")
 		return
 	}
-	err = d.AddPlant(slot, plantID)
+	err = d.AddPlant(slot, plant.PlantID(plantID), time.Now())
 	if err != nil {
 		log.Warn.Printf("addPlant slot '%s', plantType '%s' failed: %v", slot, plantIDStr, err)
 		c.String(http.StatusInternalServerError, "AddPlant failed")
