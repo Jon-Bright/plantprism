@@ -47,6 +47,7 @@ var (
 
 func connectHandler(c paho.Client) {
 	log.Info.Printf("MQTT connected")
+	ui.SetPahoClient(c)
 	var (
 		i     int
 		topic string
