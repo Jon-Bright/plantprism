@@ -93,6 +93,7 @@ type Device struct {
 
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
+	slotChans  []chan *SlotEvent
 
 	Slots map[layerID]map[slotID]slot
 
@@ -167,6 +168,25 @@ func (d *Device) Save() error {
 		return fmt.Errorf("failed to write '%s': %w", sn, err)
 	}
 	return nil
+}
+
+type SlotEvent struct {
+	SlotID string
+}
+
+func (d *Device) GetSlotChan() chan *SlotEvent {
+	c := make(chan *SlotEvent, 5)
+	d.slotChans = append(d.slotChans, c)
+	return c
+}
+
+func (d *Device) DropSlotChan(drop chan *SlotEvent) {
+	for i, c := range d.slotChans {
+		if c == drop {
+			d.slotChans = append(d.slotChans[:i], d.slotChans[i+1:]...)
+			return
+		}
+	}
 }
 
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
