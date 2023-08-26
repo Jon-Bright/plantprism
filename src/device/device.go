@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Jon-Bright/plantprism/plant"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lupguo/go-render/render"
 	"io"
@@ -30,6 +31,27 @@ const (
 	MQTT_TOPIC_AGL_RECIPE          = "agl/prod/things/" + MQTT_ID_TOKEN + "/recipe"
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 	MQTT_TOPIC_AWS_UPDATE_DELTA    = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/delta"
+)
+
+type layerID string
+
+const (
+	layerA layerID = "a"
+	layerB layerID = "b"
+)
+
+type slotID int
+
+const (
+	slot1 slotID = 1
+	slot2 slotID = 2
+	slot3 slotID = 3
+	slot4 slotID = 4
+	slot5 slotID = 5
+	slot6 slotID = 6
+	slot7 slotID = 7
+	slot8 slotID = 8
+	slot9 slotID = 9
 )
 
 type deviceReported struct {
@@ -59,11 +81,20 @@ type deviceReported struct {
 	WifiLevel    valueWithTimestamp[int]
 }
 
+type slot struct {
+	Plant        plant.PlantID
+	PlantingTime time.Time
+	HarvestFrom  time.Time
+	HarvestBy    time.Time
+}
+
 type Device struct {
 	ID string `json:",omitempty"`
 
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
+
+	Slots map[layerID]map[slotID]slot
 
 	ClientToken string  `json:",omitempty"`
 	Recipe      *recipe `json:",omitempty"`

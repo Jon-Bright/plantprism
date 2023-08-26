@@ -107,6 +107,30 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 			return nil, fmt.Errorf("restored device has incorrect ID, want '%s', got '%s'", id, d.ID)
 		}
 	} else {
+		d.Slots = map[layerID]map[slotID]slot{
+			layerA: map[slotID]slot{
+				slot1: slot{},
+				slot2: slot{},
+				slot3: slot{},
+				slot4: slot{},
+				slot5: slot{},
+				slot6: slot{},
+				slot7: slot{},
+				slot8: slot{},
+				slot9: slot{},
+			},
+			layerB: map[slotID]slot{
+				slot1: slot{},
+				slot2: slot{},
+				slot3: slot{},
+				slot4: slot{},
+				slot5: slot{},
+				slot6: slot{},
+				slot7: slot{},
+				slot8: slot{},
+				slot9: slot{},
+			},
+		}
 		t := time.Now()
 		d.Timezone = timezone
 		var err error
