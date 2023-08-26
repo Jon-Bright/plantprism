@@ -13,7 +13,7 @@ function FetchPlantDB() {
     $.getJSON("plantdb.json", processPlantDB);
 }
 
-function InitDialogs() {
+function InitUI() {
     var addPlantDialog, confirmHarvestDialog, plantInfoDialog;
     addPlantDialog = $("#add-plant").dialog({
 	autoOpen: false,
@@ -89,6 +89,7 @@ function InitDialogs() {
 	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
 	addPlantDialog.dialog("open");
     });
+    $("#tabs").tabs();
 }
 
 function plantUpdate(e) {

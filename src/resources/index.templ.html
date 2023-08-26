@@ -15,7 +15,7 @@
     <script>
       $(document).ready(function() {
         FetchPlantDB();
-        InitDialogs();
+        InitUI();
         StartStream();
       });
     </script>
@@ -25,10 +25,10 @@
 	font-family:"Google Sans",Arial,sans-serif;
     }
     img.sprout {
-	width:24mm;
+	width:22mm;
     }
     img.empty {
-	width:24mm;
+	width:22mm;
     }
     td.slot {
 	border:4px ridge;
@@ -42,6 +42,13 @@
     td.frontback {
 	text-align:center;
     }
+    .ui-widget button {
+	font-family:"Google Sans",Arial,sans-serif;
+	font-size:9pt;
+    }
+    .ui-tabs .ui-tabs-panel {
+	padding: 0em 0em;
+    }
   </style>
   <body>
     <div id="add-plant" title="Add plant">
@@ -50,7 +57,7 @@
 	  <label for="plantType">Plant type</label>
 	  <select name="plantType" id="plantType">
 	  </select>
-	  <input type="hidden" name="slot" id="slot" value="zz" />
+	  <input type="hidden" name="slot" id="slot" value="" />
 	</fieldset>
       </form>
     </div>
@@ -65,55 +72,70 @@
     <div id="confirm-harvest" title="Really harvest?">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Are you sure you want to harvest </span><span id="confirmHarvest-Name"></span><span> ?</span></p>
     </div>
-    <table>
-      <tr>
-	<td rowspan="5" class="layer">TOP</td>
-	<td colspan="3" class="frontback">Back</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.b1}}</td>
-	<td class="slot">{{template "button" .Slots.b2}}</td>
-	<td class="slot">{{template "button" .Slots.b3}}</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.b4}}</td>
-	<td class="slot">{{template "button" .Slots.b5}}</td>
-	<td class="slot">{{template "button" .Slots.b6}}</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.b7}}</td>
-	<td class="slot">{{template "button" .Slots.b8}}</td>
-	<td class="slot">{{template "button" .Slots.b9}}</td>
-      </tr>
-      <tr>
-	<td colspan="3" class="frontback">Front</td>
-      </tr>
-      <tr>
-	<td colspan="4">&nbsp;</td>
-      </tr>
-      <tr>
-	<td rowspan="5" class="layer">BOTTOM</td>
-	<td colspan="3" class="frontback">Back</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.a1}}</td>
-	<td class="slot">{{template "button" .Slots.a2}}</td>
-	<td class="slot">{{template "button" .Slots.a3}}</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.a4}}</td>
-	<td class="slot">{{template "button" .Slots.a5}}</td>
-	<td class="slot">{{template "button" .Slots.a6}}</td>
-      </tr>
-      <tr>
-	<td class="slot">{{template "button" .Slots.a7}}</td>
-	<td class="slot">{{template "button" .Slots.a8}}</td>
-	<td class="slot">{{template "button" .Slots.a9}}</td>
-      </tr>
-      <tr>
-	<td colspan="3" class="frontback">Front</td>
-      </tr>
-    </table>
+    <div id="tabs">
+      <ul>
+	<li><a href="#tabPlants">Plants</a></li>
+	<li><a href="#tabStatus">Status</a></li>
+	<li><a href="#tabControl">Control</a></li>
+      </ul>
+      <div id="tabPlants">
+	<table>
+	  <tr>
+	    <td rowspan="5" class="layer">TOP</td>
+	    <td colspan="3" class="frontback">Back</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.b1}}</td>
+	    <td class="slot">{{template "button" .Slots.b2}}</td>
+	    <td class="slot">{{template "button" .Slots.b3}}</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.b4}}</td>
+	    <td class="slot">{{template "button" .Slots.b5}}</td>
+	    <td class="slot">{{template "button" .Slots.b6}}</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.b7}}</td>
+	    <td class="slot">{{template "button" .Slots.b8}}</td>
+	    <td class="slot">{{template "button" .Slots.b9}}</td>
+	  </tr>
+	  <tr>
+	    <td colspan="3" class="frontback">Front</td>
+	  </tr>
+	  <tr>
+	    <td colspan="4">&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td rowspan="5" class="layer">BOTTOM</td>
+	    <td colspan="3" class="frontback">Back</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.a1}}</td>
+	    <td class="slot">{{template "button" .Slots.a2}}</td>
+	    <td class="slot">{{template "button" .Slots.a3}}</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.a4}}</td>
+	    <td class="slot">{{template "button" .Slots.a5}}</td>
+	    <td class="slot">{{template "button" .Slots.a6}}</td>
+	  </tr>
+	  <tr>
+	    <td class="slot">{{template "button" .Slots.a7}}</td>
+	    <td class="slot">{{template "button" .Slots.a8}}</td>
+	    <td class="slot">{{template "button" .Slots.a9}}</td>
+	  </tr>
+	  <tr>
+	    <td colspan="3" class="frontback">Front</td>
+	  </tr>
+	</table>
+      </div>
+      <div id="tabStatus">
+	<p>TODO: Temp, humidity, light, etc. will appear here</p>
+      </div>
+      <div id="tabControl">
+	<p>TODO: Cleaning, cinema, silent, etc. controls will appear here</p>
+      </div>
+    </div>
     <a href="static/credits.html">Credits</a>
   </body>
 </html>
