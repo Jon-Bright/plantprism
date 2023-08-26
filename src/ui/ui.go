@@ -22,15 +22,34 @@ func SetPahoClient(c paho.Client) {
 	mqtt = c
 }
 
-func handler(c *gin.Context) {
-	id, set := c.GetQuery("id")
+func getDevice(c *gin.Context, isGet bool, reqName string) *device.Device {
+	var (
+		id  string
+		set bool
+	)
+	if isGet {
+		id, set = c.GetQuery("id")
+	} else {
+		id, set = c.GetPostForm("id")
+	}
 	if !set {
+		log.Warn.Printf("%s request with no Device ID received", reqName)
 		c.String(http.StatusBadRequest, "No Device ID specified")
-		return
+		return nil
 	}
 	d, err := device.Get(id, mqtt)
 	if err != nil {
-		c.String(http.StatusBadRequest, "Device ID '%s' invalid: %v", id, err)
+		log.Warn.Printf("%s request with invalid Device ID '%s': %v", reqName, id, err)
+		c.String(http.StatusBadRequest, "Device ID '%s' invalid", id)
+		return nil
+	}
+	return d
+}
+
+func indexHandler(c *gin.Context) {
+	d := getDevice(c, true, "Index")
+	if d == nil {
+		// Error, already handled
 		return
 	}
 	type SlotData struct {
@@ -46,7 +65,7 @@ func handler(c *gin.Context) {
 		Slots    map[string]SlotData
 	}
 	vd := ViewData{
-		DeviceID: id,
+		DeviceID: d.ID,
 		Slots:    map[string]SlotData{},
 	}
 	for lid, layer := range d.Slots {
@@ -78,14 +97,9 @@ func plantDBHandler(c *gin.Context) {
 }
 
 func streamHandler(c *gin.Context) {
-	id, set := c.GetQuery("id")
-	if !set {
-		c.String(http.StatusBadRequest, "No Device ID specified")
-		return
-	}
-	d, err := device.Get(id, mqtt)
-	if err != nil {
-		c.String(http.StatusBadRequest, "Device ID '%s' invalid: %v", id, err)
+	d := getDevice(c, true, "Stream")
+	if d == nil {
+		// Error, already handled
 		return
 	}
 	slotChan := d.GetSlotChan()
@@ -112,7 +126,7 @@ func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
 	r.SetTrustedProxies(nil)
 	r.LoadHTMLGlob("resources/*.templ.html")
 	r.Static("/static", "resources/static")
-	r.GET("/", handler)
+	r.GET("/", indexHandler)
 	r.GET("/plantdb.json", plantDBHandler)
 	r.GET("/stream", streamHandler)
 	go func() {
