@@ -119,6 +119,38 @@ func streamHandler(c *gin.Context) {
 	})
 }
 
+func addPlantHandler(c *gin.Context) {
+	d := getDevice(c, false, "AddPlant")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	slot, set := c.GetPostForm("slot")
+	if !set {
+		log.Warn.Printf("addPlant request with no slot received")
+		c.String(http.StatusBadRequest, "No slot specified")
+		return
+	}
+	plantIDStr, set := c.GetPostForm("plantType")
+	if !set {
+		log.Warn.Printf("addPlant request with no plantType received")
+		c.String(http.StatusBadRequest, "No plantType specified")
+		return
+	}
+	plantID, err := strconv.Atoi(plantIDStr)
+	if err != nil {
+		log.Warn.Printf("addPlant, plantType '%s' not convertible to integer: %v", plantIDStr, err)
+		c.String(http.StatusBadRequest, "Invalid plantType specified")
+		return
+	}
+	err = d.AddPlant(slot, plantID)
+	if err != nil {
+		log.Warn.Printf("addPlant slot '%s', plantType '%s' failed: %v", slot, plantIDStr, err)
+		c.String(http.StatusInternalServerError, "AddPlant failed")
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
 	log = l
 	plantDB = pdb
@@ -129,6 +161,7 @@ func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
 	r.GET("/", indexHandler)
 	r.GET("/plantdb.json", plantDBHandler)
 	r.GET("/stream", streamHandler)
+	r.POST("/addPlant", addPlantHandler)
 	go func() {
 		err := r.Run(":3000")
 		log.Critical.Fatalf("gin Run() returned, error %v", err)

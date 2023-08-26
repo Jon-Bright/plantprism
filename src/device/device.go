@@ -189,6 +189,10 @@ func (d *Device) DropSlotChan(drop chan *SlotEvent) {
 	}
 }
 
+func (d *Device) AddPlant(slot string, plantID int) error {
+	return nil
+}
+
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
 	d.msgQueue <- &msgUnparsed{prefix, event, content}
 }
