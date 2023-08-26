@@ -8,6 +8,65 @@ import (
 	"time"
 )
 
+func TestParseSlot(t *testing.T) {
+	tests := []struct {
+		in        string
+		wantError bool
+		layer     layerID
+		slot      slotID
+	}{
+		{ // Too short
+			in:        "",
+			wantError: true,
+		}, { // Too short
+			in:        "a",
+			wantError: true,
+		}, { // Too long
+			in:        "foo",
+			wantError: true,
+		}, { // Invalid slot
+			in:        "a0",
+			wantError: true,
+		}, { // Invalid slot
+			in:        "ab",
+			wantError: true,
+		}, { // Invalid layer
+			in:        "c1",
+			wantError: true,
+		}, { // Valid A
+			in:        "a1",
+			wantError: false,
+			layer:     layerA,
+			slot:      slot1,
+		}, { // Valid B
+			in:        "b2",
+			wantError: false,
+			layer:     layerB,
+			slot:      slot2,
+		}, { // Valid 9
+			in:        "a9",
+			wantError: false,
+			layer:     layerA,
+			slot:      slot9,
+		},
+	}
+	for _, tc := range tests {
+		l, s, err := parseSlot(tc.in)
+		if tc.wantError != (err != nil) {
+			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.in, tc.wantError, err)
+		}
+		if !tc.wantError {
+			if tc.layer != l {
+				t.Errorf("parsing '%s', wrong layer, got %v, want %v", tc.in, l, tc.layer)
+			}
+			if tc.slot != s {
+				t.Errorf("parsing '%s', wrong slot, got %v, want %v", tc.in, s, tc.slot)
+			}
+		}
+	}
+
+}
+
 func TestMarshalUnmarshal(t *testing.T) {
 	ts := time.Unix(1691777926, 0)
 	tests := []struct {

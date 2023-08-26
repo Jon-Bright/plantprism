@@ -189,6 +189,25 @@ func (d *Device) DropSlotChan(drop chan *SlotEvent) {
 	}
 }
 
+func parseSlot(slot string) (layerID, slotID, error) {
+	if len(slot) != 2 {
+		return "", 0, fmt.Errorf("slot string '%s' has wrong length", slot)
+	}
+	var l layerID
+	if slot[0:1] == string(layerA) {
+		l = layerA
+	} else if slot[0:1] == string(layerB) {
+		l = layerB
+	} else {
+		return "", 0, fmt.Errorf("slot string '%s' has invalid layer", slot)
+	}
+	if slot[1] < '1' || slot[1] > '9' {
+		return "", 0, fmt.Errorf("slot string '%s' has invalid slot", slot)
+	}
+	s := slotID(slot[1] - '0')
+	return l, s, nil
+}
+
 func (d *Device) AddPlant(slot string, plantID int) error {
 	return nil
 }
