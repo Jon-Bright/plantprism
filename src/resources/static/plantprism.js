@@ -3,8 +3,8 @@ var plantDB;
 function processPlantDB(data) {
     plantDB = data;
     var ptSel = $("#plantType");
-    $.each(plantDB, function(i, plant) {
-	var o = new Option(plant.Names["de"], plant.ID);
+    $.each(plantDB, function(id, plant) {
+	var o = new Option(plant.Names["de"], id);
 	ptSel.append($(o));
     });
 }
