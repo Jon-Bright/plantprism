@@ -9,11 +9,14 @@ import (
 	"time"
 )
 
+type PlantID int
 type language string
 type plantDuration time.Duration
 
 type Plant struct {
+	ID    PlantID
 	Names map[language]string
+
 	// All of these durations are measured from planting
 	Germination plantDuration
 	HarvestFrom plantDuration

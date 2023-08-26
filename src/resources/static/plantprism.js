@@ -4,7 +4,7 @@ function processPlantDB(data) {
     plantDB = data;
     var ptSel = $("#plantType");
     $.each(plantDB, function(i, plant) {
-	var o = new Option(plant.Names["de"], i);
+	var o = new Option(plant.Names["de"], plant.ID);
 	ptSel.append($(o));
     });
 }
