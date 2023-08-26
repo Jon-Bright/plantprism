@@ -13,6 +13,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
     <script src="static/plantprism.js"></script>
     <script>
+      var deviceID = "{{.DeviceID}}";
       $(document).ready(function() {
         FetchPlantDB();
         InitUI();

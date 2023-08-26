@@ -101,6 +101,6 @@ function StartStream() {
 	alert("EventSource is not enabled in this browser");
 	return;
     }
-    var stream = new EventSource('/stream/');
+    var stream = new EventSource('/stream?id='+deviceID);
     stream.addEventListener('plant', plantUpdate, false);
 }
