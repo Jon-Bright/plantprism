@@ -32,7 +32,7 @@ var (
 	mq              *mqtt.MQTT
 	topicIncomingRe *regexp.Regexp
 	topicOutgoingRe *regexp.Regexp
-	plantDB         []plant.Plant
+	plantDB         map[plant.PlantID]plant.Plant
 
 	// Mosquitto won't deliver topics that start with dollar signs
 	// unless they're explicitly subscribed to - a wildcard

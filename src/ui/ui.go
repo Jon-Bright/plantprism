@@ -10,7 +10,7 @@ import (
 
 var (
 	log     *logs.Loggers
-	plantDB []plant.Plant
+	plantDB map[plant.PlantID]plant.Plant
 )
 
 func handler(c *gin.Context) {
@@ -186,7 +186,7 @@ func streamHandler(c *gin.Context) {
 	// TODO
 }
 
-func Init(l *logs.Loggers, pdb []plant.Plant) {
+func Init(l *logs.Loggers, pdb map[plant.PlantID]plant.Plant) {
 	log = l
 	plantDB = pdb
 	r := gin.Default()

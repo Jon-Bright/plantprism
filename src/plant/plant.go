@@ -14,7 +14,6 @@ type language string
 type plantDuration time.Duration
 
 type Plant struct {
-	ID    PlantID
 	Names map[language]string
 
 	// All of these durations are measured from planting
@@ -83,12 +82,12 @@ func (pd *plantDuration) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func LoadPlants() ([]Plant, error) {
+func LoadPlants() (map[PlantID]Plant, error) {
 	m, err := os.ReadFile("plants.json")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read plants.json: %w", err)
 	}
-	var plants []Plant
+	var plants map[PlantID]Plant
 	err = json.Unmarshal(m, &plants)
 	if err != nil {
 		return nil, fmt.Errorf("failed unmarshalling plant JSON '%s': %w", string(m), err)
