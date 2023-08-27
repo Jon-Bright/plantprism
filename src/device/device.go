@@ -32,8 +32,9 @@ const (
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 	MQTT_TOPIC_AWS_UPDATE_DELTA    = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/delta"
 
-	KeepBackups = 20
-	SaveDelay   = 20 * time.Second
+	KeepBackups      = 20
+	SaveDelay        = 20 * time.Second
+	MinimumRecipeAge = 48 * time.Hour
 )
 
 type layerID string
@@ -289,6 +290,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
 	d.sendStreamingUpdate(l, s)
+	d.evaluateRecipe()
 	d.QueueSave()
 	return nil
 }
@@ -303,7 +305,66 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
+	err = d.evaluateRecipe()
+	if err != nil {
+		return fmt.Errorf("post-harvest (slot '%s') recipe evaluation failed: %w", slotStr, err)
+	}
 	d.QueueSave()
+	return nil
+}
+
+func (d *Device) layerHasPlants(l layerID) bool {
+	for _, s := range d.Slots[l] {
+		if s.Plant != 0 {
+			return true
+		}
+	}
+	return false
+}
+
+func (d *Device) evaluateRecipe() error {
+	// TODO: there's a lot more we could do here, but for now, we
+	// just activate the layers we need to. We then only replace
+	// the recipe when one or both of two conditions is true:
+	//
+	// 1. it's different
+	// 2. the current one is old, for some definition of old
+	//
+	// Future potential improvements:
+	//
+	// * We could adjust temperatures when there are germinating
+	// plants (maybe with a plain average, maybe just with
+	// germination taking priority on the theory that
+	// non-germinating plants are more robust).
+	// * We could reduce day length when there are only mature
+	// plants (where further growth should maybe be inhibited?)
+	// * We could adjust lighting colours depending on plant
+	// phases.
+	//
+	// It's unclear from our minimal recipe sample whether the
+	// Agrilution code did any of this.
+	layerAActive := d.layerHasPlants(layerA)
+	layerBActive := d.layerHasPlants(layerB)
+	r, err := CreateRecipe(time.Now(), defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)
+	if err != nil {
+		return fmt.Errorf("CreateRecipe failed, layerAActive=%v, layerBActive=%v: %w", layerAActive, layerBActive, err)
+	}
+
+	eq, err := r.EqualExceptTimestamps(d.Recipe)
+	if err != nil {
+		return fmt.Errorf("Failed comparing old/new recipes: %w", err)
+	}
+	if eq {
+		ad := r.AgeDifference(d.Recipe)
+		if ad < MinimumRecipeAge {
+			// Recipes are equal and the current one's not
+			// old. Leave it be
+			return nil
+		}
+	}
+	// Recipes either aren't equal, or the current one's old.
+	// TODO: send new recipe
+
 	return nil
 }
 

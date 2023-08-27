@@ -143,6 +143,19 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 	return &r, nil
 }
 
+func (ra *recipe) EqualExceptTimestamps(rb *recipe) (bool, error) {
+	return false, nil
+}
+
+func (ra *recipe) AgeDifference(rb *recipe) time.Duration {
+	// The ID is a Unix timestamp of creation time, so this is age
+	// difference.
+	if ra.ID < rb.ID {
+		return time.Duration(rb.ID-ra.ID) * time.Second
+	}
+	return time.Duration(ra.ID-rb.ID) * time.Second
+}
+
 func (p *recipePeriod) Marshal(buf *bytes.Buffer) error {
 	err := binary.Write(buf, binary.LittleEndian, p.Duration)
 	if err != nil {
