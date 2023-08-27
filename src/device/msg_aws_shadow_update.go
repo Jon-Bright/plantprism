@@ -203,25 +203,14 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed, t time.Time) ([]msgRep
 	}
 	if d.Recipe != nil && dr.RecipeID.Value != int(d.Recipe.ID) {
 		// We need to generate a delta message that just
-		// covers the Recipe ID.  We therefore add a
-		// nanosecond to the previous update time, set the
-		// desired Recipe ID with that timestamp, then revert
-		// it (the Plantcube will reply with a
-		// .../shadow/update message once it has the new
-		// recipe). A nanosecond is enough that
-		// getAWSShadowReply will see the value (and only this
-		// value) as updated at this time, but tiny enough
-		// that we don't need to worry about Unix timestamps
-		// on the wire moving back and forth in time.
+		// covers the Recipe ID.  We therefore make a new
+		// Device with our current AWS version, update just
+		// the Recipe ID and generate a delta based on this.
 		deltaD := Device{
 			AWSVersion: d.AWSVersion,
 		}
 		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
-		//deltaT := t.Add(time.Nanosecond)
-		//prevRecipeID := dr.RecipeID
-		//dr.RecipeID.update(int(d.Recipe.ID), deltaT)
 		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(t))
-		//dr.RecipeID = prevRecipeID
 	}
 	return replies, nil
 }
