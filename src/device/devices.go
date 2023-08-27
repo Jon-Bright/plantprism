@@ -97,6 +97,7 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	d.ID = id
 	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
 	d.mqttClient = c
+	d.slotChans = []chan *SlotEvent{}
 
 	if d.IsSaved() {
 		err := d.RestoreFromFile()
