@@ -134,7 +134,7 @@ func streamHandler(c *gin.Context) {
 				})
 			} else {
 				c.SSEvent("se", gin.H{
-					"SlotID":  slotID,
+					"Slot":    slotID,
 					"Planted": false,
 				})
 			}
