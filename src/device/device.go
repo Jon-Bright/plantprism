@@ -33,6 +33,7 @@ const (
 	MQTT_TOPIC_AWS_UPDATE_DELTA    = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/delta"
 
 	KeepBackups = 20
+	SaveDelay   = 20 * time.Second
 )
 
 type layerID string
@@ -97,6 +98,7 @@ type Device struct {
 	msgQueue   chan *msgUnparsed
 	mqttClient paho.Client
 	slotChans  []chan *SlotEvent
+	saveTimer  *time.Timer
 
 	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
@@ -208,6 +210,17 @@ func (d *Device) Save() error {
 		return fmt.Errorf("failed to write '%s': %w", sn, err)
 	}
 	return nil
+}
+
+func (d *Device) queuedSave() {
+	err := d.Save()
+	if err != nil {
+		log.Critical.Fatalf("failed queued save: %v", err)
+	}
+}
+
+func (d *Device) QueueSave() {
+	d.saveTimer.Reset(SaveDelay)
 }
 
 type SlotEvent struct {

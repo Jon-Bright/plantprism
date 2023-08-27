@@ -99,6 +99,18 @@ func instantiateDevice(id string, c paho.Client) (*Device, error) {
 	d.mqttClient = c
 	d.slotChans = []chan *SlotEvent{}
 
+	// Go is happy to let us reset a Timer later, but refuses to
+	// create an unstarted timer. We could create the Timer when
+	// we need it, but that needs us to be using sync.Mutex as we
+	// might do that from any of several HTTP servers, or from
+	// MQTT. The same is _theoretically_ true here, but in
+	// practice, devices will be instantiated early in our
+	// lifetime, so the risk is minimal. So, we create a Timer for
+	// (a long time away), then stop it. It can now be reset later
+	// without worry.
+	d.saveTimer = time.AfterFunc(24*265*time.Hour, d.queuedSave)
+	d.saveTimer.Stop()
+
 	if d.IsSaved() {
 		err := d.RestoreFromFile()
 		if err != nil {
