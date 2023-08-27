@@ -123,7 +123,7 @@ function slotEvent(e) {
 	btn.on("click", emptyClick);
 	img.attr("src", "static/blank.png");
 	img.attr("class", "empty");
-	div.text("&nbsp;");
+	div.html("&nbsp;");
     }
 }
 
