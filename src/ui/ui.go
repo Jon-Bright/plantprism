@@ -172,6 +172,7 @@ func addPlantHandler(c *gin.Context) {
 	if err != nil {
 		log.Warn.Printf("addPlant slot '%s', plantType '%s' failed: %v", slot, plantIDStr, err)
 		c.String(http.StatusInternalServerError, "AddPlant failed")
+		return
 	}
 	c.JSON(http.StatusNoContent, nil)
 }
