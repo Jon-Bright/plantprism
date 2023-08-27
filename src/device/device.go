@@ -289,6 +289,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
 	d.sendStreamingUpdate(l, s)
+	d.QueueSave()
 	return nil
 }
 
@@ -302,6 +303,7 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
+	d.QueueSave()
 	return nil
 }
 
@@ -350,6 +352,10 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 		if err != nil {
 			return fmt.Errorf("failed reply for prefix '%s', event '%s': %w", msg.prefix, msg.event, err)
 		}
+		// Technically, we could always queue a save, but "if
+		// the message was worth replying to, it's probably
+		// worth saving" is a decent rule of thumb.
+		d.QueueSave()
 	}
 
 	return nil
