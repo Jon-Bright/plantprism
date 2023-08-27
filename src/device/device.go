@@ -240,6 +240,19 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 	return nil
 }
 
+func (d *Device) HarvestPlant(slotStr string) error {
+	l, s, err := parseSlot(slotStr)
+	if err != nil {
+		return err
+	}
+	if d.Slots[l][s].Plant == 0 {
+		return fmt.Errorf("can't harvest in slot '%s', it's already empty", slotStr)
+	}
+	d.Slots[l][s] = slot{}
+	d.sendStreamingUpdate(l, s)
+	return nil
+}
+
 func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
 	d.msgQueue <- &msgUnparsed{prefix, event, content}
 }

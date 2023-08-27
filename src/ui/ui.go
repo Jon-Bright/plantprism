@@ -177,6 +177,27 @@ func addPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+func harvestPlantHandler(c *gin.Context) {
+	d := getDevice(c, false, "HarvestPlant")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	slot, set := c.GetPostForm("slot")
+	if !set {
+		log.Warn.Printf("harvestPlant request with no slot received")
+		c.String(http.StatusBadRequest, "No slot specified")
+		return
+	}
+	err := d.HarvestPlant(slot)
+	if err != nil {
+		log.Warn.Printf("harvestPlant slot '%s' failed: %v", slot, err)
+		c.String(http.StatusInternalServerError, "HarvestPlant failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func Init(l *logs.Loggers) {
 	log = l
 	r := gin.Default()
@@ -187,6 +208,7 @@ func Init(l *logs.Loggers) {
 	r.GET("/plantdb.json", plantDBHandler)
 	r.GET("/stream", streamHandler)
 	r.POST("/addPlant", addPlantHandler)
+	r.POST("/harvestPlant", harvestPlantHandler)
 	go func() {
 		err := r.Run(":3000")
 		log.Critical.Fatalf("gin Run() returned, error %v", err)
