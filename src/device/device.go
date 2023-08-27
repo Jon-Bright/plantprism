@@ -343,27 +343,38 @@ func (d *Device) evaluateRecipe() error {
 	//
 	// It's unclear from our minimal recipe sample whether the
 	// Agrilution code did any of this.
+	t := time.Now()
 	layerAActive := d.layerHasPlants(layerA)
 	layerBActive := d.layerHasPlants(layerB)
-	r, err := CreateRecipe(time.Now(), defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)
+	r, err := CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)
 	if err != nil {
 		return fmt.Errorf("CreateRecipe failed, layerAActive=%v, layerBActive=%v: %w", layerAActive, layerBActive, err)
 	}
 
 	eq, err := r.EqualExceptTimestamps(d.Recipe)
 	if err != nil {
-		return fmt.Errorf("Failed comparing old/new recipes: %w", err)
+		return fmt.Errorf("failed comparing old/new recipes: %w", err)
 	}
 	if eq {
 		ad := r.AgeDifference(d.Recipe)
 		if ad < MinimumRecipeAge {
 			// Recipes are equal and the current one's not
-			// old. Leave it be
+			// old. Leave it be.
 			return nil
 		}
 	}
-	// Recipes either aren't equal, or the current one's old.
-	// TODO: send new recipe
+	// Recipes either aren't equal, or the current one's
+	// old. Update and send a delta message.
+	d.Recipe = r
+	deltaD := Device{
+		AWSVersion: d.AWSVersion,
+	}
+	deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
+	delta := deltaD.getAWSShadowUpdateDeltaReply(t)
+	err = d.sendReplies([]msgReply{delta})
+	if err != nil {
+		return fmt.Errorf("failed sending delta for new recipe: %w", err)
+	}
 
 	return nil
 }
