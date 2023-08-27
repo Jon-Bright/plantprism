@@ -31,6 +31,8 @@ const (
 	MQTT_TOPIC_AGL_RECIPE          = "agl/prod/things/" + MQTT_ID_TOKEN + "/recipe"
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 	MQTT_TOPIC_AWS_UPDATE_DELTA    = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/delta"
+
+	KeepBackups = 20
 )
 
 type layerID string
@@ -134,6 +136,10 @@ func (d *Device) saveName() string {
 	return fmt.Sprintf("plantcube-%s.json", d.ID)
 }
 
+func (d *Device) backupName(gen int) string {
+	return fmt.Sprintf("plantcube-%s-backup-%d.json", d.ID, gen)
+}
+
 // IsSaved returns whether a file exists with saved metadata for the
 // device.
 func (d *Device) IsSaved() bool {
@@ -157,8 +163,41 @@ func (d *Device) RestoreFromFile() error {
 	return nil
 }
 
+func (d *Device) MakeBackups() error {
+	var src, dst string
+	src = d.backupName(KeepBackups)
+	expectExist := false
+	for i := KeepBackups; i >= 0; i-- {
+		dst = src
+		if i > 0 {
+			src = d.backupName(i - 1)
+		} else {
+			src = d.saveName()
+		}
+		err := os.Rename(src, dst)
+		if err != nil {
+			if os.IsNotExist(err) && !expectExist {
+				// We might not have made this many
+				// backups yet (or, indeed, have saved
+				// at all). As soon as we see one that
+				// _does_ exist, we'll set expectExist
+				// below and this condition won't
+				// match.
+				continue
+			}
+			return fmt.Errorf("failed shuffling backup '%s' to '%s', gen %d: %w", src, dst, i, err)
+		}
+		expectExist = true
+	}
+	return nil
+}
+
 // Save saves the device's metadata to a file.
 func (d *Device) Save() error {
+	err := d.MakeBackups()
+	if err != nil {
+		return fmt.Errorf("failed pre-save backup: %w", err)
+	}
 	b, err := json.MarshalIndent(d, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal device '%s': %w", d.ID, err)
