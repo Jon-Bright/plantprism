@@ -11,11 +11,13 @@ package main
 
 import (
 	"bytes"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
 	golog "log"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -27,6 +29,7 @@ import (
 	"github.com/gopacket/gopacket"
 	"github.com/gopacket/gopacket/layers"
 	"github.com/gopacket/gopacket/pcapgo"
+	"github.com/nsf/jsondiff"
 )
 
 const (
@@ -251,13 +254,23 @@ func expectFromPlantprism(t *testing.T, packetNum int, ts time.Time, p *pahopack
 }
 
 func compareMessages(t *testing.T, packetNum int, ts time.Time, m *pubMsg, p *pahopackets.PublishPacket) {
-	quotedGot := fmt.Sprintf("%q", string(m.payload))
-	quotedWant := fmt.Sprintf("%q", string(p.Payload))
 	if m.topic != p.TopicName {
-		t.Errorf("packet %d: incorrect topic,\n got '%s', \nwant '%s', payload\n got '%s', \nwant '%s'", packetNum, m.topic, p.TopicName, quotedGot, quotedWant)
+		t.Errorf("packet %d: incorrect topic,\n got '%s', \nwant '%s'", packetNum, m.topic, p.TopicName)
 		return
 	}
-	if quotedGot != quotedWant {
-		t.Errorf("packet %d: incorrect payload, orig time %d,\n got '%s', \nwant '%s'", packetNum, ts.Unix(), quotedGot, quotedWant)
+	if m.payload[0] == '{' && p.Payload[0] == '{' {
+		// Both payloads are JSON (the common case)
+		opt := jsondiff.DefaultConsoleOptions()
+		result, diff := jsondiff.Compare(m.payload, p.Payload, &opt)
+		if result != jsondiff.FullMatch {
+			t.Errorf("packet %d: incorrect JSON payload, orig time %d, match result %s, diff '%s'", packetNum, ts.Unix(), result, diff)
+		}
+	} else {
+		// Something else, assume binary (probably a recipe)
+		if !reflect.DeepEqual(m.payload, p.Payload) {
+			hexGot := hex.Dump(m.payload)
+			hexWant := hex.Dump(p.Payload)
+			t.Errorf("packet %d: incorrect non-JSON payload, orig time %d,\n got '%s', \nwant '%s'", packetNum, ts.Unix(), hexGot, hexWant)
+		}
 	}
 }
