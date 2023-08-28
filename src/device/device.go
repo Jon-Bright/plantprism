@@ -305,12 +305,12 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
 	d.sendStreamingUpdate(l, s)
-	d.evaluateRecipe()
+	d.evaluateRecipe(t)
 	d.QueueSave()
 	return nil
 }
 
-func (d *Device) HarvestPlant(slotStr string) error {
+func (d *Device) HarvestPlant(slotStr string, t time.Time) error {
 	l, s, err := parseSlot(slotStr)
 	if err != nil {
 		return err
@@ -320,7 +320,7 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
-	err = d.evaluateRecipe()
+	err = d.evaluateRecipe(t)
 	if err != nil {
 		return fmt.Errorf("post-harvest (slot '%s') recipe evaluation failed: %w", slotStr, err)
 	}
@@ -337,7 +337,7 @@ func (d *Device) layerHasPlants(l layerID) bool {
 	return false
 }
 
-func (d *Device) evaluateRecipe() error {
+func (d *Device) evaluateRecipe(t time.Time) error {
 	// TODO: there's a lot more we could do here, but for now, we
 	// just activate the layers we need to. We then only replace
 	// the recipe when one or both of two conditions is true:
@@ -358,7 +358,6 @@ func (d *Device) evaluateRecipe() error {
 	//
 	// It's unclear from our minimal recipe sample whether the
 	// Agrilution code did any of this.
-	t := time.Now()
 	layerAActive := d.layerHasPlants(layerA)
 	layerBActive := d.layerHasPlants(layerB)
 	r, err := CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)

@@ -184,7 +184,7 @@ func harvestPlantHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "No slot specified")
 		return
 	}
-	err := d.HarvestPlant(slot)
+	err := d.HarvestPlant(slot, time.Now())
 	if err != nil {
 		log.Warn.Printf("harvestPlant slot '%s' failed: %v", slot, err)
 		c.String(http.StatusInternalServerError, "HarvestPlant failed")
