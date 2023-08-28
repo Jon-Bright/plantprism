@@ -248,7 +248,7 @@ func expectFromPlantprism(t *testing.T, packetNum int, ts time.Time, p *pahopack
 	case m := <-testPub.msgs:
 		compareMessages(t, packetNum, ts, m, p)
 	case <-time.After(time.Second * 2):
-		t.Errorf("timeout waiting for message %v", p)
+		t.Errorf("packet %d, orig time %d, timeout waiting for message %v", packetNum, ts.Unix(), p)
 	}
 	return nil
 }
@@ -263,14 +263,14 @@ func compareMessages(t *testing.T, packetNum int, ts time.Time, m *pubMsg, p *pa
 		opt := jsondiff.DefaultConsoleOptions()
 		result, diff := jsondiff.Compare(m.payload, p.Payload, &opt)
 		if result != jsondiff.FullMatch {
-			t.Errorf("packet %d: incorrect JSON payload, orig time %d, match result %s, diff '%s'", packetNum, ts.Unix(), result, diff)
+			t.Errorf("packet %d: incorrect JSON payload, orig time %d, topic '%s', match result %s, diff '%s'", packetNum, ts.Unix(), m.topic, result, diff)
 		}
 	} else {
 		// Something else, assume binary (probably a recipe)
 		if !reflect.DeepEqual(m.payload, p.Payload) {
 			hexGot := hex.Dump(m.payload)
 			hexWant := hex.Dump(p.Payload)
-			t.Errorf("packet %d: incorrect non-JSON payload, orig time %d,\n got '%s', \nwant '%s'", packetNum, ts.Unix(), hexGot, hexWant)
+			t.Errorf("packet %d: incorrect non-JSON payload, orig time %d, topic '%s',\n got '%s', \nwant '%s'", packetNum, ts.Unix(), m.topic, hexGot, hexWant)
 		}
 	}
 }
