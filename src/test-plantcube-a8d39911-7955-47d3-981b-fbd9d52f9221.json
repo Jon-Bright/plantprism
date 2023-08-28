@@ -1,0 +1,189 @@
+{
+  "ID": "a8d39911-7955-47d3-981b-fbd9d52f9221",
+  "Slots": {
+    "a": {
+      "1": {
+      },
+      "2": {
+      },
+      "3": {
+      },
+      "4": {
+      },
+      "5": {
+      },
+      "6": {
+      },
+      "7": {
+      },
+      "8": {
+      },
+      "9": {
+      }
+    },
+    "b": {
+      "1": {
+      },
+      "2": {
+      },
+      "3": {
+      },
+      "4": {
+      },
+      "5": {
+      },
+      "6": {
+      },
+      "7": {
+      },
+      "8": {
+      },
+      "9": {
+      }
+    }
+  },
+  "Recipe": {
+    "ID": 1684686851,
+    "CycleStart": 1692489600,
+    "Layers": [
+      {
+        "Blocks": [
+          {
+            "Periods": [
+              {
+                "Duration": 86400,
+                "LEDVals": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "TempTarget": 2300,
+                "WaterTarget": 70,
+                "WaterDelay": -1
+              }
+            ],
+            "RepCount": 6
+          },
+          {
+            "Periods": [
+              {
+                "Duration": 55800,
+                "LEDVals": [
+                  61,
+                  39,
+                  33,
+                  10
+                ],
+                "TempTarget": 2300,
+                "WaterTarget": 70,
+                "WaterDelay": 28800
+              },
+              {
+                "Duration": 30600,
+                "LEDVals": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "TempTarget": 2000,
+                "WaterTarget": 0,
+                "WaterDelay": 28800
+              }
+            ],
+            "RepCount": 100
+          }
+        ]
+      },
+      {
+        "Blocks": [
+          {
+            "Periods": [
+              {
+                "Duration": 86400,
+                "LEDVals": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "TempTarget": 2300,
+                "WaterTarget": 70,
+                "WaterDelay": -1
+              }
+            ],
+            "RepCount": 6
+          },
+          {
+            "Periods": [
+              {
+                "Duration": 55800,
+                "LEDVals": [
+                  61,
+                  39,
+                  33,
+                  10
+                ],
+                "TempTarget": 2300,
+                "WaterTarget": 70,
+                "WaterDelay": 28800
+              },
+              {
+                "Duration": 30600,
+                "LEDVals": [
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "TempTarget": 2000,
+                "WaterTarget": 0,
+                "WaterDelay": 28800
+              }
+            ],
+            "RepCount": 100
+          }
+        ]
+      },
+      {
+        "Blocks": []
+      }
+    ]
+  },
+  "Timezone": "Europe/Berlin",
+  "AWSVersion": 938639,
+  "Reported": {
+    "Mode": {
+      "Value": 0,
+      "Time": "2023-08-26T13:02:37.990106952+02:00"
+    },
+    "Connected": {},
+    "EC": {
+      "Value": 1502,
+      "Time": "2023-08-27T17:42:09.973117864+02:00"
+    },
+    "Cooling": {},
+    "Door": {},
+    "FirmwareNCU": {},
+    "HumidA": {},
+    "HumidB": {},
+    "LightA": {},
+    "LightB": {},
+    "RecipeID": {
+      "Value": 1684686851,
+      "Time": "2023-08-26T13:02:37.990106952+02:00"
+    },
+    "TankLevel": {},
+    "TankLevelRaw": {},
+    "TempA": {},
+    "TempB": {},
+    "TempTank": {},
+    "TotalOffset": {
+      "Value": 68400,
+      "Time": "2023-08-26T13:02:37.990106952+02:00"
+    },
+    "Valve": {},
+    "WifiLevel": {}
+  }
+}
