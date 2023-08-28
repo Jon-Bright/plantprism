@@ -138,7 +138,16 @@ type msgReplyBinary interface {
 	Marshal() ([]byte, error)
 }
 
+var testMode = false
+
+func SetTestMode() {
+	testMode = true
+}
+
 func (d *Device) saveName() string {
+	if testMode {
+		return fmt.Sprintf("test-plantcube-%s.json", d.ID)
+	}
 	return fmt.Sprintf("plantcube-%s.json", d.ID)
 }
 
@@ -200,6 +209,9 @@ func (d *Device) MakeBackups() error {
 
 // Save saves the device's metadata to a file.
 func (d *Device) Save() error {
+	if testMode {
+		return nil
+	}
 	err := d.MakeBackups()
 	if err != nil {
 		return fmt.Errorf("failed pre-save backup: %w", err)
