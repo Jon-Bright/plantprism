@@ -380,6 +380,7 @@ func (d *Device) evaluateRecipe(t time.Time) error {
 	// Recipes either aren't equal, or the current one's
 	// old. Update and send a delta message.
 	d.Recipe = r
+	d.AWSVersion++
 	deltaD := Device{
 		AWSVersion: d.AWSVersion,
 	}
