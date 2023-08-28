@@ -252,7 +252,7 @@ func processManualAction(ma *manualAction) error {
 		if err != nil {
 			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
 		}
-		err = d.HarvestPlant(ma.Slot)
+		err = d.HarvestPlant(ma.Slot, time.Unix(ma.Timestamp, 0))
 		if err != nil {
 			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
 		}
