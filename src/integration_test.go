@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	golog "log"
+	"math"
 	"os"
 	"reflect"
 	"sort"
@@ -120,8 +121,23 @@ func initPublisher(t *testing.T) {
 	publisher = testPub
 }
 
+type manualActionTime time.Time
+
+func (mt *manualActionTime) UnmarshalJSON(b []byte) error {
+	var f float64
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		return fmt.Errorf("failed manualActionTime unmarshal: %w", err)
+	}
+	sf, nsf := math.Modf(f)
+	s := int64(sf)
+	ns := int64(float64(time.Second) * nsf)
+	*mt = manualActionTime(time.Unix(s, ns))
+	return nil
+}
+
 type manualAction struct {
-	Timestamp int64 `json:"ts"`
+	Timestamp manualActionTime `json:"ts"`
 	Action    string
 	MsgTopic  string
 	Slot      string
@@ -212,18 +228,17 @@ func processPayload(t *testing.T, awsToPC bool, packetNum int, ts time.Time, pay
 
 func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *pahopackets.PublishPacket, maIx int, ma []manualAction) (int, error) {
 
-	uts := ts.Unix()
-	for ; maIx < len(ma) && ma[maIx].Timestamp <= uts; maIx++ {
+	for ; maIx < len(ma) && ts.After(time.Time(ma[maIx].Timestamp)); maIx++ {
 		if ma[maIx].Action == "ignore" {
 			if ma[maIx].MsgTopic == p.TopicName {
 				return maIx + 1, nil
 			} else {
-				return 0, fmt.Errorf("unable to do manualAction %d, p.ts %d, ma.ts %d, topic want '%s', got '%s'", maIx, uts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+				return 0, fmt.Errorf("unable to do manualAction %d, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
 			}
 		} else {
 			err := processManualAction(&ma[maIx])
 			if err != nil {
-				return 0, fmt.Errorf("processing manualAction %d, ma.ts %d failed: %w", maIx, ma[maIx].Timestamp, err)
+				return 0, fmt.Errorf("processing manualAction %d, ma.ts %v failed: %w", maIx, ma[maIx].Timestamp, err)
 			}
 		}
 	}
@@ -252,7 +267,7 @@ func processManualAction(ma *manualAction) error {
 		if err != nil {
 			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
 		}
-		err = d.HarvestPlant(ma.Slot, time.Unix(ma.Timestamp, 0))
+		err = d.HarvestPlant(ma.Slot, time.Time(ma.Timestamp))
 		if err != nil {
 			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
 		}
