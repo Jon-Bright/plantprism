@@ -160,9 +160,6 @@ func processPCAP(t *testing.T, name string) error {
 			}
 		}
 		i++
-		if i == 200 {
-			t.Fatalf("foo")
-		}
 	}
 }
 
