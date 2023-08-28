@@ -16,5 +16,14 @@
 	"Germination":"2d",
 	"HarvestFrom":"2w",
 	"HarvestBy":"5w"
+    },
+    "1002":{
+	"Names":{
+	    "en": "Chilli",
+	    "de": "Chilli"
+	},
+	"Germination":"2w",
+	"HarvestFrom":"12w",
+	"HarvestBy":"24w"
     }
 }
