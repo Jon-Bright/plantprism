@@ -12,6 +12,7 @@ package main
 import (
 	"bytes"
 	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -33,9 +34,10 @@ import (
 )
 
 const (
-	DumpLocation = "../dumps/"
-	DumpAWSPort  = "8884"
-	DumpDevice   = "a8d39911-7955-47d3-981b-fbd9d52f9221"
+	DumpLocation      = "../dumps/"
+	DumpAWSPort       = "8884"
+	DumpDevice        = "a8d39911-7955-47d3-981b-fbd9d52f9221"
+	ManualActionsFile = "test-manual-actions.json"
 )
 
 var (
@@ -54,6 +56,11 @@ func TestReplay(t *testing.T) {
 	initPublisher(t)
 	device.SetTestMode()
 	device.ProcessFlags()
+	maIx := 0
+	ma, err := readManualActions()
+	if err != nil {
+		t.Fatalf("failed reading manual actions: %v", err)
+	}
 	des, err := os.ReadDir(DumpLocation)
 	if err != nil {
 		t.Fatalf("failed reading dumps directory: %v", err)
@@ -65,7 +72,7 @@ func TestReplay(t *testing.T) {
 		if !strings.HasSuffix(de.Name(), ".pcapng") {
 			continue
 		}
-		err = processPCAP(t, DumpLocation+de.Name())
+		maIx, err = processPCAP(t, DumpLocation+de.Name(), maIx, ma)
 		if err != nil {
 			t.Fatalf("pcap processing of '%s' failed: %v", de.Name(), err)
 		}
@@ -113,11 +120,31 @@ func initPublisher(t *testing.T) {
 	publisher = testPub
 }
 
-func processPCAP(t *testing.T, name string) error {
+type manualAction struct {
+	Timestamp int64 `json:"ts"`
+	Action    string
+	MsgTopic  string
+	Slot      string
+}
+
+func readManualActions() ([]manualAction, error) {
+	aj, err := os.ReadFile(ManualActionsFile)
+	if err != nil {
+		return nil, fmt.Errorf("reading '%s' failed: %w", ManualActionsFile, err)
+	}
+	var ma []manualAction
+	err = json.Unmarshal(aj, &ma)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshalling failed: %w", err)
+	}
+	return ma, nil
+}
+
+func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, error) {
 	t.Logf("Processing '%s'...", name)
 	f, err := os.Open(name)
 	if err != nil {
-		return fmt.Errorf("unable to open: %w", err)
+		return 0, fmt.Errorf("unable to open: %w", err)
 	}
 	defer f.Close()
 
@@ -129,7 +156,7 @@ func processPCAP(t *testing.T, name string) error {
 		WantMixedLinkType: true,
 	})
 	if err != nil {
-		return fmt.Errorf("unable to create ng reader: %w", err)
+		return 0, fmt.Errorf("unable to create ng reader: %w", err)
 	}
 
 	ps := gopacket.NewPacketSource(r, layers.LinkTypeLinuxSLL2)
@@ -138,58 +165,101 @@ func processPCAP(t *testing.T, name string) error {
 		p, err := ps.NextPacket()
 		if err == io.EOF {
 			t.Logf("'%s': complete after %d packets", name, i)
-			return nil
+			return maIx, nil
 		} else if err != nil {
-			return fmt.Errorf("error on packet %d NextPacket: %w", i, err)
+			return 0, fmt.Errorf("error on packet %d NextPacket: %w", i, err)
 		}
 		if el := p.ErrorLayer(); el != nil {
-			return fmt.Errorf("packet %d decode error: %w", i, el.Error())
+			return 0, fmt.Errorf("packet %d decode error: %w", i, el.Error())
 		}
 		app := p.ApplicationLayer()
 		if app != nil {
 			tl := p.TransportLayer()
 			if tl == nil {
-				return fmt.Errorf("packet %d has application layer but no transport layer", i)
+				return 0, fmt.Errorf("packet %d has application layer but no transport layer", i)
 			}
+			ts := p.Metadata().Timestamp
+
 			// All our dump packets have AWS on port 8884
 			// and the Plantcube on a random other port.
 			awsToPC := (tl.TransportFlow().Src().String() == DumpAWSPort)
-			err = processPayload(t, awsToPC, i, p.Metadata().Timestamp, app.Payload())
+
+			maIx, err = processPayload(t, awsToPC, i, ts, app.Payload(), maIx, ma)
 			if err != nil {
-				return fmt.Errorf("packet %d payload error: %w", i, err)
+				return 0, fmt.Errorf("packet %d payload error: %w", i, err)
 			}
 		}
 		i++
 	}
 }
 
-func processPayload(t *testing.T, awsToPC bool, packetNum int, ts time.Time, payload []byte) error {
+func processPayload(t *testing.T, awsToPC bool, packetNum int, ts time.Time, payload []byte, maIx int, ma []manualAction) (int, error) {
 	for r := bytes.NewReader(payload); r.Len() > 0; {
 		cp, err := pahopackets.ReadPacket(r)
 		if err != nil {
-			return fmt.Errorf("ReadPacket: %w", err)
+			return 0, fmt.Errorf("ReadPacket: %w", err)
 		}
 		switch p := cp.(type) {
 		case *pahopackets.PublishPacket:
-			err = processPublish(t, awsToPC, packetNum, ts, p)
+			maIx, err = processPublish(t, awsToPC, packetNum, ts, p, maIx, ma)
 			if err != nil {
-				return fmt.Errorf("processPublish: %w", err)
+				return 0, fmt.Errorf("processPublish: %w", err)
 			}
 		}
 	}
-	return nil
+	return maIx, nil
 }
 
-func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *pahopackets.PublishPacket) error {
+func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *pahopackets.PublishPacket, maIx int, ma []manualAction) (int, error) {
+
+	uts := ts.Unix()
+	for ; maIx < len(ma) && ma[maIx].Timestamp <= uts; maIx++ {
+		if ma[maIx].Action == "ignore" {
+			if ma[maIx].MsgTopic == p.TopicName {
+				return maIx + 1, nil
+			} else {
+				return 0, fmt.Errorf("unable to do manualAction %d, p.ts %d, ma.ts %d, topic want '%s', got '%s'", maIx, uts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+			}
+		} else {
+			err := processManualAction(&ma[maIx])
+			if err != nil {
+				return 0, fmt.Errorf("processing manualAction %d, ma.ts %d failed: %w", maIx, ma[maIx].Timestamp, err)
+			}
+		}
+	}
+
 	// If the packet is from AWS to the Plantcube, then that's the
 	// bit Plantprism is replacing. Expect it to send us that
 	// packet. Otherwise, this is a Plantcube (or possibly app)
 	// message that should be published to Plantprism.
 	if awsToPC {
-		return expectFromPlantprism(t, packetNum, ts, p)
+		return maIx, expectFromPlantprism(t, packetNum, ts, p)
 	} else {
-		return publishToPlantprism(t, ts, p)
+		return maIx, publishToPlantprism(t, ts, p)
 	}
+}
+
+func processManualAction(ma *manualAction) error {
+	switch ma.Action {
+	case "bumpAWSVersion":
+		d, err := device.Get(DumpDevice, nil)
+		if err != nil {
+			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
+		}
+		d.AWSVersion++
+	case "harvest":
+		d, err := device.Get(DumpDevice, nil)
+		if err != nil {
+			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
+		}
+		err = d.HarvestPlant(ma.Slot)
+		if err != nil {
+			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
+		}
+	default:
+		return fmt.Errorf("unknown manual action '%s'", ma.Action)
+	}
+	return nil
 }
 
 type testMessage struct {
