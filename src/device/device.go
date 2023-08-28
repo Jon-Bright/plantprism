@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Jon-Bright/plantprism/plant"
-	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lupguo/go-render/render"
 	"io"
 	"os"
@@ -25,7 +24,6 @@ const (
 	FIXED_FIRMWARE_NCU      = 1667466618
 	FIXED_FIRMWARE_MCU      = 1667466618
 
-	MQTT_PUBLISH_TIMEOUT           = 30 * time.Second
 	MQTT_ID_TOKEN                  = "<ID>"
 	MQTT_TOPIC_AGL_GET_ACCEPTED    = "agl/all/things/" + MQTT_ID_TOKEN + "/shadow/get/accepted"
 	MQTT_TOPIC_AGL_RECIPE          = "agl/prod/things/" + MQTT_ID_TOKEN + "/recipe"
@@ -93,13 +91,17 @@ type slot struct {
 	HarvestBy    time.Time
 }
 
+type Publisher interface {
+	Publish(topic string, payload []byte) error
+}
+
 type Device struct {
 	ID string `json:",omitempty"`
 
-	msgQueue   chan *msgUnparsed
-	mqttClient paho.Client
-	slotChans  []chan *SlotEvent
-	saveTimer  *time.Timer
+	msgQueue  chan *msgUnparsed
+	publisher Publisher
+	slotChans []chan *SlotEvent
+	saveTimer *time.Timer
 
 	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
@@ -449,12 +451,9 @@ func (d *Device) sendReplies(replies []msgReply) error {
 			return fmt.Errorf("failed marshalling '%s': %w", render.Render(r), err)
 		}
 		topic := strings.ReplaceAll(r.topic(), MQTT_ID_TOKEN, d.ID)
-		token := d.mqttClient.Publish(topic, 1, false, b)
-		if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
-			return errors.New("timeout publishing MQTT msg")
-		}
-		if token.Error() != nil {
-			return fmt.Errorf("failed publishing MQTT message: %w", err)
+		err = d.publisher.Publish(topic, b)
+		if err != nil {
+			return fmt.Errorf("failed publishing reply: %w", err)
 		}
 	}
 	return nil

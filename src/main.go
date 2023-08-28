@@ -28,10 +28,12 @@ const (
 )
 
 var (
-	log             *logs.Loggers
-	mq              *mqtt.MQTT
-	topicIncomingRe *regexp.Regexp
-	topicOutgoingRe *regexp.Regexp
+	log       *logs.Loggers
+	mq        *mqtt.MQTT
+	publisher device.Publisher
+
+	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
+	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
 
 	// Mosquitto won't deliver topics that start with dollar signs
 	// unless they're explicitly subscribed to - a wildcard
@@ -46,7 +48,6 @@ var (
 
 func connectHandler(c paho.Client) {
 	log.Info.Printf("MQTT connected")
-	ui.SetPahoClient(c)
 	var (
 		i     int
 		topic string
@@ -107,19 +108,18 @@ func main() {
 	if err != nil {
 		log.Critical.Fatalf("Device flags: %v", err)
 	}
-	topicIncomingRe = regexp.MustCompile(TOPIC_INCOMING_REGEX)
-	topicOutgoingRe = regexp.MustCompile(TOPIC_OUTGOING_REGEX)
 	err = plant.LoadPlants()
 	if err != nil {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
 
-	ui.Init(log)
-
 	mq, err = mqtt.New(log, connectHandler)
 	if err != nil {
 		log.Critical.Fatalf("Unable to initialize MQTT: %v", err)
 	}
+	publisher = mq
+	ui.Init(log, mq)
+
 	err = mq.Connect()
 	if err != nil {
 		log.Critical.Fatalf("Unable to connect MQTT: %v", err)

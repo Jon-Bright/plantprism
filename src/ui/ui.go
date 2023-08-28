@@ -9,18 +9,13 @@ import (
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/plant"
-	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 )
 
 var (
-	log  *logs.Loggers
-	mqtt paho.Client
+	log       *logs.Loggers
+	publisher device.Publisher
 )
-
-func SetPahoClient(c paho.Client) {
-	mqtt = c
-}
 
 func getDevice(c *gin.Context, isGet bool, reqName string) *device.Device {
 	var (
@@ -37,7 +32,7 @@ func getDevice(c *gin.Context, isGet bool, reqName string) *device.Device {
 		c.String(http.StatusBadRequest, "No Device ID specified")
 		return nil
 	}
-	d, err := device.Get(id, mqtt)
+	d, err := device.Get(id, publisher)
 	if err != nil {
 		log.Warn.Printf("%s request with invalid Device ID '%s': %v", reqName, id, err)
 		c.String(http.StatusBadRequest, "Device ID '%s' invalid", id)
@@ -198,8 +193,9 @@ func harvestPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func Init(l *logs.Loggers) {
+func Init(l *logs.Loggers, p device.Publisher) {
 	log = l
+	publisher = p
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.LoadHTMLGlob("resources/*.templ.html")

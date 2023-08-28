@@ -3,6 +3,7 @@ package mqtt
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/Jon-Bright/plantprism/logs"
 	paho "github.com/eclipse/paho.mqtt.golang"
+)
+
+const (
+	MQTT_PUBLISH_TIMEOUT = 30 * time.Second
 )
 
 type MQTT struct {
@@ -114,4 +119,12 @@ func (m *MQTT) Subscribe(topic string, handler paho.MessageHandler) error {
 	}
 	m.log.Info.Printf("Subscribed to '%s'", topic)
 	return nil
+}
+
+func (m *MQTT) Publish(topic string, payload []byte) error {
+	token := m.c.Publish(topic, 1, false, payload)
+	if !token.WaitTimeout(MQTT_PUBLISH_TIMEOUT) {
+		return errors.New("timeout publishing MQTT msg")
+	}
+	return token.Error()
 }

@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Jon-Bright/plantprism/logs"
-	paho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thlib/go-timezone-local/tzlocal"
 	"golang.org/x/exp/slices"
 	"strings"
@@ -51,10 +50,10 @@ func (l *deviceList) Set(value string) error {
 	return nil
 }
 
-func Get(id string, c paho.Client) (*Device, error) {
+func Get(id string, p Publisher) (*Device, error) {
 	d, ok := deviceMap[id]
 	if !ok {
-		return instantiateDevice(id, c)
+		return instantiateDevice(id, p)
 	}
 	return d, nil
 }
@@ -89,14 +88,14 @@ func parseSunriseToDuration(sunrise string) (time.Duration, error) {
 	return t.Sub(zero), nil
 }
 
-func instantiateDevice(id string, c paho.Client) (*Device, error) {
+func instantiateDevice(id string, p Publisher) (*Device, error) {
 	if !slices.Contains(allowedDevices, id) {
 		return nil, fmt.Errorf("device ID '%s' is not an allowed device", id)
 	}
 	d := Device{}
 	d.ID = id
 	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
-	d.mqttClient = c
+	d.publisher = p
 	d.slotChans = []chan *SlotEvent{}
 
 	// Go is happy to let us reset a Timer later, but refuses to
