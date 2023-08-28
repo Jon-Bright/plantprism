@@ -2,7 +2,6 @@ package device
 
 import (
 	"errors"
-	"time"
 )
 
 // Example: {"state":{"reported":{"connected": true}}}
@@ -37,14 +36,13 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	if err != nil {
 		return nil, err
 	}
-	t := time.Now()
 	r := m.State.Reported
 	if r.Connected != nil {
-		d.Reported.Connected.update(*r.Connected, t)
+		d.Reported.Connected.update(*r.Connected, msg.t)
 	}
 	if r.EC != nil {
-		d.Reported.EC.update(*r.EC, t)
+		d.Reported.EC.update(*r.EC, msg.t)
 	}
-	reply := d.getAWSShadowUpdateAcceptedReply(t, true)
+	reply := d.getAWSShadowUpdateAcceptedReply(msg.t, true)
 	return []msgReply{reply}, nil
 }

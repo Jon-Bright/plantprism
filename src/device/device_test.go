@@ -320,8 +320,9 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 	for i, tc := range tests {
 		mu := msgUnparsed{
 			content: []byte(tc.msgContent),
+			t:       tsNew,
 		}
-		replies, err := tc.d.processAWSShadowUpdate(&mu, tsNew)
+		replies, err := tc.d.processAWSShadowUpdate(&mu)
 		if err != nil {
 			t.Fatalf("case %d: processAWSShadowUpdate failed: %v", i, err)
 		}

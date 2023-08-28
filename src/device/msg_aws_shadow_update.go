@@ -131,7 +131,7 @@ func parseAWSShadowUpdate(msg *msgUnparsed) (*msgAWSShadowUpdate, error) {
 	return &m, nil
 }
 
-func (d *Device) processAWSShadowUpdate(msg *msgUnparsed, t time.Time) ([]msgReply, error) {
+func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	m, err := parseAWSShadowUpdate(msg)
 	if err != nil {
 		return nil, err
@@ -151,57 +151,58 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed, t time.Time) ([]msgRep
 		return nil, errors.New("unexpected EC reported in AWS update")
 	}
 	if r.Cooling != nil {
-		dr.Cooling.update(*r.Cooling, t)
+		dr.Cooling.update(*r.Cooling, msg.t)
 	}
 	if r.Door != nil {
-		dr.Door.update(*r.Door, t)
+		dr.Door.update(*r.Door, msg.t)
 	}
 	if r.FirmwareNCU != nil {
-		dr.FirmwareNCU.update(*r.FirmwareNCU, t)
+		dr.FirmwareNCU.update(*r.FirmwareNCU, msg.t)
 	}
 	if r.HumidA != nil {
-		dr.HumidA.update(*r.HumidA, t)
+		dr.HumidA.update(*r.HumidA, msg.t)
 	}
 	if r.HumidB != nil {
-		dr.HumidB.update(*r.HumidB, t)
+		dr.HumidB.update(*r.HumidB, msg.t)
 	}
 	if r.LightA != nil {
-		dr.LightA.update(*r.LightA, t)
+		dr.LightA.update(*r.LightA, msg.t)
 	}
 	if r.LightB != nil {
-		dr.LightB.update(*r.LightB, t)
+		dr.LightB.update(*r.LightB, msg.t)
 	}
 	if r.RecipeID != nil {
-		dr.RecipeID.update(*r.RecipeID, t)
+		dr.RecipeID.update(*r.RecipeID, msg.t)
 	}
 	if r.TankLevel != nil {
-		dr.TankLevel.update(*r.TankLevel, t)
+		dr.TankLevel.update(*r.TankLevel, msg.t)
 	}
 	if r.TankLevelRaw != nil {
-		dr.TankLevelRaw.update(*r.TankLevelRaw, t)
+		dr.TankLevelRaw.update(*r.TankLevelRaw, msg.t)
 	}
 	if r.TempA != nil {
-		dr.TempA.update(*r.TempA, t)
+		dr.TempA.update(*r.TempA, msg.t)
 	}
 	if r.TempB != nil {
-		dr.TempB.update(*r.TempB, t)
+		dr.TempB.update(*r.TempB, msg.t)
 	}
 	if r.TempTank != nil {
-		dr.TempTank.update(*r.TempTank, t)
+		dr.TempTank.update(*r.TempTank, msg.t)
 	}
 	if r.TotalOffset != nil {
-		dr.TotalOffset.update(*r.TotalOffset, t)
+		dr.TotalOffset.update(*r.TotalOffset, msg.t)
 	}
 	if r.Valve != nil {
-		dr.Valve.update(*r.Valve, t)
+		dr.Valve.update(*r.Valve, msg.t)
 	}
 	if r.WifiLevel != nil {
-		dr.WifiLevel.update(*r.WifiLevel, t)
+		dr.WifiLevel.update(*r.WifiLevel, msg.t)
 	}
 	replies := []msgReply{
-		d.getAWSShadowUpdateAcceptedReply(t, false),
+		d.getAWSShadowUpdateAcceptedReply(msg.t, false),
 	}
 	if d.Recipe != nil && dr.RecipeID.Value != int(d.Recipe.ID) {
+		log.Info.Printf("Seen recipe difference (%d!=%d), generating delta", dr.RecipeID.Value, d.Recipe.ID)
 		// We need to generate a delta message that just
 		// covers the Recipe ID.  We therefore make a new
 		// Device with our current AWS version, update just
@@ -209,8 +210,8 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed, t time.Time) ([]msgRep
 		deltaD := Device{
 			AWSVersion: d.AWSVersion,
 		}
-		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
-		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(t))
+		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), msg.t)
+		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(msg.t))
 	}
 	return replies, nil
 }

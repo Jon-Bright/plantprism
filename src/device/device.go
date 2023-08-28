@@ -122,6 +122,7 @@ type msgUnparsed struct {
 	prefix  string
 	event   string
 	content []byte
+	t       time.Time
 }
 
 type msgUpdTS struct {
@@ -381,8 +382,8 @@ func (d *Device) evaluateRecipe() error {
 	return nil
 }
 
-func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
-	d.msgQueue <- &msgUnparsed{prefix, event, content}
+func (d *Device) ProcessMessage(prefix string, event string, content []byte, t time.Time) {
+	d.msgQueue <- &msgUnparsed{prefix, event, content, t}
 }
 
 func (d *Device) processingLoop() {
@@ -413,7 +414,7 @@ func (d *Device) processMessage(msg *msgUnparsed) error {
 	} else if msg.prefix == "$aws" && msg.event == "shadow/get" {
 		err = d.processAWSShadowGet(msg)
 	} else if msg.prefix == "$aws" && msg.event == "shadow/update" {
-		replies, err = d.processAWSShadowUpdate(msg, time.Now())
+		replies, err = d.processAWSShadowUpdate(msg)
 	} else {
 		err = errors.New("no handler found")
 	}

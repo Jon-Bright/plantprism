@@ -4,6 +4,7 @@ import (
 	"github.com/lupguo/go-render/render"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestPickyUnmarshal(t *testing.T) {
@@ -53,7 +54,7 @@ func TestParseAglEventInfo(t *testing.T) {
 		},
 	}
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), time.Unix(int64(timestamp), 0)}
 		got, err := parseAglEventInfo(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -83,7 +84,7 @@ timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","fun
 		},
 	}
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), time.Unix(int64(timestamp), 0)}
 		got, err := parseAglEventWarning(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -166,8 +167,9 @@ func TestParseAglMode(t *testing.T) {
 			want:      nil,
 		},
 	}
+	ts := time.Unix(1693243800, 0) // Any random timestamp will do
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), ts}
 		got, err := parseAglMode(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -213,8 +215,9 @@ func TestParseAglRecipeGet(t *testing.T) {
 			want:      nil,
 		},
 	}
+	ts := time.Unix(1693243800, 0) // Any random timestamp will do
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), ts}
 		got, err := parseAglRecipeGet(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -251,8 +254,9 @@ func TestParseAglShadowUpdate(t *testing.T) {
 			want:      nil,
 		},
 	}
+	ts := time.Unix(1693243800, 0) // Any random timestamp will do
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), ts}
 		got, err := parseAglShadowUpdate(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -295,8 +299,9 @@ func TestParseAWSShadowGet(t *testing.T) {
 			want:      nil,
 		},
 	}
+	ts := time.Unix(1693243800, 0) // Any random timestamp will do
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), ts}
 		got, err := parseAWSShadowGet(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)
@@ -537,8 +542,9 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 			want:      nil,
 		},
 	}
+	ts := time.Unix(1693243800, 0) // Any random timestamp will do
 	for _, tc := range tests {
-		msg := msgUnparsed{"", "", []byte(tc.input)}
+		msg := msgUnparsed{"", "", []byte(tc.input), ts}
 		got, err := parseAWSShadowUpdate(&msg)
 		if tc.wantError != (err != nil) {
 			t.Fatalf("parsing '%s', wanted error %v, got %v", tc.input, tc.wantError, err)

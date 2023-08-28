@@ -27,14 +27,14 @@ func (m *msgAglShadowGetAccepted) topic() string {
 
 func (d *Device) processAglShadowGet(msg *msgUnparsed) ([]msgReply, error) {
 	// No parsing: the only time we see this, it has no content
-	m, err := d.getAglShadowGetReply()
+	m, err := d.getAglShadowGetReply(msg.t)
 	if err != nil {
 		return nil, err
 	}
 	return []msgReply{m}, nil
 }
 
-func (d *Device) getAglShadowGetReply() (msgReply, error) {
+func (d *Device) getAglShadowGetReply(t time.Time) (msgReply, error) {
 	if d.Reported.RecipeID.Value <= 1 {
 		return nil, fmt.Errorf("wanted to send Agl shadow get reply, but recipe ID is %d, time %v", d.Reported.RecipeID.Value, d.Reported.RecipeID.Time)
 	}
@@ -46,7 +46,7 @@ func (d *Device) getAglShadowGetReply() (msgReply, error) {
 	r.Timezone = d.Timezone
 	r.UserOffset = int(sunriseD.Seconds()) // user_offset doesn't actually get used by the Plantcube
 	var err error
-	r.TotalOffset, err = calcTotalOffset(d.Timezone, time.Now(), sunriseD)
+	r.TotalOffset, err = calcTotalOffset(d.Timezone, t, sunriseD)
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}

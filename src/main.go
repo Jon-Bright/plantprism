@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"regexp"
+	"time"
 
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
@@ -70,6 +71,10 @@ func connectHandler(c paho.Client) {
 }
 
 func messageHandler(c paho.Client, m paho.Message) {
+	messageHandlerWithTime(c, m, time.Now())
+}
+
+func messageHandlerWithTime(c paho.Client, m paho.Message, t time.Time) {
 	matches := topicIncomingRe.FindStringSubmatch(m.Topic())
 	if matches == nil {
 		if !topicOutgoingRe.MatchString(m.Topic()) {
@@ -84,13 +89,13 @@ func messageHandler(c paho.Client, m paho.Message) {
 	event := matches[topicIncomingRe.SubexpIndex(TOPIC_EVENT_GRP)]
 	log.Info.Printf("Received message for device '%s', prefix '%s', event '%s'", deviceID, prefix, event)
 
-	device, err := device.Get(deviceID, c)
+	device, err := device.Get(deviceID, publisher)
 	if err != nil {
 		log.Error.Printf("Couldn't get device: %v", err)
 		return
 	}
 
-	device.ProcessMessage(prefix, event, m.Payload())
+	device.ProcessMessage(prefix, event, m.Payload(), t)
 }
 
 func main() {

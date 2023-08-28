@@ -65,6 +65,7 @@ func InitFlags() {
 		panic(fmt.Sprintf("Failed to get timezone: %v", err))
 	}
 	flag.StringVar(&timezone, "timezone", defaultTZ, "Timezone to be sent to Plantcube. Default is this machine's timezone.")
+	// TODO: we should base this on the saved totalOffset for the Plantcube
 	flag.StringVar(&sunriseTimeStr, "sunrise", "07:00", "The time at which the Plantcube's sun rises.")
 }
 
