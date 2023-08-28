@@ -23,6 +23,15 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. It has no ClienToken, so will be ignored by the Mongoose processing, see https://github.com/mongoose-os-libs/aws/blob/2.14.0/src/mgos_aws_shadow.c#L335 "
+    },{
+	"ts": 1687012263.717,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687012263.717,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a nutrient-filled message from the app"
     }
 ]
 
