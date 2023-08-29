@@ -176,7 +176,7 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 	}
 
 	ps := gopacket.NewPacketSource(r, layers.LinkTypeLinuxSLL2)
-	i := 0
+	i := 1
 	for {
 		p, err := ps.NextPacket()
 		if err == io.EOF {
