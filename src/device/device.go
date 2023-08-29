@@ -394,6 +394,23 @@ func (d *Device) evaluateRecipe(t time.Time) error {
 	return nil
 }
 
+func (d *Device) SetMode(mode DeviceMode, t time.Time) error {
+	// TODO: we should check if this is a valid mode change. Can't change to
+	// e.g. cinema if we're in the middle of cleaning.
+	d.AWSVersion++
+	deltaD := Device{
+		AWSVersion: d.AWSVersion,
+	}
+	deltaD.Reported.Mode.update(mode, t)
+	delta := deltaD.getAWSShadowUpdateDeltaReply(t)
+	err := d.sendReplies([]msgReply{delta})
+	if err != nil {
+		return fmt.Errorf("failed sending delta for mode change: %w", err)
+	}
+
+	return nil
+}
+
 func (d *Device) ProcessMessage(prefix string, event string, content []byte, t time.Time) {
 	d.msgQueue <- &msgUnparsed{prefix, event, content, t}
 }
