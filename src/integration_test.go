@@ -255,18 +255,14 @@ func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *
 }
 
 func processManualAction(ma *manualAction) error {
+	d, err := device.Get(DumpDevice, nil)
+	if err != nil {
+		return fmt.Errorf("couldn't %s: %w", ma.Action, err)
+	}
 	switch ma.Action {
 	case "bumpAWSVersion":
-		d, err := device.Get(DumpDevice, nil)
-		if err != nil {
-			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
-		}
 		d.AWSVersion++
 	case "harvest":
-		d, err := device.Get(DumpDevice, nil)
-		if err != nil {
-			return fmt.Errorf("couldn't %s: %w", ma.Action, err)
-		}
 		err = d.HarvestPlant(ma.Slot, time.Time(ma.Timestamp))
 		if err != nil {
 			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
