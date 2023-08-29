@@ -22,7 +22,7 @@
 	"ts": 1687012151,
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. It has no ClienToken, so will be ignored by the Mongoose processing, see https://github.com/mongoose-os-libs/aws/blob/2.14.0/src/mgos_aws_shadow.c#L335 "
+	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. It has no ClientToken, so will be ignored by the Mongoose processing, see https://github.com/mongoose-os-libs/aws/blob/2.14.0/src/mgos_aws_shadow.c#L335 "
     },{
 	"ts": 1687012263.717,
 	"action": "bumpAWSVersion",
@@ -32,6 +32,60 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "AWS Shadow accepting a nutrient-filled message from the app"
+    },{
+	"ts": 1687012682,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting the cinema mode message below from the app, with the app's ClientToken, which will be ignored as covered under ..151 above"
+    },{
+	"ts": 1687012682,
+	"action": "cinema",
+	"comment": "Cinema mode triggered via app"
+    },{
+	"ts": 1687012682,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687012742,
+	"action": "defaultMode",
+	"comment": "Default mode (cinema mode off) triggered via app"
+    },{
+	"ts": 1687012742,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687012742.992,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting the default mode message above from the app, with the app's ClientToken, which will be ignored as covered under ..151 above"
+    },{
+	"ts": 1687012743.403,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1687013043,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting the silent mode message below from the app, with the app's ClientToken, which will be ignored as covered under ..151 above"
+    },{
+	"ts": 1687013043,
+	"action": "silent",
+	"comment": "Silent mode triggered via app"
+    },{
+	"ts": 1687013043.439,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
     }
 ]
-
