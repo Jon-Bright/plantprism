@@ -193,6 +193,51 @@ func harvestPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+func defaultModeHandler(c *gin.Context) {
+	d := getDevice(c, false, "DefaultMode")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	err := d.SetMode(device.ModeDefault, time.Now())
+	if err != nil {
+		log.Warn.Printf("defaultMode failed: %v", err)
+		c.String(http.StatusInternalServerError, "DefaultMode failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func silentModeHandler(c *gin.Context) {
+	d := getDevice(c, false, "SilentMode")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	err := d.SetMode(device.ModeSilent, time.Now())
+	if err != nil {
+		log.Warn.Printf("silentMode failed: %v", err)
+		c.String(http.StatusInternalServerError, "SilentMode failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func cinemaModeHandler(c *gin.Context) {
+	d := getDevice(c, false, "CinemaMode")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	err := d.SetMode(device.ModeCinema, time.Now())
+	if err != nil {
+		log.Warn.Printf("cinemaMode failed: %v", err)
+		c.String(http.StatusInternalServerError, "CinemaMode failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func Init(l *logs.Loggers, p device.Publisher) {
 	log = l
 	publisher = p
@@ -205,6 +250,9 @@ func Init(l *logs.Loggers, p device.Publisher) {
 	r.GET("/stream", streamHandler)
 	r.POST("/addPlant", addPlantHandler)
 	r.POST("/harvestPlant", harvestPlantHandler)
+	r.POST("/defaultMode", defaultModeHandler)
+	r.POST("/silentMode", silentModeHandler)
+	r.POST("/cinemaMode", cinemaModeHandler)
 	go func() {
 		err := r.Run(":3000")
 		log.Critical.Fatalf("gin Run() returned, error %v", err)
