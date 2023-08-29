@@ -20,6 +20,7 @@ import (
 	"math"
 	"os"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"testing"
@@ -137,10 +138,12 @@ func (mt *manualActionTime) UnmarshalJSON(b []byte) error {
 }
 
 type manualAction struct {
-	Timestamp manualActionTime `json:"ts"`
-	Action    string
-	MsgTopic  string
-	Slot      string
+	Timestamp   manualActionTime `json:"ts"`
+	Action      string
+	MsgTopic    string
+	Slot        string
+	Regex       string
+	Replacement string
 }
 
 func readManualActions() ([]manualAction, error) {
@@ -233,8 +236,17 @@ func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *
 			if ma[maIx].MsgTopic == p.TopicName {
 				return maIx + 1, nil
 			} else {
-				return 0, fmt.Errorf("unable to do manualAction %d, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
 			}
+		} else if ma[maIx].Action == "replace" {
+			if ma[maIx].MsgTopic != p.TopicName {
+				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+			}
+			re, err := regexp.Compile(ma[maIx].Regex)
+			if err != nil {
+				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, regexp compiled failed: %w", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, err)
+			}
+			p.Payload = re.ReplaceAll(p.Payload, []byte(ma[maIx].Replacement))
 		} else {
 			err := processManualAction(&ma[maIx])
 			if err != nil {
