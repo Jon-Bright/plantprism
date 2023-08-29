@@ -267,6 +267,21 @@ func processManualAction(ma *manualAction) error {
 		if err != nil {
 			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
 		}
+	case "defaultMode":
+		err = d.SetMode(device.ModeDefault, time.Time(ma.Timestamp))
+		if err != nil {
+			return fmt.Errorf("default mode failed: %w", err)
+		}
+	case "silent":
+		err = d.SetMode(device.ModeSilent, time.Time(ma.Timestamp))
+		if err != nil {
+			return fmt.Errorf("silent mode failed: %w", err)
+		}
+	case "cinema":
+		err = d.SetMode(device.ModeCinema, time.Time(ma.Timestamp))
+		if err != nil {
+			return fmt.Errorf("cinema mode failed: %w", err)
+		}
 	default:
 		return fmt.Errorf("unknown manual action '%s'", ma.Action)
 	}
