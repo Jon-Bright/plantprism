@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"reflect"
 	"time"
 )
 
@@ -144,7 +145,7 @@ func CreateRecipe(asOf time.Time, ledVals []byte, tempTargetDay float64, tempTar
 }
 
 func (ra *recipe) EqualExceptTimestamps(rb *recipe) (bool, error) {
-	return false, nil
+	return reflect.DeepEqual(ra.Layers, rb.Layers), nil
 }
 
 func (ra *recipe) AgeDifference(rb *recipe) time.Duration {
