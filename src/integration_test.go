@@ -40,6 +40,7 @@ const (
 	DumpAWSPort       = "8884"
 	DumpDevice        = "a8d39911-7955-47d3-981b-fbd9d52f9221"
 	ManualActionsFile = "test-manual-actions.json"
+	DebugTSFmt        = "2006-01-02T15:04:05.999"
 )
 
 var (
@@ -145,6 +146,11 @@ type manualAction struct {
 	Replacement string
 }
 
+func (ma manualAction) String() string {
+	t := time.Time(ma.Timestamp)
+	return fmt.Sprintf("[%s (%d): %s]", t.Local().Format(DebugTSFmt), t.Unix(), ma.Action)
+}
+
 type manualActions struct {
 	l  []manualAction
 	ix int
@@ -179,10 +185,6 @@ type dumpPacket struct {
 	parsed    *pahopackets.PublishPacket
 }
 
-const (
-	PacketTSFmt = "2006-01-02T15:04:05.999"
-)
-
 func (dp dumpPacket) String() string {
 	var dir string
 	if dp.awsToPC {
@@ -190,7 +192,7 @@ func (dp dumpPacket) String() string {
 	} else {
 		dir = "P->A"
 	}
-	return fmt.Sprintf("[%d: %s %s (%d)]", dp.packetNum, dir, dp.ts.Local().Format(PacketTSFmt), dp.ts.Unix())
+	return fmt.Sprintf("[%d: %s %s (%d)]", dp.packetNum, dir, dp.ts.Local().Format(DebugTSFmt), dp.ts.Unix())
 }
 
 func processPCAP(t *testing.T, name string, ma *manualActions) error {
