@@ -32,6 +32,7 @@ const (
 
 	KeepBackups      = 20
 	SaveDelay        = 20 * time.Second
+	RecipeDelay      = 2 * time.Minute
 	MinimumRecipeAge = 48 * time.Hour
 )
 
@@ -98,10 +99,12 @@ type Publisher interface {
 type Device struct {
 	ID string `json:",omitempty"`
 
-	msgQueue  chan *msgUnparsed
-	publisher Publisher
-	slotChans []chan *SlotEvent
-	saveTimer *time.Timer
+	msgQueue      chan *msgUnparsed
+	publisher     Publisher
+	slotChans     []chan *SlotEvent
+	saveTimer     *time.Timer
+	recipeTimer   *time.Timer
+	recipeTrigger time.Time
 
 	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
@@ -285,6 +288,11 @@ func parseSlot(slot string) (layerID, slotID, error) {
 	return l, s, nil
 }
 
+func (d *Device) QueueRecipe(t time.Time) {
+	d.recipeTrigger = t
+	d.recipeTimer.Reset(RecipeDelay)
+}
+
 func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) error {
 	l, s, err := parseSlot(slotStr)
 	if err != nil {
@@ -305,7 +313,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
 	d.sendStreamingUpdate(l, s)
-	d.evaluateRecipe(t)
+	d.QueueRecipe(t)
 	d.QueueSave()
 	return nil
 }
@@ -320,12 +328,20 @@ func (d *Device) HarvestPlant(slotStr string, t time.Time) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
-	err = d.evaluateRecipe(t)
+	err = d.evaluateRecipe(false, t)
 	if err != nil {
 		return fmt.Errorf("post-harvest (slot '%s') recipe evaluation failed: %w", slotStr, err)
 	}
+	d.QueueRecipe(t)
 	d.QueueSave()
 	return nil
+}
+
+func (d *Device) sendRecipe() {
+	err := d.evaluateRecipe(true, d.recipeTrigger.Add(RecipeDelay))
+	if err != nil {
+		log.Error.Printf("Failed delayed recipe: %v", err)
+	}
 }
 
 func (d *Device) layerHasPlants(l layerID) bool {
@@ -337,7 +353,7 @@ func (d *Device) layerHasPlants(l layerID) bool {
 	return false
 }
 
-func (d *Device) evaluateRecipe(t time.Time) error {
+func (d *Device) evaluateRecipe(forceNew bool, t time.Time) error {
 	// TODO: there's a lot more we could do here, but for now, we
 	// just activate the layers we need to. We then only replace
 	// the recipe when one or both of two conditions is true:
@@ -365,20 +381,21 @@ func (d *Device) evaluateRecipe(t time.Time) error {
 		return fmt.Errorf("CreateRecipe failed, layerAActive=%v, layerBActive=%v: %w", layerAActive, layerBActive, err)
 	}
 
+	ad := r.AgeDifference(d.Recipe)
 	eq, err := r.EqualExceptTimestamps(d.Recipe)
 	if err != nil {
 		return fmt.Errorf("failed comparing old/new recipes: %w", err)
 	}
-	if eq {
-		ad := r.AgeDifference(d.Recipe)
-		if ad < MinimumRecipeAge {
-			// Recipes are equal and the current one's not
-			// old. Leave it be.
-			return nil
-		}
+	if !forceNew && eq && ad < MinimumRecipeAge {
+		// Recipes are equal and the current one's not
+		// old. Leave it be.
+		log.Info.Printf("Evaluated recipes, left as-is, forceNew %v, equal %v, age difference %v, layerAActive %v, layerBActive %v", forceNew, eq, ad, layerAActive, layerBActive)
+		return nil
 	}
 	// Recipes either aren't equal, or the current one's
 	// old. Update and send a delta message.
+	log.Info.Printf("New recipe generated, forceNew %v, equal %v, age difference %v, layerAActive %v, layerBActive %v", forceNew, eq, ad, layerAActive, layerBActive)
+
 	d.Recipe = r
 	d.AWSVersion++
 	deltaD := Device{

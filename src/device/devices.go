@@ -105,11 +105,14 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 	// might do that from any of several HTTP servers, or from
 	// MQTT. The same is _theoretically_ true here, but in
 	// practice, devices will be instantiated early in our
-	// lifetime, so the risk is minimal. So, we create a Timer for
-	// (a long time away), then stop it. It can now be reset later
-	// without worry.
-	d.saveTimer = time.AfterFunc(24*265*time.Hour, d.queuedSave)
+	// lifetime, so the risk is minimal. So, we create Timers for
+	// (a long time away), then stop them. They can now be reset
+	// later without worry.
+	aLongTime := 365 * 24 * time.Hour
+	d.saveTimer = time.AfterFunc(aLongTime, d.queuedSave)
 	d.saveTimer.Stop()
+	d.recipeTimer = time.AfterFunc(aLongTime, d.sendRecipe)
+	d.recipeTimer.Stop()
 
 	if d.IsSaved() {
 		err := d.RestoreFromFile()
