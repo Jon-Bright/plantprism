@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Jon-Bright/plantprism/logs"
+	"github.com/benbjohnson/clock"
 	"github.com/thlib/go-timezone-local/tzlocal"
 	"golang.org/x/exp/slices"
 	"strings"
@@ -28,6 +29,7 @@ var (
 	deviceMap      map[string]*Device
 	allowedDevices deviceList
 	log            *logs.Loggers
+	clk            clock.Clock
 
 	timezone       string
 	sunriseTimeStr string
@@ -36,10 +38,6 @@ var (
 
 	defaultLEDVals = []byte{0x3d, 0x27, 0x21, 0x0a}
 )
-
-func SetLoggers(l *logs.Loggers) {
-	log = l
-}
 
 func (l *deviceList) String() string {
 	return strings.Join(*l, ",")
@@ -69,7 +67,10 @@ func InitFlags() {
 	flag.StringVar(&sunriseTimeStr, "sunrise", "07:00", "The time at which the Plantcube's sun rises.")
 }
 
-func ProcessFlags() error {
+func Init(l *logs.Loggers, c clock.Clock) error {
+	log = l
+	clk = c
+
 	var err error
 	sunriseD, err = parseSunriseToDuration(sunriseTimeStr)
 	if err != nil {
@@ -95,6 +96,7 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 	}
 	d := Device{}
 	d.ID = id
+	d.clock = clk
 	d.msgQueue = make(chan *msgUnparsed, MSG_QUEUE_BUFFER)
 	d.publisher = p
 	d.slotChans = []chan *SlotEvent{}
@@ -109,9 +111,9 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 	// (a long time away), then stop them. They can now be reset
 	// later without worry.
 	aLongTime := 365 * 24 * time.Hour
-	d.saveTimer = time.AfterFunc(aLongTime, d.queuedSave)
+	d.saveTimer = d.clock.AfterFunc(aLongTime, d.queuedSave)
 	d.saveTimer.Stop()
-	d.recipeTimer = time.AfterFunc(aLongTime, d.sendRecipe)
+	d.recipeTimer = d.clock.AfterFunc(aLongTime, d.sendRecipe)
 	d.recipeTimer.Stop()
 
 	if d.IsSaved() {
@@ -147,7 +149,7 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 				slot9: slot{},
 			},
 		}
-		t := time.Now()
+		t := clk.Now()
 		d.Timezone = timezone
 		var err error
 		d.Recipe, err = CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, false, false)

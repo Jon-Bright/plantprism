@@ -4,7 +4,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
@@ -163,7 +162,7 @@ func addPlantHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Invalid plantType specified")
 		return
 	}
-	err = d.AddPlant(slot, plant.PlantID(plantID), time.Now())
+	err = d.AddPlant(slot, plant.PlantID(plantID))
 	if err != nil {
 		log.Warn.Printf("addPlant slot '%s', plantType '%s' failed: %v", slot, plantIDStr, err)
 		c.String(http.StatusInternalServerError, "AddPlant failed")
@@ -184,7 +183,7 @@ func harvestPlantHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, "No slot specified")
 		return
 	}
-	err := d.HarvestPlant(slot, time.Now())
+	err := d.HarvestPlant(slot)
 	if err != nil {
 		log.Warn.Printf("harvestPlant slot '%s' failed: %v", slot, err)
 		c.String(http.StatusInternalServerError, "HarvestPlant failed")
@@ -199,7 +198,7 @@ func defaultModeHandler(c *gin.Context) {
 		// Error, already handled
 		return
 	}
-	err := d.SetMode(device.ModeDefault, time.Now())
+	err := d.SetMode(device.ModeDefault)
 	if err != nil {
 		log.Warn.Printf("defaultMode failed: %v", err)
 		c.String(http.StatusInternalServerError, "DefaultMode failed")
@@ -214,7 +213,7 @@ func silentModeHandler(c *gin.Context) {
 		// Error, already handled
 		return
 	}
-	err := d.SetMode(device.ModeSilent, time.Now())
+	err := d.SetMode(device.ModeSilent)
 	if err != nil {
 		log.Warn.Printf("silentMode failed: %v", err)
 		c.String(http.StatusInternalServerError, "SilentMode failed")
@@ -229,7 +228,7 @@ func cinemaModeHandler(c *gin.Context) {
 		// Error, already handled
 		return
 	}
-	err := d.SetMode(device.ModeCinema, time.Now())
+	err := d.SetMode(device.ModeCinema)
 	if err != nil {
 		log.Warn.Printf("cinemaMode failed: %v", err)
 		c.String(http.StatusInternalServerError, "CinemaMode failed")

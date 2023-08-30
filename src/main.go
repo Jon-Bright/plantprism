@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"regexp"
-	"time"
 
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/mqtt"
 	"github.com/Jon-Bright/plantprism/plant"
 	"github.com/Jon-Bright/plantprism/ui"
+	"github.com/benbjohnson/clock"
 	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -71,10 +71,6 @@ func connectHandler(c paho.Client) {
 }
 
 func messageHandler(c paho.Client, m paho.Message) {
-	messageHandlerWithTime(c, m, time.Now())
-}
-
-func messageHandlerWithTime(c paho.Client, m paho.Message, t time.Time) {
 	matches := topicIncomingRe.FindStringSubmatch(m.Topic())
 	if matches == nil {
 		if !topicOutgoingRe.MatchString(m.Topic()) {
@@ -95,7 +91,7 @@ func messageHandlerWithTime(c paho.Client, m paho.Message, t time.Time) {
 		return
 	}
 
-	device.ProcessMessage(prefix, event, m.Payload(), t)
+	device.ProcessMessage(prefix, event, m.Payload())
 }
 
 func main() {
@@ -108,8 +104,9 @@ func main() {
 	log = logs.New(*logName)
 	log.Info.Printf("Starting")
 
-	device.SetLoggers(log)
-	err := device.ProcessFlags()
+	clk := clock.New()
+
+	err := device.Init(log, clk)
 	if err != nil {
 		log.Critical.Fatalf("Device flags: %v", err)
 	}

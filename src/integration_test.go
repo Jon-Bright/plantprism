@@ -29,6 +29,7 @@ import (
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
 	"github.com/Jon-Bright/plantprism/plant"
+	"github.com/benbjohnson/clock"
 	pahopackets "github.com/eclipse/paho.mqtt.golang/packets"
 	"github.com/gopacket/gopacket"
 	"github.com/gopacket/gopacket/layers"
@@ -46,6 +47,7 @@ const (
 
 var (
 	testPub *testPublisher
+	clk     *clock.Mock
 )
 
 func TestMain(m *testing.M) {
@@ -56,11 +58,15 @@ func TestMain(m *testing.M) {
 }
 
 func TestReplay(t *testing.T) {
-	initLogging(t)
+	clk = clock.NewMock()
+	log = initLogging(t)
 	initPublisher(t)
 	device.SetTestMode()
-	device.ProcessFlags()
-	err := plant.LoadPlants()
+	err := device.Init(log, clk)
+	if err != nil {
+		log.Critical.Fatalf("Failed to init devices: %v", err)
+	}
+	err = plant.LoadPlants()
 	if err != nil {
 		log.Critical.Fatalf("Failed to load plants: %v", err)
 	}
@@ -95,11 +101,10 @@ func (t *testLogWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func initLogging(t *testing.T) {
+func initLogging(t *testing.T) *logs.Loggers {
 	tlw := testLogWriter{t}
 	testLog := golog.New(&tlw, "", golog.LstdFlags)
-	log = &logs.Loggers{testLog, testLog, testLog, testLog}
-	device.SetLoggers(log)
+	return &logs.Loggers{testLog, testLog, testLog, testLog}
 }
 
 type pubMsg struct {
@@ -292,6 +297,8 @@ func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 		}
 	}
 
+	clk.Set(dp.ts)
+
 	// If the packet is from AWS to the Plantcube, then that's the
 	// bit Plantprism is replacing. Expect it to send us that
 	// packet. Otherwise, this is a Plantcube (or possibly app)
@@ -312,6 +319,7 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 		return false, fmt.Errorf("couldn't get device: %w", err)
 	}
 	t.Logf("Executing MA %v", ma)
+	clk.Set(time.Time(ma.Timestamp))
 	switch ma.Action {
 	case "ignore":
 		if ma.MsgTopic != dp.parsed.TopicName {
@@ -349,27 +357,27 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 	case "bumpAWSVersion":
 		d.AWSVersion++
 	case "harvest":
-		err = d.HarvestPlant(ma.Slot, time.Time(ma.Timestamp))
+		err = d.HarvestPlant(ma.Slot)
 		if err != nil {
 			return false, fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
 		}
 	case "addPlant":
-		err = d.AddPlant(ma.Slot, ma.PlantID, time.Time(ma.Timestamp))
+		err = d.AddPlant(ma.Slot, ma.PlantID)
 		if err != nil {
 			return false, fmt.Errorf("plant slot '%s', id '%d' failed: %w", ma.Slot, ma.PlantID, err)
 		}
 	case "defaultMode":
-		err = d.SetMode(device.ModeDefault, time.Time(ma.Timestamp))
+		err = d.SetMode(device.ModeDefault)
 		if err != nil {
 			return false, fmt.Errorf("default mode failed: %w", err)
 		}
 	case "silent":
-		err = d.SetMode(device.ModeSilent, time.Time(ma.Timestamp))
+		err = d.SetMode(device.ModeSilent)
 		if err != nil {
 			return false, fmt.Errorf("silent mode failed: %w", err)
 		}
 	case "cinema":
-		err = d.SetMode(device.ModeCinema, time.Time(ma.Timestamp))
+		err = d.SetMode(device.ModeCinema)
 		if err != nil {
 			return false, fmt.Errorf("cinema mode failed: %w", err)
 		}
@@ -423,7 +431,7 @@ func publishToPlantprism(t *testing.T, dp *dumpPacket) error {
 		topic:   dp.parsed.TopicName,
 		payload: dp.parsed.Payload,
 	}
-	messageHandlerWithTime(nil, &m, dp.ts)
+	messageHandler(nil, &m)
 	return nil
 }
 

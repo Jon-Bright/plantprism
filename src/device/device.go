@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Jon-Bright/plantprism/plant"
+	"github.com/benbjohnson/clock"
 	"github.com/lupguo/go-render/render"
 	"io"
 	"os"
@@ -99,12 +100,12 @@ type Publisher interface {
 type Device struct {
 	ID string `json:",omitempty"`
 
-	msgQueue      chan *msgUnparsed
-	publisher     Publisher
-	slotChans     []chan *SlotEvent
-	saveTimer     *time.Timer
-	recipeTimer   *time.Timer
-	recipeTrigger time.Time
+	clock       clock.Clock
+	msgQueue    chan *msgUnparsed
+	publisher   Publisher
+	slotChans   []chan *SlotEvent
+	saveTimer   *clock.Timer
+	recipeTimer *clock.Timer
 
 	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
@@ -288,12 +289,11 @@ func parseSlot(slot string) (layerID, slotID, error) {
 	return l, s, nil
 }
 
-func (d *Device) QueueRecipe(t time.Time) {
-	d.recipeTrigger = t
+func (d *Device) QueueRecipe() {
 	d.recipeTimer.Reset(RecipeDelay)
 }
 
-func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) error {
+func (d *Device) AddPlant(slotStr string, plantID plant.PlantID) error {
 	l, s, err := parseSlot(slotStr)
 	if err != nil {
 		return err
@@ -305,6 +305,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 	if err != nil {
 		return fmt.Errorf("can't plant in slot '%s': %w", slotStr, err)
 	}
+	t := d.clock.Now()
 	d.Slots[l][s] = slot{
 		Plant:        plantID,
 		PlantingTime: t,
@@ -313,12 +314,12 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID, t time.Time) er
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
 	d.sendStreamingUpdate(l, s)
-	d.QueueRecipe(t)
+	d.QueueRecipe()
 	d.QueueSave()
 	return nil
 }
 
-func (d *Device) HarvestPlant(slotStr string, t time.Time) error {
+func (d *Device) HarvestPlant(slotStr string) error {
 	l, s, err := parseSlot(slotStr)
 	if err != nil {
 		return err
@@ -328,17 +329,17 @@ func (d *Device) HarvestPlant(slotStr string, t time.Time) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
-	err = d.evaluateRecipe(false, t)
+	err = d.evaluateRecipe(false)
 	if err != nil {
 		return fmt.Errorf("post-harvest (slot '%s') recipe evaluation failed: %w", slotStr, err)
 	}
-	d.QueueRecipe(t)
+	d.QueueRecipe()
 	d.QueueSave()
 	return nil
 }
 
 func (d *Device) sendRecipe() {
-	err := d.evaluateRecipe(true, d.recipeTrigger.Add(RecipeDelay))
+	err := d.evaluateRecipe(true)
 	if err != nil {
 		log.Error.Printf("Failed delayed recipe: %v", err)
 	}
@@ -353,7 +354,7 @@ func (d *Device) layerHasPlants(l layerID) bool {
 	return false
 }
 
-func (d *Device) evaluateRecipe(forceNew bool, t time.Time) error {
+func (d *Device) evaluateRecipe(forceNew bool) error {
 	// TODO: there's a lot more we could do here, but for now, we
 	// just activate the layers we need to. We then only replace
 	// the recipe when one or both of two conditions is true:
@@ -376,7 +377,7 @@ func (d *Device) evaluateRecipe(forceNew bool, t time.Time) error {
 	// Agrilution code did any of this.
 	layerAActive := d.layerHasPlants(layerA)
 	layerBActive := d.layerHasPlants(layerB)
-	r, err := CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)
+	r, err := CreateRecipe(d.clock.Now(), defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, layerAActive, layerBActive)
 	if err != nil {
 		return fmt.Errorf("CreateRecipe failed, layerAActive=%v, layerBActive=%v: %w", layerAActive, layerBActive, err)
 	}
@@ -401,6 +402,7 @@ func (d *Device) evaluateRecipe(forceNew bool, t time.Time) error {
 	deltaD := Device{
 		AWSVersion: d.AWSVersion,
 	}
+	t := d.clock.Now()
 	deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
 	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
 	err = d.sendReplies([]msgReply{delta})
@@ -411,13 +413,14 @@ func (d *Device) evaluateRecipe(forceNew bool, t time.Time) error {
 	return nil
 }
 
-func (d *Device) SetMode(mode DeviceMode, t time.Time) error {
+func (d *Device) SetMode(mode DeviceMode) error {
 	// TODO: we should check if this is a valid mode change. Can't change to
 	// e.g. cinema if we're in the middle of cleaning.
 	d.AWSVersion++
 	deltaD := Device{
 		AWSVersion: d.AWSVersion,
 	}
+	t := d.clock.Now()
 	deltaD.Reported.Mode.update(mode, t)
 	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
 	err := d.sendReplies([]msgReply{delta})
@@ -428,8 +431,8 @@ func (d *Device) SetMode(mode DeviceMode, t time.Time) error {
 	return nil
 }
 
-func (d *Device) ProcessMessage(prefix string, event string, content []byte, t time.Time) {
-	d.msgQueue <- &msgUnparsed{prefix, event, content, t}
+func (d *Device) ProcessMessage(prefix string, event string, content []byte) {
+	d.msgQueue <- &msgUnparsed{prefix, event, content, d.clock.Now()}
 }
 
 func (d *Device) processingLoop() {
