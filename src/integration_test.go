@@ -160,6 +160,14 @@ func readManualActions() (*manualActions, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unmarshalling failed: %w", err)
 	}
+	lastT := time.Time{}
+	for i, a := range ma {
+		thisT := time.Time(a.Timestamp)
+		if thisT.Before(lastT) {
+			return nil, fmt.Errorf("time goes backward at ma %d, first: %v (%d), second: %v (%d)", i, lastT, lastT.Unix(), thisT, thisT.Unix())
+		}
+		lastT = thisT
+	}
 	return &manualActions{ma, 0}, nil
 }
 
