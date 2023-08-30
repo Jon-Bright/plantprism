@@ -159,6 +159,28 @@ func readManualActions() ([]manualAction, error) {
 	return ma, nil
 }
 
+type dumpPacket struct {
+	awsToPC   bool
+	packetNum int
+	ts        time.Time
+	raw       []byte
+	parsed    *pahopackets.PublishPacket
+}
+
+const (
+	PacketTSFmt = "2006-01-02T15:04:05.999"
+)
+
+func (dp dumpPacket) String() string {
+	var dir string
+	if dp.awsToPC {
+		dir = "A->P"
+	} else {
+		dir = "P->A"
+	}
+	return fmt.Sprintf("[%d: %s %s (%d)]", dp.packetNum, dir, dp.ts.Local().Format(PacketTSFmt), dp.ts.Unix())
+}
+
 func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, error) {
 	t.Logf("Processing '%s'...", name)
 	f, err := os.Open(name)
@@ -197,13 +219,16 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 			if tl == nil {
 				return 0, fmt.Errorf("packet %d has application layer but no transport layer", i)
 			}
-			ts := p.Metadata().Timestamp
+			dp := dumpPacket{}
 
 			// All our dump packets have AWS on port 8884
 			// and the Plantcube on a random other port.
-			awsToPC := (tl.TransportFlow().Src().String() == DumpAWSPort)
+			dp.awsToPC = (tl.TransportFlow().Src().String() == DumpAWSPort)
+			dp.packetNum = i
+			dp.ts = p.Metadata().Timestamp
+			dp.raw = app.Payload()
 
-			maIx, err = processPayload(t, awsToPC, i, ts, app.Payload(), maIx, ma)
+			maIx, err = processPayload(t, &dp, maIx, ma)
 			if err != nil {
 				return 0, fmt.Errorf("packet %d payload error: %w", i, err)
 			}
@@ -212,15 +237,16 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 	}
 }
 
-func processPayload(t *testing.T, awsToPC bool, packetNum int, ts time.Time, payload []byte, maIx int, ma []manualAction) (int, error) {
-	for r := bytes.NewReader(payload); r.Len() > 0; {
+func processPayload(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (int, error) {
+	for r := bytes.NewReader(dp.raw); r.Len() > 0; {
 		cp, err := pahopackets.ReadPacket(r)
 		if err != nil {
 			return 0, fmt.Errorf("ReadPacket: %w", err)
 		}
 		switch p := cp.(type) {
 		case *pahopackets.PublishPacket:
-			maIx, err = processPublish(t, awsToPC, packetNum, ts, p, maIx, ma)
+			dp.parsed = p
+			maIx, err = processPublish(t, dp, maIx, ma)
 			if err != nil {
 				return 0, fmt.Errorf("processPublish: %w", err)
 			}
@@ -229,24 +255,24 @@ func processPayload(t *testing.T, awsToPC bool, packetNum int, ts time.Time, pay
 	return maIx, nil
 }
 
-func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *pahopackets.PublishPacket, maIx int, ma []manualAction) (int, error) {
+func processPublish(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (int, error) {
 
-	for ; maIx < len(ma) && ts.After(time.Time(ma[maIx].Timestamp)); maIx++ {
+	for ; maIx < len(ma) && dp.ts.After(time.Time(ma[maIx].Timestamp)); maIx++ {
 		if ma[maIx].Action == "ignore" {
-			if ma[maIx].MsgTopic == p.TopicName {
+			if ma[maIx].MsgTopic == dp.parsed.TopicName {
 				return maIx + 1, nil
 			} else {
-				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, topic want '%s', got '%s'", ma[maIx], dp, ma[maIx].MsgTopic, dp.parsed.TopicName)
 			}
 		} else if ma[maIx].Action == "replace" {
-			if ma[maIx].MsgTopic != p.TopicName {
-				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, topic want '%s', got '%s'", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, ma[maIx].MsgTopic, p.TopicName)
+			if ma[maIx].MsgTopic != dp.parsed.TopicName {
+				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, topic want '%s', got '%s'", ma[maIx], dp, ma[maIx].MsgTopic, dp.parsed.TopicName)
 			}
 			re, err := regexp.Compile(ma[maIx].Regex)
 			if err != nil {
-				return 0, fmt.Errorf("unable to do manualAction %d/%s, p.ts %v, ma.ts %v, regexp compiled failed: %w", maIx, ma[maIx].Action, ts, ma[maIx].Timestamp, err)
+				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, regexp compiled failed: %w", ma[maIx], dp, err)
 			}
-			p.Payload = re.ReplaceAll(p.Payload, []byte(ma[maIx].Replacement))
+			dp.parsed.Payload = re.ReplaceAll(dp.parsed.Payload, []byte(ma[maIx].Replacement))
 		} else {
 			err := processManualAction(&ma[maIx])
 			if err != nil {
@@ -259,10 +285,10 @@ func processPublish(t *testing.T, awsToPC bool, packetNum int, ts time.Time, p *
 	// bit Plantprism is replacing. Expect it to send us that
 	// packet. Otherwise, this is a Plantcube (or possibly app)
 	// message that should be published to Plantprism.
-	if awsToPC {
-		return maIx, expectFromPlantprism(t, packetNum, ts, p)
+	if dp.awsToPC {
+		return maIx, expectFromPlantprism(t, dp)
 	} else {
-		return maIx, publishToPlantprism(t, ts, p)
+		return maIx, publishToPlantprism(t, dp)
 	}
 }
 
@@ -338,44 +364,44 @@ func (m *testMessage) Ack() {
 	m.t.Fatalf("Unimplemented Ack called")
 }
 
-func publishToPlantprism(t *testing.T, ts time.Time, p *pahopackets.PublishPacket) error {
+func publishToPlantprism(t *testing.T, dp *dumpPacket) error {
 	m := testMessage{
 		t:       t,
-		topic:   p.TopicName,
-		payload: p.Payload,
+		topic:   dp.parsed.TopicName,
+		payload: dp.parsed.Payload,
 	}
-	messageHandlerWithTime(nil, &m, ts)
+	messageHandlerWithTime(nil, &m, dp.ts)
 	return nil
 }
 
-func expectFromPlantprism(t *testing.T, packetNum int, ts time.Time, p *pahopackets.PublishPacket) error {
+func expectFromPlantprism(t *testing.T, dp *dumpPacket) error {
 	select {
 	case m := <-testPub.msgs:
-		compareMessages(t, packetNum, ts, m, p)
+		compareMessages(t, dp, m)
 	case <-time.After(time.Second * 2):
-		t.Errorf("packet %d, orig time %d, timeout waiting for message %v", packetNum, ts.Unix(), p)
+		t.Errorf("packet %v, timeout waiting for message %v", dp, dp.parsed)
 	}
 	return nil
 }
 
-func compareMessages(t *testing.T, packetNum int, ts time.Time, m *pubMsg, p *pahopackets.PublishPacket) {
-	if m.topic != p.TopicName {
-		t.Errorf("packet %d: incorrect topic,\n got '%s', \nwant '%s'", packetNum, m.topic, p.TopicName)
+func compareMessages(t *testing.T, dp *dumpPacket, m *pubMsg) {
+	if m.topic != dp.parsed.TopicName {
+		t.Errorf("packet %v: incorrect topic,\n got '%s', \nwant '%s'", dp, m.topic, dp.parsed.TopicName)
 		return
 	}
-	if m.payload[0] == '{' && p.Payload[0] == '{' {
+	if m.payload[0] == '{' && dp.parsed.Payload[0] == '{' {
 		// Both payloads are JSON (the common case)
 		opt := jsondiff.DefaultConsoleOptions()
-		result, diff := jsondiff.Compare(m.payload, p.Payload, &opt)
+		result, diff := jsondiff.Compare(m.payload, dp.parsed.Payload, &opt)
 		if result != jsondiff.FullMatch {
-			t.Errorf("packet %d: incorrect JSON payload, orig time %d, topic '%s', match result %s, diff '%s'", packetNum, ts.Unix(), m.topic, result, diff)
+			t.Errorf("packet %v: incorrect JSON payload, topic '%s', match result %s, diff '%s'", dp, m.topic, result, diff)
 		}
 	} else {
 		// Something else, assume binary (probably a recipe)
-		if !reflect.DeepEqual(m.payload, p.Payload) {
+		if !reflect.DeepEqual(m.payload, dp.parsed.Payload) {
 			hexGot := hex.Dump(m.payload)
-			hexWant := hex.Dump(p.Payload)
-			t.Errorf("packet %d: incorrect non-JSON payload, orig time %d, topic '%s',\n got '%s', \nwant '%s'", packetNum, ts.Unix(), m.topic, hexGot, hexWant)
+			hexWant := hex.Dump(dp.parsed.Payload)
+			t.Errorf("packet %v: incorrect non-JSON payload, topic '%s',\n got '%s', \nwant '%s'", dp, m.topic, hexGot, hexWant)
 		}
 	}
 }
