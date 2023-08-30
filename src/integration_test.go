@@ -311,6 +311,7 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 	if err != nil {
 		return false, fmt.Errorf("couldn't get device: %w", err)
 	}
+	t.Logf("Executing MA %v", ma)
 	switch ma.Action {
 	case "ignore":
 		if ma.MsgTopic != dp.parsed.TopicName {
