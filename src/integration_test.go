@@ -252,6 +252,10 @@ func processPCAP(t *testing.T, name string, ma *manualActions) error {
 			if err != nil {
 				return fmt.Errorf("packet %d payload error: %w", i, err)
 			}
+			if t.Failed() {
+				time.Sleep(1 * time.Second)
+				t.FailNow()
+			}
 		}
 		i++
 	}
