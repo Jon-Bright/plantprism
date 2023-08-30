@@ -258,26 +258,12 @@ func processPayload(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (
 func processPublish(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (int, error) {
 
 	for ; maIx < len(ma) && dp.ts.After(time.Time(ma[maIx].Timestamp)); maIx++ {
-		if ma[maIx].Action == "ignore" {
-			if ma[maIx].MsgTopic == dp.parsed.TopicName {
-				return maIx + 1, nil
-			} else {
-				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, topic want '%s', got '%s'", ma[maIx], dp, ma[maIx].MsgTopic, dp.parsed.TopicName)
-			}
-		} else if ma[maIx].Action == "replace" {
-			if ma[maIx].MsgTopic != dp.parsed.TopicName {
-				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, topic want '%s', got '%s'", ma[maIx], dp, ma[maIx].MsgTopic, dp.parsed.TopicName)
-			}
-			re, err := regexp.Compile(ma[maIx].Regex)
-			if err != nil {
-				return 0, fmt.Errorf("unable to do manualAction %v, pkt %v, regexp compiled failed: %w", ma[maIx], dp, err)
-			}
-			dp.parsed.Payload = re.ReplaceAll(dp.parsed.Payload, []byte(ma[maIx].Replacement))
-		} else {
-			err := processManualAction(&ma[maIx])
-			if err != nil {
-				return 0, fmt.Errorf("processing manualAction %d, ma.ts %v failed: %w", maIx, ma[maIx].Timestamp, err)
-			}
+		ret, err := processManualAction(&ma[maIx], dp)
+		if err != nil {
+			return 0, fmt.Errorf("processing manualAction %d/%v with packet %v failed: %w", maIx, ma[maIx], dp, err)
+		}
+		if ret {
+			return maIx + 1, err
 		}
 	}
 
@@ -292,38 +278,52 @@ func processPublish(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (
 	}
 }
 
-func processManualAction(ma *manualAction) error {
+func processManualAction(ma *manualAction, dp *dumpPacket) (bool, error) {
 	d, err := device.Get(DumpDevice, nil)
 	if err != nil {
-		return fmt.Errorf("couldn't %s: %w", ma.Action, err)
+		return false, fmt.Errorf("couldn't get device: %w", err)
 	}
 	switch ma.Action {
+	case "ignore":
+		if ma.MsgTopic != dp.parsed.TopicName {
+			return false, fmt.Errorf("wrong topic, want '%s', got '%s'", ma.MsgTopic, dp.parsed.TopicName)
+		}
+		return true, nil
+	case "replace":
+		if ma.MsgTopic != dp.parsed.TopicName {
+			return false, fmt.Errorf("wrong topic, want '%s', got '%s'", ma.MsgTopic, dp.parsed.TopicName)
+		}
+		re, err := regexp.Compile(ma.Regex)
+		if err != nil {
+			return false, fmt.Errorf("regexp '%s' compile failed: %w", ma.Regex, err)
+		}
+		dp.parsed.Payload = re.ReplaceAll(dp.parsed.Payload, []byte(ma.Replacement))
 	case "bumpAWSVersion":
 		d.AWSVersion++
 	case "harvest":
 		err = d.HarvestPlant(ma.Slot, time.Time(ma.Timestamp))
 		if err != nil {
-			return fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
+			return false, fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
 		}
 	case "defaultMode":
 		err = d.SetMode(device.ModeDefault, time.Time(ma.Timestamp))
 		if err != nil {
-			return fmt.Errorf("default mode failed: %w", err)
+			return false, fmt.Errorf("default mode failed: %w", err)
 		}
 	case "silent":
 		err = d.SetMode(device.ModeSilent, time.Time(ma.Timestamp))
 		if err != nil {
-			return fmt.Errorf("silent mode failed: %w", err)
+			return false, fmt.Errorf("silent mode failed: %w", err)
 		}
 	case "cinema":
 		err = d.SetMode(device.ModeCinema, time.Time(ma.Timestamp))
 		if err != nil {
-			return fmt.Errorf("cinema mode failed: %w", err)
+			return false, fmt.Errorf("cinema mode failed: %w", err)
 		}
 	default:
-		return fmt.Errorf("unknown manual action '%s'", ma.Action)
+		return false, fmt.Errorf("unknown manual action '%s'", ma.Action)
 	}
-	return nil
+	return false, nil
 }
 
 type testMessage struct {
