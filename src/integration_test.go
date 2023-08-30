@@ -293,6 +293,8 @@ func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 	}
 }
 
+var pushed *dumpPacket
+
 func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool, error) {
 	ma := mas.l[mas.ix]
 	d, err := device.Get(DumpDevice, nil)
@@ -314,6 +316,24 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 			return false, fmt.Errorf("regexp '%s' compile failed: %w", ma.Regex, err)
 		}
 		dp.parsed.Payload = re.ReplaceAll(dp.parsed.Payload, []byte(ma.Replacement))
+	case "push":
+		if pushed != nil {
+			return false, fmt.Errorf("packet %v already pushed", pushed)
+		}
+		if ma.MsgTopic != dp.parsed.TopicName {
+			return false, fmt.Errorf("wrong topic, want '%s', got '%s'", ma.MsgTopic, dp.parsed.TopicName)
+		}
+		pushed = dp
+		return true, nil
+	case "pop":
+		if pushed == nil {
+			return false, fmt.Errorf("no packet pushed")
+		}
+		var err error
+		err = processPublish(t, pushed, mas)
+		if err != nil {
+			return false, fmt.Errorf("popped packet error: %w", err)
+		}
 	case "bumpAWSVersion":
 		d.AWSVersion++
 	case "harvest":
