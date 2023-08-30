@@ -58,7 +58,6 @@ func TestReplay(t *testing.T) {
 	initPublisher(t)
 	device.SetTestMode()
 	device.ProcessFlags()
-	maIx := 0
 	ma, err := readManualActions()
 	if err != nil {
 		t.Fatalf("failed reading manual actions: %v", err)
@@ -74,7 +73,7 @@ func TestReplay(t *testing.T) {
 		if !strings.HasSuffix(de.Name(), ".pcapng") {
 			continue
 		}
-		maIx, err = processPCAP(t, DumpLocation+de.Name(), maIx, ma)
+		err = processPCAP(t, DumpLocation+de.Name(), ma)
 		if err != nil {
 			t.Fatalf("pcap processing of '%s' failed: %v", de.Name(), err)
 		}
@@ -146,7 +145,12 @@ type manualAction struct {
 	Replacement string
 }
 
-func readManualActions() ([]manualAction, error) {
+type manualActions struct {
+	l  []manualAction
+	ix int
+}
+
+func readManualActions() (*manualActions, error) {
 	aj, err := os.ReadFile(ManualActionsFile)
 	if err != nil {
 		return nil, fmt.Errorf("reading '%s' failed: %w", ManualActionsFile, err)
@@ -156,7 +160,7 @@ func readManualActions() ([]manualAction, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unmarshalling failed: %w", err)
 	}
-	return ma, nil
+	return &manualActions{ma, 0}, nil
 }
 
 type dumpPacket struct {
@@ -181,11 +185,11 @@ func (dp dumpPacket) String() string {
 	return fmt.Sprintf("[%d: %s %s (%d)]", dp.packetNum, dir, dp.ts.Local().Format(PacketTSFmt), dp.ts.Unix())
 }
 
-func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, error) {
+func processPCAP(t *testing.T, name string, ma *manualActions) error {
 	t.Logf("Processing '%s'...", name)
 	f, err := os.Open(name)
 	if err != nil {
-		return 0, fmt.Errorf("unable to open: %w", err)
+		return fmt.Errorf("unable to open: %w", err)
 	}
 	defer f.Close()
 
@@ -197,7 +201,7 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 		WantMixedLinkType: true,
 	})
 	if err != nil {
-		return 0, fmt.Errorf("unable to create ng reader: %w", err)
+		return fmt.Errorf("unable to create ng reader: %w", err)
 	}
 
 	ps := gopacket.NewPacketSource(r, layers.LinkTypeLinuxSLL2)
@@ -206,18 +210,18 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 		p, err := ps.NextPacket()
 		if err == io.EOF {
 			t.Logf("'%s': complete after %d packets", name, i)
-			return maIx, nil
+			return nil
 		} else if err != nil {
-			return 0, fmt.Errorf("error on packet %d NextPacket: %w", i, err)
+			return fmt.Errorf("error on packet %d NextPacket: %w", i, err)
 		}
 		if el := p.ErrorLayer(); el != nil {
-			return 0, fmt.Errorf("packet %d decode error: %w", i, el.Error())
+			return fmt.Errorf("packet %d decode error: %w", i, el.Error())
 		}
 		app := p.ApplicationLayer()
 		if app != nil {
 			tl := p.TransportLayer()
 			if tl == nil {
-				return 0, fmt.Errorf("packet %d has application layer but no transport layer", i)
+				return fmt.Errorf("packet %d has application layer but no transport layer", i)
 			}
 			dp := dumpPacket{}
 
@@ -228,42 +232,43 @@ func processPCAP(t *testing.T, name string, maIx int, ma []manualAction) (int, e
 			dp.ts = p.Metadata().Timestamp
 			dp.raw = app.Payload()
 
-			maIx, err = processPayload(t, &dp, maIx, ma)
+			err = processPayload(t, &dp, ma)
 			if err != nil {
-				return 0, fmt.Errorf("packet %d payload error: %w", i, err)
+				return fmt.Errorf("packet %d payload error: %w", i, err)
 			}
 		}
 		i++
 	}
 }
 
-func processPayload(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (int, error) {
+func processPayload(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 	for r := bytes.NewReader(dp.raw); r.Len() > 0; {
 		cp, err := pahopackets.ReadPacket(r)
 		if err != nil {
-			return 0, fmt.Errorf("ReadPacket: %w", err)
+			return fmt.Errorf("ReadPacket: %w", err)
 		}
 		switch p := cp.(type) {
 		case *pahopackets.PublishPacket:
 			dp.parsed = p
-			maIx, err = processPublish(t, dp, maIx, ma)
+			err = processPublish(t, dp, ma)
 			if err != nil {
-				return 0, fmt.Errorf("processPublish: %w", err)
+				return fmt.Errorf("processPublish: %w", err)
 			}
 		}
 	}
-	return maIx, nil
+	return nil
 }
 
-func processPublish(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (int, error) {
+func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 
-	for ; maIx < len(ma) && dp.ts.After(time.Time(ma[maIx].Timestamp)); maIx++ {
-		ret, err := processManualAction(&ma[maIx], dp)
+	for ; ma.ix < len(ma.l) && dp.ts.After(time.Time(ma.l[ma.ix].Timestamp)); ma.ix++ {
+		ret, err := processManualAction(t, ma, dp)
 		if err != nil {
-			return 0, fmt.Errorf("processing manualAction %d/%v with packet %v failed: %w", maIx, ma[maIx], dp, err)
+			return fmt.Errorf("processing manualAction %d/%v with packet %v failed: %w", ma.ix, ma.l[ma.ix], dp, err)
 		}
 		if ret {
-			return maIx + 1, err
+			ma.ix++
+			return err
 		}
 	}
 
@@ -272,13 +277,14 @@ func processPublish(t *testing.T, dp *dumpPacket, maIx int, ma []manualAction) (
 	// packet. Otherwise, this is a Plantcube (or possibly app)
 	// message that should be published to Plantprism.
 	if dp.awsToPC {
-		return maIx, expectFromPlantprism(t, dp)
+		return expectFromPlantprism(t, dp)
 	} else {
-		return maIx, publishToPlantprism(t, dp)
+		return publishToPlantprism(t, dp)
 	}
 }
 
-func processManualAction(ma *manualAction, dp *dumpPacket) (bool, error) {
+func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool, error) {
+	ma := mas.l[mas.ix]
 	d, err := device.Get(DumpDevice, nil)
 	if err != nil {
 		return false, fmt.Errorf("couldn't get device: %w", err)
