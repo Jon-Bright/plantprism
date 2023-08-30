@@ -210,8 +210,9 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		deltaD := Device{
 			AWSVersion: d.AWSVersion,
 		}
-		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), msg.t)
-		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(msg.t))
+		deltaT := time.Unix(int64(d.Recipe.ID), 0)
+		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), deltaT)
+		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(deltaT, msg.t))
 	}
 	return replies, nil
 }
@@ -368,13 +369,13 @@ func (m *msgAWSShadowUpdateDeltaReply) topic() string {
 	return MQTT_TOPIC_AWS_UPDATE_DELTA
 }
 
-func (d *Device) getAWSShadowUpdateDeltaReply(t time.Time) msgReply {
+func (d *Device) getAWSShadowUpdateDeltaReply(deltaT, t time.Time) msgReply {
 	msg := msgAWSShadowUpdateDeltaReply{}
 	s := &msg.State
 	m := &msg.Metadata
 
 	msg.Version = d.AWSVersion
 	msg.Timestamp = int(t.Unix())
-	d.fillAWSUpdateDataMetadata(t, s, m)
+	d.fillAWSUpdateDataMetadata(deltaT, s, m)
 	return &msg
 }

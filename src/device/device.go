@@ -385,7 +385,7 @@ func (d *Device) evaluateRecipe(t time.Time) error {
 		AWSVersion: d.AWSVersion,
 	}
 	deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
-	delta := deltaD.getAWSShadowUpdateDeltaReply(t)
+	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
 	err = d.sendReplies([]msgReply{delta})
 	if err != nil {
 		return fmt.Errorf("failed sending delta for new recipe: %w", err)
@@ -402,7 +402,7 @@ func (d *Device) SetMode(mode DeviceMode, t time.Time) error {
 		AWSVersion: d.AWSVersion,
 	}
 	deltaD.Reported.Mode.update(mode, t)
-	delta := deltaD.getAWSShadowUpdateDeltaReply(t)
+	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
 	err := d.sendReplies([]msgReply{delta})
 	if err != nil {
 		return fmt.Errorf("failed sending delta for mode change: %w", err)
