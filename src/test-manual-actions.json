@@ -12,7 +12,7 @@
 	"ts": 1687012061,
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"comment": "AWS Shadow accepting a planting message from the app"
+	"comment": "AWS Shadow accepting a harvesting message from the app"
     },{
 	"ts": 1687012151,
 	"action": "harvest",
@@ -72,6 +72,22 @@
 	"replacement": "",
 	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
     },{
+	"ts": 1687012745.227,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687012745.227,
+	"action": "push",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"comment": "In response to a change, AWS sometimes does update/delta then update/accepted and sometimes does update/accepted then update/delta. There's no apparent logic to this. We always do the latter. In this case, AWS did the former, so we'll swap that message order."
+    },{
+	"ts": 1687012745.521,
+	"action": "pop",
+	"comment": "This is after the update/accepted from above, pop and process the delta."
+    },{
 	"ts": 1687013043,
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
@@ -87,5 +103,73 @@
 	"regex": ",\"clientToken\":[^\\}]+",
 	"replacement": "",
 	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687013104,
+	"action": "defaultMode",
+	"comment": "Default mode (silent mode off) triggered via app"
+    },{
+	"ts": 1687013104,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687013104.878,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting the default mode message below from the app, with the app's ClientToken, which will be ignored as covered under ..151 above"
+    },{
+	"ts": 1687013105.325,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1687013106.067,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1687013106.067,
+	"action": "push",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"comment": "In response to a change, AWS sometimes does update/delta then update/accepted and sometimes does update/accepted then update/delta. There's no apparent logic to this. We always do the latter. In this case, AWS did the former, so we'll swap that message order."
+    },{
+	"ts": 1687013106.265,
+	"action": "pop",
+	"comment": "This is after the update/accepted from above, pop and process the delta."
+    },{
+	"ts": 1687013647,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending an invalid update, ignore"
+    },{
+	"ts": 1687013649,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a planting message from the app"
+    },{
+	"ts": 1687013649,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update above"
+    },{
+	"ts": 1687013652,
+	"action": "addPlant",
+	"slot": "b9",
+	"plantID": 96,
+	"comment": "Plant Micro radish"
+    },{
+	"ts": 1687013652,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a second planting message from the app"
+    },{
+	"ts": 1687013652,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update above"
     }
 ]
