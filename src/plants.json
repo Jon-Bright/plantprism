@@ -1,4 +1,14 @@
 {
+    "96":{
+	"Comment": "ID/HarvestFrom come from dumps",
+	"Names":{
+	    "en": "Micro Radish",
+	    "de": "Mikroradieschen"
+	},
+	"Germination":"1d",
+	"HarvestFrom":"7d",
+	"HarvestBy":"3w"
+    },
     "1000":{
 	"Names":{
 	    "en": "Basil",
