@@ -329,17 +329,13 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	}
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
-	err = d.evaluateRecipe(false)
-	if err != nil {
-		return fmt.Errorf("post-harvest (slot '%s') recipe evaluation failed: %w", slotStr, err)
-	}
 	d.QueueRecipe()
 	d.QueueSave()
 	return nil
 }
 
 func (d *Device) sendRecipe() {
-	err := d.evaluateRecipe(true)
+	err := d.makeNewRecipe()
 	if err != nil {
 		log.Error.Printf("Failed delayed recipe: %v", err)
 	}
@@ -354,7 +350,7 @@ func (d *Device) layerHasPlants(l layerID) bool {
 	return false
 }
 
-func (d *Device) evaluateRecipe(forceNew bool) error {
+func (d *Device) makeNewRecipe() error {
 	// TODO: there's a lot more we could do here, but for now, we
 	// just activate the layers we need to. We then only replace
 	// the recipe when one or both of two conditions is true:
@@ -382,27 +378,20 @@ func (d *Device) evaluateRecipe(forceNew bool) error {
 		return fmt.Errorf("CreateRecipe failed, layerAActive=%v, layerBActive=%v: %w", layerAActive, layerBActive, err)
 	}
 
+	t := d.clock.Now()
 	ad := r.AgeDifference(d.Recipe)
 	eq, err := r.EqualExceptTimestamps(d.Recipe)
 	if err != nil {
 		return fmt.Errorf("failed comparing old/new recipes: %w", err)
 	}
-	if !forceNew && eq && ad < MinimumRecipeAge {
-		// Recipes are equal and the current one's not
-		// old. Leave it be.
-		log.Info.Printf("Evaluated recipes, left as-is, forceNew %v, equal %v, age difference %v, layerAActive %v, layerBActive %v", forceNew, eq, ad, layerAActive, layerBActive)
-		return nil
-	}
-	// Recipes either aren't equal, or the current one's
-	// old. Update and send a delta message.
-	log.Info.Printf("New recipe generated, forceNew %v, equal %v, age difference %v, layerAActive %v, layerBActive %v", forceNew, eq, ad, layerAActive, layerBActive)
+
+	log.Info.Printf("New recipe generated at %v, equal %v, age difference %v, layerAActive %v, layerBActive %v", t.Local(), eq, ad, layerAActive, layerBActive)
 
 	d.Recipe = r
 	d.AWSVersion++
 	deltaD := Device{
 		AWSVersion: d.AWSVersion,
 	}
-	t := d.clock.Now()
 	deltaD.Reported.RecipeID.update(int(d.Recipe.ID), t)
 	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
 	err = d.sendReplies([]msgReply{delta})
