@@ -28,6 +28,7 @@ import (
 
 	"github.com/Jon-Bright/plantprism/device"
 	"github.com/Jon-Bright/plantprism/logs"
+	"github.com/Jon-Bright/plantprism/plant"
 	pahopackets "github.com/eclipse/paho.mqtt.golang/packets"
 	"github.com/gopacket/gopacket"
 	"github.com/gopacket/gopacket/layers"
@@ -59,6 +60,10 @@ func TestReplay(t *testing.T) {
 	initPublisher(t)
 	device.SetTestMode()
 	device.ProcessFlags()
+	err := plant.LoadPlants()
+	if err != nil {
+		log.Critical.Fatalf("Failed to load plants: %v", err)
+	}
 	ma, err := readManualActions()
 	if err != nil {
 		t.Fatalf("failed reading manual actions: %v", err)
@@ -142,6 +147,7 @@ type manualAction struct {
 	Action      string
 	MsgTopic    string
 	Slot        string
+	PlantID     plant.PlantID
 	Regex       string
 	Replacement string
 }
@@ -340,6 +346,11 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 		err = d.HarvestPlant(ma.Slot, time.Time(ma.Timestamp))
 		if err != nil {
 			return false, fmt.Errorf("harvest slot '%s' failed: %w", ma.Slot, err)
+		}
+	case "addPlant":
+		err = d.AddPlant(ma.Slot, ma.PlantID, time.Time(ma.Timestamp))
+		if err != nil {
+			return false, fmt.Errorf("plant slot '%s', id '%d' failed: %w", ma.Slot, ma.PlantID, err)
 		}
 	case "defaultMode":
 		err = d.SetMode(device.ModeDefault, time.Time(ma.Timestamp))
