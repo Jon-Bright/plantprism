@@ -345,6 +345,7 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 		if err != nil {
 			return false, fmt.Errorf("popped packet error: %w", err)
 		}
+		pushed = nil
 	case "bumpAWSVersion":
 		d.AWSVersion++
 	case "harvest":
