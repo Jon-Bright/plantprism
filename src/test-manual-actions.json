@@ -1,5 +1,10 @@
 [
     {
+	"ts": 1687012031,
+	"action": "harvest",
+	"slot": "b1",
+	"comment": "Harvest Chilli. This also causes the update below, which bumps AWS version."
+    },{
 	"ts": 1687012056,
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
@@ -13,11 +18,6 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "AWS Shadow accepting a harvesting message from the app"
-    },{
-	"ts": 1687012151,
-	"action": "harvest",
-	"slot": "b1",
-	"comment": "Harvest Chilli. This also causes the update below, which bumps AWS version."
     },{
 	"ts": 1687012151,
 	"action": "ignore",
@@ -157,7 +157,7 @@
 	"action": "bumpAWSVersion",
 	"comment": "AWS Shadow accepts the update above"
     },{
-	"ts": 1687013652,
+	"ts": 1687013651,
 	"action": "addPlant",
 	"slot": "b9",
 	"plantID": 96,
@@ -171,5 +171,10 @@
 	"ts": 1687013652,
 	"action": "bumpAWSVersion",
 	"comment": "AWS Shadow accepts the update above"
+    },{
+	"ts": 1687013772,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
     }
 ]
