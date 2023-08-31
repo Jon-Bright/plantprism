@@ -155,6 +155,7 @@ type manualAction struct {
 	PlantID     plant.PlantID
 	Regex       string
 	Replacement string
+	AWSVersion  int
 }
 
 func (ma manualAction) String() string {
@@ -356,6 +357,11 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 		pushed = nil
 	case "bumpAWSVersion":
 		d.AWSVersion++
+	case "setAWSVersion":
+		if ma.AWSVersion < d.AWSVersion {
+			return false, fmt.Errorf("new AWS version %d is older than previous %d", ma.AWSVersion, d.AWSVersion)
+		}
+		d.AWSVersion = ma.AWSVersion
 	case "harvest":
 		err = d.HarvestPlant(ma.Slot)
 		if err != nil {
