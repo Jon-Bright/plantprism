@@ -28,13 +28,15 @@ const (
 	MQTT_ID_TOKEN                  = "<ID>"
 	MQTT_TOPIC_AGL_GET_ACCEPTED    = "agl/all/things/" + MQTT_ID_TOKEN + "/shadow/get/accepted"
 	MQTT_TOPIC_AGL_RECIPE          = "agl/prod/things/" + MQTT_ID_TOKEN + "/recipe"
+	MQTT_TOPIC_AGL_RPC_PUT         = "agl/all/things/" + MQTT_ID_TOKEN + "/rpc/put"
 	MQTT_TOPIC_AWS_UPDATE_ACCEPTED = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/accepted"
 	MQTT_TOPIC_AWS_UPDATE_DELTA    = "$aws/things/" + MQTT_ID_TOKEN + "/shadow/update/delta"
 
-	KeepBackups      = 20
-	SaveDelay        = 20 * time.Second
-	RecipeDelay      = 2 * time.Minute
-	MinimumRecipeAge = 48 * time.Hour
+	KeepBackups           = 20
+	SaveDelay             = 20 * time.Second
+	RecipeDelay           = 2 * time.Minute
+	WateringDelayHarvest  = 41 * time.Minute               // No idea why this delay, but it's what's in the dumps
+	WateringDelayPlanting = 11*time.Minute - 1*time.Second // Also not exactly a round number, same reason
 )
 
 type layerID string
@@ -100,12 +102,13 @@ type Publisher interface {
 type Device struct {
 	ID string `json:",omitempty"`
 
-	clock       clock.Clock
-	msgQueue    chan *msgUnparsed
-	publisher   Publisher
-	slotChans   []chan *SlotEvent
-	saveTimer   *clock.Timer
-	recipeTimer *clock.Timer
+	clock         clock.Clock
+	msgQueue      chan *msgUnparsed
+	publisher     Publisher
+	slotChans     []chan *SlotEvent
+	saveTimer     *clock.Timer
+	recipeTimer   *clock.Timer
+	wateringTimer *clock.Timer
 
 	Slots map[layerID]map[slotID]slot `json:",omitempty"`
 
@@ -293,6 +296,14 @@ func (d *Device) QueueRecipe() {
 	d.recipeTimer.Reset(RecipeDelay)
 }
 
+func (d *Device) QueueWatering(harvest bool) {
+	if harvest {
+		d.wateringTimer.Reset(WateringDelayHarvest)
+	} else {
+		d.wateringTimer.Reset(WateringDelayPlanting)
+	}
+}
+
 func (d *Device) AddPlant(slotStr string, plantID plant.PlantID) error {
 	l, s, err := parseSlot(slotStr)
 	if err != nil {
@@ -315,6 +326,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID) error {
 	}
 	d.sendStreamingUpdate(l, s)
 	d.QueueRecipe()
+	d.QueueWatering(false)
 	d.QueueSave()
 	return nil
 }
@@ -330,8 +342,22 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	d.Slots[l][s] = slot{}
 	d.sendStreamingUpdate(l, s)
 	d.QueueRecipe()
+	d.QueueWatering(true)
 	d.QueueSave()
 	return nil
+}
+
+func (d *Device) sendWateringRPC() {
+	l := layerA
+	if d.layerHasPlants(layerB) {
+		l = layerB
+	}
+	msg := getAglRPCPutWatering(l)
+	err := d.sendReplies([]msgReply{msg})
+	if err != nil {
+		log.Error.Printf("failed sending watering RPC: %v", err)
+	}
+
 }
 
 func (d *Device) sendRecipe() {
