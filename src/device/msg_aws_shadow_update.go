@@ -4,12 +4,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 )
 
 const (
 	EXPECTED_NCU_MCU_FW_VERSION = 1667466618
 )
+
+type floatDP float64
+
+func (f floatDP) MarshalJSON() ([]byte, error) {
+	if float64(f) == float64(int(f)) {
+		return []byte(strconv.FormatFloat(float64(f), 'f', 1, 32)), nil
+	}
+	return []byte(strconv.FormatFloat(float64(f), 'f', -1, 32)), nil
+}
 
 // Example: {"clientToken":"5975bc44","state":{"reported":{"humid_b":75,"temp_a":22.99,"temp_b":24.19}}}
 // Example: {"clientToken":"5975bc44","state":{"reported":{"temp_a":22.69,"firmware_ncu":1667466618,"door":false,"cooling":true,"total_offset":69299,"light_a":false,"light_b":false}}}
@@ -41,9 +51,9 @@ type msgAWSShadowUpdateData struct {
 	RecipeID     *int        `json:"recipe_id,omitempty"`
 	TankLevel    *int        `json:"tank_level,omitempty"`
 	TankLevelRaw *int        `json:"tank_level_raw,omitempty"`
-	TempA        *float64    `json:"temp_a,omitempty"`
-	TempB        *float64    `json:"temp_b,omitempty"`
-	TempTank     *float64    `json:"temp_tank,omitempty"`
+	TempA        *floatDP    `json:"temp_a,omitempty"`
+	TempB        *floatDP    `json:"temp_b,omitempty"`
+	TempTank     *floatDP    `json:"temp_tank,omitempty"`
 	TotalOffset  *int        `json:"total_offset,omitempty"`
 	Valve        *ValveState `json:"valve,omitempty"`
 	WifiLevel    *int        `json:"wifi_level,omitempty"`
