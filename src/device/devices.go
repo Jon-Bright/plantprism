@@ -115,6 +115,8 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 	d.saveTimer.Stop()
 	d.recipeTimer = d.clock.AfterFunc(aLongTime, d.sendRecipe)
 	d.recipeTimer.Stop()
+	d.wateringTimer = d.clock.AfterFunc(aLongTime, d.sendWateringRPC)
+	d.wateringTimer.Stop()
 
 	if d.IsSaved() {
 		err := d.RestoreFromFile()
