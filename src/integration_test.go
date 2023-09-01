@@ -157,6 +157,7 @@ type manualAction struct {
 	Regex       string
 	Replacement string
 	AWSVersion  int
+	VersionOK   bool
 }
 
 func (ma manualAction) String() string {
@@ -289,7 +290,7 @@ func processPayload(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 
 	for ; ma.ix < len(ma.l) && dp.ts.After(time.Time(ma.l[ma.ix].Timestamp)); ma.ix++ {
-		ret, err := processManualAction(t, ma, dp)
+		ret, err := processManualAction(t, &ma.l[ma.ix], dp)
 		if err != nil {
 			return fmt.Errorf("processing manualAction %d/%v with packet %v failed: %w", ma.ix, ma.l[ma.ix], dp, err)
 		}
@@ -306,16 +307,35 @@ func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 	// packet. Otherwise, this is a Plantcube (or possibly app)
 	// message that should be published to Plantprism.
 	if dp.awsToPC {
-		return expectFromPlantprism(t, dp)
+		if pushed != nil && !pushVersionOK {
+			adjustVersion(dp, -1)
+		}
+		err := expectFromPlantprism(t, dp)
+		if err != nil {
+			return err
+		}
+		if pushed != nil {
+			dp = pushed
+			// Important to do this before calling
+			// ourselves, otherwise we end up here again
+			pushed = nil
+			err = processPublish(t, dp, ma)
+			if err != nil {
+				return fmt.Errorf("popped packet error: %w", err)
+			}
+		}
+		return nil
 	} else {
 		return publishToPlantprism(t, dp)
 	}
 }
 
-var pushed *dumpPacket
+var (
+	pushed        *dumpPacket
+	pushVersionOK bool
+)
 
-func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool, error) {
-	ma := mas.l[mas.ix]
+func processManualAction(t *testing.T, ma *manualAction, dp *dumpPacket) (bool, error) {
 	d, err := device.Get(DumpDevice, nil)
 	if err != nil {
 		return false, fmt.Errorf("couldn't get device: %w", err)
@@ -337,25 +357,19 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 			return false, fmt.Errorf("regexp '%s' compile failed: %w", ma.Regex, err)
 		}
 		dp.parsed.Payload = re.ReplaceAll(dp.parsed.Payload, []byte(ma.Replacement))
-	case "push":
+	case "swap":
 		if pushed != nil {
 			return false, fmt.Errorf("packet %v already pushed", pushed)
 		}
 		if ma.MsgTopic != dp.parsed.TopicName {
 			return false, fmt.Errorf("wrong topic, want '%s', got '%s'", ma.MsgTopic, dp.parsed.TopicName)
 		}
+		if !ma.VersionOK {
+			adjustVersion(dp, +1)
+		}
 		pushed = dp
+		pushVersionOK = ma.VersionOK
 		return true, nil
-	case "pop":
-		if pushed == nil {
-			return false, fmt.Errorf("no packet pushed")
-		}
-		var err error
-		err = processPublish(t, pushed, mas)
-		if err != nil {
-			return false, fmt.Errorf("popped packet error: %w", err)
-		}
-		pushed = nil
 	case "bumpAWSVersion":
 		d.AWSVersion++
 	case "setAWSVersion":
@@ -392,6 +406,26 @@ func processManualAction(t *testing.T, mas *manualActions, dp *dumpPacket) (bool
 		return false, fmt.Errorf("unknown manual action '%s'", ma.Action)
 	}
 	return false, nil
+}
+
+func adjustVersion(msg *dumpPacket, adj int) error {
+	verRe := regexp.MustCompile(`"version":(\d+)`)
+	sm := verRe.FindSubmatch(msg.parsed.Payload)
+	if len(sm) < 2 {
+		return fmt.Errorf("msg matched for version, but has no subgroup")
+	}
+	version := string(sm[1])
+	if len(version) < 6 {
+		return fmt.Errorf("msg matched for version, but '%s' is too short", version)
+	}
+	verNum, err := strconv.Atoi(version)
+	if err != nil {
+		return fmt.Errorf("version '%s' not a number: %w", version, err)
+	}
+	verNum += adj
+	version = `"version":` + strconv.Itoa(verNum)
+	msg.parsed.Payload = verRe.ReplaceAll(msg.parsed.Payload, []byte(version))
+	return nil
 }
 
 type testMessage struct {
