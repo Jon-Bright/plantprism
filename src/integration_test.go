@@ -299,7 +299,7 @@ func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 		}
 	}
 
-	clk.Set(dp.ts.Add(20 * time.Millisecond))
+	clk.Set(dp.ts)
 
 	// If the packet is from AWS to the Plantcube, then that's the
 	// bit Plantprism is replacing. Expect it to send us that
@@ -506,10 +506,6 @@ func unifyTimestamps(ourMsg, theirMsg []byte) ([]byte, error) {
 	tsPlus1 := strconv.Itoa(ts + 1)
 	tsPlus1Re := regexp.MustCompile(`"timestamp":` + tsPlus1)
 	theirMsg = tsPlus1Re.ReplaceAll(theirMsg, []byte(ourTS))
-
-	tsMinus1 := strconv.Itoa(ts - 1)
-	tsMinus1Re := regexp.MustCompile(`"timestamp":` + tsMinus1)
-	theirMsg = tsMinus1Re.ReplaceAll(theirMsg, []byte(ourTS))
 
 	return theirMsg, nil
 }
