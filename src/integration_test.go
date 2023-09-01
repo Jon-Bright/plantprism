@@ -298,7 +298,7 @@ func processPublish(t *testing.T, dp *dumpPacket, ma *manualActions) error {
 		}
 	}
 
-	clk.Set(dp.ts)
+	clk.Set(dp.ts.Add(20 * time.Millisecond))
 
 	// If the packet is from AWS to the Plantcube, then that's the
 	// bit Plantprism is replacing. Expect it to send us that
