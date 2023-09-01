@@ -176,5 +176,153 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
+    },{
+	"ts": 1687014380.776,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "938710",
+	"replacement": "938711",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687014380.776,
+	"action": "push",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687014380.848,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "938711",
+	"replacement": "938710",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687014380.849,
+	"action": "pop",
+	"comment": "Pop our first, their second message after their first went by"
+    },{
+	"ts": 1687016070,
+	"action": "setAWSVersion",
+	"awsVersion": 938736,
+	"comment": "There's a 26-minute gap in the dump here and we miss these versions"
+    },{
+	"ts": 1687021538,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687021537",
+	"replacement": "1687021538",
+	"comment": "The second hand ticks to the next second while AWS processes this message, so its humid_b timestamp is ..7, but its message timestamp is ..8. Both are the same timestamp for us."
+    },{
+	"ts": 1687035874.044,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687035873",
+	"replacement": "1687035874",
+	"comment": "AWS gets the message slightly quicker than our buffer time"
+    },{
+	"ts": 1687035911,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687035911",
+	"replacement": "1687035910",
+	"comment": "The message leaves us 34ms before the end of the second, but apparently makes it to AWS just after the second hand ticks to the next second"
+    },{
+	"ts": 1687037438,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687037438",
+	"replacement": "1687037437",
+	"comment": "Same deal as last case, same timing"
+    },{
+	"ts": 1687038982,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687038981",
+	"replacement": "1687038982",
+	"comment": "Same deal as last case, same timing"
+    },{
+	"ts": 1687039758,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687039757",
+	"replacement": "1687039758",
+	"comment": "Same deal as last case, same timing"
+    },{
+	"ts": 1687064479.955,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "939064",
+	"replacement": "939065",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687064479.955,
+	"action": "push",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687064480.029,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "939065",
+	"replacement": "939064",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687064480.030,
+	"action": "pop",
+	"comment": "Pop our first, their second message after their first went by"
+    },{
+	"ts": 1687065749.914,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "939076",
+	"replacement": "939077",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687065749.914,
+	"action": "push",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687065749.993,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "939077",
+	"replacement": "939076",
+	"comment": "We're going to swap this and the next message (see below), so we also need to swap versions"
+    },{
+	"ts": 1687065749.994,
+	"action": "pop",
+	"comment": "Pop our first, their second message after their first went by"
+    },{
+	"ts": 1687067273,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687067273",
+	"replacement": "1687067272",
+	"comment": "Second boundary crossed"
+    },{
+	"ts": 1687069209,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687069209",
+	"replacement": "1687069208",
+	"comment": "Second boundary crossed"
+    },{
+	"ts": 1687069334,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687069333",
+	"replacement": "1687069334",
+	"comment": "Second boundary crossed"
+    },{
+	"ts": 1687083858,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687083857",
+	"replacement": "1687083858",
+	"comment": "Second boundary crossed"
+    },{
+	"ts": 1687087540,
+	"action": "bumpAWSVersion",
+	"comment": "This is after a reconnect so the client's will has bumped the version"
     }
 ]
