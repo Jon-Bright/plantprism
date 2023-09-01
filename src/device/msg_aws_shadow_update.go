@@ -224,6 +224,9 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), deltaT)
 		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(deltaT, msg.t))
 	}
+	if dr.Valve.Value != ValveClosed {
+		d.wateringTimer.Stop()
+	}
 	return replies, nil
 }
 
