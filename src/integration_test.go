@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -444,22 +445,29 @@ func publishToPlantprism(t *testing.T, dp *dumpPacket) error {
 func expectFromPlantprism(t *testing.T, dp *dumpPacket) error {
 	select {
 	case m := <-testPub.msgs:
-		compareMessages(t, dp, m)
+		err := compareMessages(t, dp, m)
+		if err != nil {
+			return fmt.Errorf("compareMessages failed: %w", err)
+		}
 	case <-time.After(time.Second * 2):
 		t.Errorf("packet %v, timeout waiting for message %v", dp, dp.parsed)
 	}
 	return nil
 }
 
-func compareMessages(t *testing.T, dp *dumpPacket, m *pubMsg) {
+func compareMessages(t *testing.T, dp *dumpPacket, m *pubMsg) error {
 	if m.topic != dp.parsed.TopicName {
 		t.Errorf("packet %v: incorrect topic,\n got '%s', \nwant '%s'", dp, m.topic, dp.parsed.TopicName)
-		return
+		return nil
 	}
 	if m.payload[0] == '{' && dp.parsed.Payload[0] == '{' {
 		// Both payloads are JSON (the common case)
 		opt := jsondiff.DefaultConsoleOptions()
-		result, diff := jsondiff.Compare(m.payload, dp.parsed.Payload, &opt)
+		theirMsg, err := unifyTimestamps(m.payload, dp.parsed.Payload)
+		if err != nil {
+			return fmt.Errorf("unify timestamps failed: %w", err)
+		}
+		result, diff := jsondiff.Compare(m.payload, theirMsg, &opt)
 		if result != jsondiff.FullMatch {
 			t.Errorf("packet %v: incorrect JSON payload, topic '%s', match result %s, diff '%s'", dp, m.topic, result, diff)
 		}
@@ -471,4 +479,37 @@ func compareMessages(t *testing.T, dp *dumpPacket, m *pubMsg) {
 			t.Errorf("packet %v: incorrect non-JSON payload, topic '%s',\n got '%s', \nwant '%s'", dp, m.topic, hexGot, hexWant)
 		}
 	}
+	return nil
+}
+
+func unifyTimestamps(ourMsg, theirMsg []byte) ([]byte, error) {
+	tsRe := regexp.MustCompile(`"timestamp":(\d+)`)
+	sm := tsRe.FindSubmatch(ourMsg)
+	if sm == nil {
+		// Some messages don't have a timestamp
+		return theirMsg, nil
+	}
+	if len(sm) < 2 {
+		return nil, fmt.Errorf("our msg matched for timestamp, but has no subgroup")
+	}
+	ourTS := string(sm[1])
+	if len(ourTS) < 10 {
+		return nil, fmt.Errorf("our msg matched for timestamp, but '%s' is too short", ourTS)
+	}
+	ts, err := strconv.Atoi(ourTS)
+	if err != nil {
+		return nil, fmt.Errorf("timestamp '%s' not a number: %w", ourTS, err)
+	}
+
+	ourTS = `"timestamp":` + ourTS
+
+	tsPlus1 := strconv.Itoa(ts + 1)
+	tsPlus1Re := regexp.MustCompile(`"timestamp":` + tsPlus1)
+	theirMsg = tsPlus1Re.ReplaceAll(theirMsg, []byte(ourTS))
+
+	tsMinus1 := strconv.Itoa(ts - 1)
+	tsMinus1Re := regexp.MustCompile(`"timestamp":` + tsMinus1)
+	theirMsg = tsMinus1Re.ReplaceAll(theirMsg, []byte(ourTS))
+
+	return theirMsg, nil
 }
