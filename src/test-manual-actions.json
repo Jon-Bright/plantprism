@@ -205,47 +205,12 @@
 	"awsVersion": 938736,
 	"comment": "There's a 26-minute gap in the dump here and we miss these versions"
     },{
-	"ts": 1687021538,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687021537",
-	"replacement": "1687021538",
-	"comment": "The second hand ticks to the next second while AWS processes this message, so its humid_b timestamp is ..7, but its message timestamp is ..8. Both are the same timestamp for us."
-    },{
 	"ts": 1687035874.044,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"regex": "1687035873",
 	"replacement": "1687035874",
 	"comment": "AWS gets the message slightly quicker than our buffer time"
-    },{
-	"ts": 1687035911,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687035911",
-	"replacement": "1687035910",
-	"comment": "The message leaves us 34ms before the end of the second, but apparently makes it to AWS just after the second hand ticks to the next second"
-    },{
-	"ts": 1687037438,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687037438",
-	"replacement": "1687037437",
-	"comment": "Same deal as last case, same timing"
-    },{
-	"ts": 1687038982,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687038981",
-	"replacement": "1687038982",
-	"comment": "Same deal as last case, same timing"
-    },{
-	"ts": 1687039758,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687039757",
-	"replacement": "1687039758",
-	"comment": "Same deal as last case, same timing"
     },{
 	"ts": 1687064479.955,
 	"action": "replace",
@@ -293,34 +258,6 @@
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
     },{
-	"ts": 1687067273,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687067273",
-	"replacement": "1687067272",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687069209,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687069209",
-	"replacement": "1687069208",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687069334,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687069333",
-	"replacement": "1687069334",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687083858,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687083857",
-	"replacement": "1687083858",
-	"comment": "Second boundary crossed"
-    },{
 	"ts": 1687087540,
 	"action": "bumpAWSVersion",
 	"comment": "This is after a reconnect so the client's will has bumped the version"
@@ -331,20 +268,6 @@
 	"regex": ",\"clientToken\":[^\\}]+",
 	"replacement": "",
 	"comment": "This delta message includes the _device_'s client token. As above under ..151, this will be ignored and we don't generate it. Remove it."
-    },{
-	"ts": 1687105747,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687105747",
-	"replacement": "1687105746",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687106613,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687106612",
-	"replacement": "1687106613",
-	"comment": "Second boundary crossed"
     },{
 	"ts": 1687115285,
 	"action": "ignore",
@@ -402,20 +325,6 @@
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
     },{
-	"ts": 1687134564,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687134564",
-	"replacement": "1687134563",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687148822,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687148822",
-	"replacement": "1687148821",
-	"comment": "Second boundary crossed"
-    },{
 	"ts": 1687150879.771,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
@@ -462,34 +371,6 @@
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
     },{
-	"ts": 1687163241,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687163240",
-	"replacement": "1687163241",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687163970,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687163970",
-	"replacement": "1687163969",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687167568,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687167567",
-	"replacement": "1687167568",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687179751.067,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687179751",
-	"replacement": "1687179750",
-	"comment": "Second boundary crossed. This is also an instance of AWS reporting EC and Valve updates in the order we report them, indicating that's OK."
-    },{
 	"ts": 1687181020.829,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
@@ -513,27 +394,6 @@
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
     },{
-	"ts": 1687195193,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687195192",
-	"replacement": "1687195193",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687195682,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687195682",
-	"replacement": "1687195681",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687227470,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687227469",
-	"replacement": "1687227470",
-	"comment": "Second boundary crossed"
-    },{
 	"ts": 1687237280.059,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
@@ -545,13 +405,6 @@
 	"action": "push",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
-    },{
-	"ts": 1687237280.140,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687237280",
-	"replacement": "1687237279",
-	"comment": "Second boundary crossed for the second message"
     },{
 	"ts": 1687237280.140,
 	"action": "replace",
@@ -579,13 +432,6 @@
 	"ts": 1687238550.110,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687238550",
-	"replacement": "1687238549",
-	"comment": "Second boundary crossed for the second message"
-    },{
-	"ts": 1687238550.110,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"regex": "940538",
 	"replacement": "940537",
 	"comment": "We're going to swap this and the prior message (see above), so we also need to swap versions"
@@ -593,48 +439,6 @@
 	"ts": 1687238550.111,
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
-    },{
-	"ts": 1687240474,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687240473",
-	"replacement": "1687240474",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687241356,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687241356",
-	"replacement": "1687241355",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687255343,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687255343",
-	"replacement": "1687255342",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687257957,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687257957",
-	"replacement": "1687257956",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687258188,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687258187",
-	"replacement": "1687258188",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687266092,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687266091",
-	"replacement": "1687266092",
-	"comment": "Second boundary crossed"
     },{
 	"ts": 1687266151.073,
 	"action": "replace",
@@ -647,13 +451,6 @@
 	"action": "push",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
-    },{
-	"ts": 1687266151.132,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687266151",
-	"replacement": "1687266150",
-	"comment": "Second boundary crossed for the second message"
     },{
 	"ts": 1687266151.132,
 	"action": "replace",
@@ -681,13 +478,6 @@
 	"ts": 1687267421.113,
 	"action": "replace",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687267421",
-	"replacement": "1687267420",
-	"comment": "Second boundary crossed for the second message"
-    },{
-	"ts": 1687267421.113,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"regex": "940803",
 	"replacement": "940802",
 	"comment": "We're going to swap this and the prior message (see above), so we also need to swap versions"
@@ -695,19 +485,5 @@
 	"ts": 1687267421.114,
 	"action": "pop",
 	"comment": "Pop our first, their second message after their first went by"
-    },{
-	"ts": 1687271587,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687271587",
-	"replacement": "1687271586",
-	"comment": "Second boundary crossed"
-    },{
-	"ts": 1687272849,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687272850",
-	"replacement": "1687272849",
-	"comment": "Second boundary crossed"
     }
 ]
