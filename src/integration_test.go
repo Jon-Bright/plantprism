@@ -427,6 +427,16 @@ func processManualAction(t *testing.T, ma *manualAction, dp *dumpPacket) (bool, 
 		if err != nil {
 			return false, fmt.Errorf("cinema mode failed: %w", err)
 		}
+	case "cleaning":
+		err = d.SetMode(device.ModeCleaning)
+		if err != nil {
+			return false, fmt.Errorf("cleaning mode failed: %w", err)
+		}
+	case "drain":
+		err = d.SetMode(device.ModeTankDrainCleaning)
+		if err != nil {
+			return false, fmt.Errorf("drain/cleaning mode failed: %w", err)
+		}
 	default:
 		return false, fmt.Errorf("unknown manual action '%s'", ma.Action)
 	}

@@ -322,7 +322,7 @@
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
     },{
-	"ts": 1687329851,
+	"ts": 1687329850.001,
 	"action": "harvest",
 	"slot": "b7",
 	"comment": "Harvest whatever was in b7"
@@ -357,31 +357,10 @@
 	"awsVersion": 941316,
 	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
     },{
-	"ts": 1687329971,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
-	"regex": "1687329970",
-	"replacement": "1687329971",
-	"comment": "Their recipe ID is a second earlier than ours"
-    },{
 	"ts": 1687329971.470,
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
-    },{
-	"ts": 1687329973.431,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update",
-	"regex": "1687329970",
-	"replacement": "1687329971",
-	"comment": "Update of the second-off recipe ID"
-    },{
-	"ts": 1687329973.498,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687329970",
-	"replacement": "1687329971",
-	"comment": "Update accept of the second-off recipe ID"
     },{
 	"ts": 1687332382.122,
 	"action": "swap",
@@ -519,5 +498,144 @@
 	"action": "swap",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687682965.253,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a start cleaning message from the app"
+    },{
+	"ts": 1687682965.257,
+	"action": "cleaning",
+	"comment": "App starts cleaning mode"
+    },{
+	"ts": 1687682965.257,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. See 1687012682 above"
+    },{
+	"ts": 1687682968,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687682968.936,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a cleaning status message from.. Agrilution code, I guess. Virtual cube mode, wtf? No client token, will be ignored."
+    },{
+	"ts": 1687683385.889,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687683865.815,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687684105.715,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687684345.685,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687684585.850,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687684705.746,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687684705.765,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1687684706.884,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687684706.884,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a cleaning status message from.. Agrilution code, I guess. More virtual cube mode. Sets a cleaning interval of 60d. No client token, will be ignored."
+    },{
+	"ts": 1687684877.300,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a start draining message from the app"
+    },{
+	"ts": 1687684877.300,
+	"action": "drain",
+	"comment": "App starts cleaning mode"
+    },{
+	"ts": 1687684877.304,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. See 1687012682 above"
+    },{
+	"ts": 1687684878.228,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1687685192.748,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1687685192.978,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the _device_'s client token. As above under ..151, this will be ignored and we don't generate it. Remove it."
+    },{
+	"ts": 1687685192.978,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": "1687329971",
+	"replacement": "1687329970",
+	"comment": "Dump has a recipe generated at ..70 but updated at ..71. Our timestamps are consistent, so we don't have this. Fix their timestamp."
+    },{
+	"ts": 1687685192.978,
+	"action": "swap",
+	"versionOK": true,
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687685194,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687685194,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a nutrient-filled message from the app"
+    },{
+	"ts": 1687686035.560,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687686035.560,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a change to default mode from the app. This was tapping 'done' at the end of the cleaning program. It's already _in_ default mode, though, so nothing for us to do."
     }
 ]
