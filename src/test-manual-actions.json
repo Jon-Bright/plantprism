@@ -291,5 +291,70 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
 	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1687329839,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329840,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329843,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329847,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329849,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329850,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329851,
+	"action": "harvest",
+	"slot": "b7",
+	"comment": "Harvest whatever was in b7"
+    },{
+	"ts": 1687329851,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329851.847,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329852,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329857,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329857.815,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting and doing a full resync, ignore"
+    },{
+	"ts": 1687329894,
+	"action": "setAWSVersion",
+	"awsVersion": 941316,
+	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
     }
 ]
