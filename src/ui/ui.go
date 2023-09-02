@@ -280,6 +280,7 @@ func Init(l *logs.Loggers, p device.Publisher) {
 	r.POST("/defaultMode", defaultModeHandler)
 	r.POST("/silentMode", silentModeHandler)
 	r.POST("/cinemaMode", cinemaModeHandler)
+	r.POST("/setSunrise", setSunriseHandler)
 	go func() {
 		err := r.Run(":3000")
 		log.Critical.Fatalf("gin Run() returned, error %v", err)
