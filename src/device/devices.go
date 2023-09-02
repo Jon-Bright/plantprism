@@ -152,6 +152,7 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 			},
 		}
 		t := clk.Now()
+		d.UserOffset = int(sunriseD / time.Second)
 		d.Timezone = timezone
 		var err error
 		d.Recipe, err = CreateRecipe(t, defaultLEDVals, defaultTempDay, defaultTempNight, defaultWaterTarget, defaultWaterDelay, defaultDayLength, false, false)

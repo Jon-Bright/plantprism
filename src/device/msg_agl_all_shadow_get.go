@@ -44,9 +44,10 @@ func (d *Device) getAglShadowGetReply(t time.Time) (msgReply, error) {
 	msg := msgAglShadowGetAccepted{}
 	r := &msg.Reported
 	r.Timezone = d.Timezone
-	r.UserOffset = int(sunriseD.Seconds()) // user_offset doesn't actually get used by the Plantcube
+	r.UserOffset = d.UserOffset // user_offset doesn't actually get used by the Plantcube
 	var err error
-	r.TotalOffset, err = calcTotalOffset(d.Timezone, t, sunriseD)
+	sunrise := time.Duration(d.UserOffset) * time.Second
+	r.TotalOffset, err = calcTotalOffset(d.Timezone, t, sunrise)
 	if err != nil {
 		return nil, fmt.Errorf("total offset calculation failed: %w", err)
 	}

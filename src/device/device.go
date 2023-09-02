@@ -114,6 +114,7 @@ type Device struct {
 
 	ClientToken string  `json:",omitempty"`
 	Recipe      *recipe `json:",omitempty"`
+	UserOffset  int
 
 	// Configuration
 	Timezone string `json:",omitempty"`
@@ -279,6 +280,7 @@ func (d *Device) SetSunrise(s time.Duration) error {
 	if err != nil {
 		return fmt.Errorf("failed calculating total offset for sunrise %v: %w", s, err)
 	}
+	d.UserOffset = int(s / time.Second)
 	d.AWSVersion++
 	deltaD := Device{
 		AWSVersion: d.AWSVersion,
