@@ -1,4 +1,34 @@
 {
+    "10":{
+	"Comment": "ID seen in dumps",
+	"Names":{
+	    "en": "Plant 10",
+	    "de": "Pflanze 10"
+	},
+	"Germination":"3d",
+	"HarvestFrom":"30d",
+	"HarvestBy":"60d"
+    },
+    "29":{
+	"Comment": "ID seen in dumps",
+	"Names":{
+	    "en": "Plant 29",
+	    "de": "Pflanze 29"
+	},
+	"Germination":"3d",
+	"HarvestFrom":"30d",
+	"HarvestBy":"60d"
+    },
+    "31":{
+	"Comment": "ID seen in dumps",
+	"Names":{
+	    "en": "Plant 31",
+	    "de": "Pflanze 31"
+	},
+	"Germination":"1d",
+	"HarvestFrom":"7d",
+	"HarvestBy":"3w"
+    }
     "39":{
 	"Comment": "ID/HarvestFrom come from dumps",
 	"Names":{
@@ -32,22 +62,34 @@
 	"HarvestFrom":"7d",
 	"HarvestBy":"3w"
     },
-    "1000":{
+    "107":{
+	"Comment": "ID seen in dumps",
 	"Names":{
-	    "en": "Basil",
-	    "de": "Basilikum"
+	    "en": "Plant 107",
+	    "de": "Pflanze 107"
 	},
-	"Germination":"4d",
-	"HarvestFrom":"4w",
-	"HarvestBy":"6w"
-    },
-    "1002":{
+	"Germination":"1d",
+	"HarvestFrom":"7d",
+	"HarvestBy":"3w"
+    }
+    "118":{
+	"Comment": "ID seen in dumps",
 	"Names":{
-	    "en": "Chilli",
-	    "de": "Chilli"
+	    "en": "Plant 118",
+	    "de": "Pflanze 118"
 	},
-	"Germination":"2w",
+	"Germination":"1d",
+	"HarvestFrom":"7d",
+	"HarvestBy":"3w"
+    }
+    "123":{
+	"Comment": "ID seen in dumps, name known, rest is guesses",
+	"Names":{
+	    "en": "Tomato",
+	    "de": "Tomate"
+	},
+	"Germination":"7d",
 	"HarvestFrom":"12w",
-	"HarvestBy":"24w"
+	"HarvestBy":"18w"
     }
 }
