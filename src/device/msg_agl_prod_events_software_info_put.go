@@ -5,6 +5,7 @@ import (
 )
 
 // Example: {"label":"MCU_MODE_STATE","timestamp":1687686053,"payload":{"mode":"ECO_MODE","state":"0","layer":"APPLIANCE"}}
+// ^- this appears to be its way of saying the door has been closed after being open too long
 type msgAglEventInfoPayload struct {
 	Mode  *string
 	State *string
@@ -37,6 +38,8 @@ func (d *Device) processAglEventInfo(msg *msgUnparsed) error {
 	log.Info.Printf("Plantcube info, time %s, label '%s', mode '%s', state '%s', layer '%s'",
 		time.Unix(int64(*m.Timestamp), 0).String(),
 		*m.Label, *m.Payload.Mode, *m.Payload.State, *m.Payload.Layer)
+	// TODO: When we get an MCU_MODE_STATE, we should cancel the
+	// prior warning to the frontend about the door being open
 
 	return nil
 }

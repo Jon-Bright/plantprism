@@ -8,9 +8,18 @@ import (
 // Example: {"label":"NCU_SYS_LOG","timestamp":1687329836,"payload":{"error_log":"MGOS_SHADOW_UPDATE_REJECTED 400 Missing required node: state
 //
 //	timer: 0; retries: 0; buff: {'clientToken':'5975bc44','state':{'reported':","function_name":"aws_shadow_grp_handler"}}
+//
+// Example: {"label":"MCU_MODE_STATE","timestamp":1687685966,"payload":{"mode":"ECO_MODE","state":"1","layer":"APPLIANCE"}}
+// ^- this one is its way of complaining the door's open too long
 type msgAglEventWarningPayload struct {
+	// These are present for Label==NCU_SYS_LOG
 	ErrorLog     *string `json:"error_log"`
 	FunctionName *string `json:"function_name"`
+
+	// These are present for Label==MCU_MODE_STATE
+	Mode  *string
+	State *string
+	Layer *string
 }
 
 type msgAglEventWarning struct {
@@ -39,6 +48,8 @@ func (d *Device) processAglEventWarning(msg *msgUnparsed) error {
 		return err
 	}
 	log.Warn.Printf("Plantcube warning, time %s, label '%s', function '%s', log '%s'", time.Unix(int64(*m.Timestamp), 0).String(), *m.Label, *m.Payload.FunctionName, *m.Payload.ErrorLog)
+	// TODO: When we get an MCU_MODE_STATE, we should warn the
+	// frontend about the door being open
 
 	return nil
 }
