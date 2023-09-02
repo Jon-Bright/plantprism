@@ -356,5 +356,81 @@
 	"action": "setAWSVersion",
 	"awsVersion": 941316,
 	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
+    },{
+	"ts": 1687329971,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": "1687329970",
+	"replacement": "1687329971",
+	"comment": "Their recipe ID is a second earlier than ours"
+    },{
+	"ts": 1687329971.470,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
+    },{
+	"ts": 1687329973.431,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update",
+	"regex": "1687329970",
+	"replacement": "1687329971",
+	"comment": "Update of the second-off recipe ID"
+    },{
+	"ts": 1687329973.498,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "1687329970",
+	"replacement": "1687329971",
+	"comment": "Update accept of the second-off recipe ID"
+    },{
+	"ts": 1687332382.122,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687361253.221,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687362523.175,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687411350.211,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687438951.529,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687440221.285,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687496480.689,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687497750.699,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687525351.780,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687526621.807,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
     }
 ]
