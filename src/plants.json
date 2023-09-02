@@ -28,7 +28,7 @@
 	"Germination":"1d",
 	"HarvestFrom":"7d",
 	"HarvestBy":"3w"
-    }
+    },
     "39":{
 	"Comment": "ID/HarvestFrom come from dumps",
 	"Names":{
@@ -71,7 +71,7 @@
 	"Germination":"1d",
 	"HarvestFrom":"7d",
 	"HarvestBy":"3w"
-    }
+    },
     "118":{
 	"Comment": "ID seen in dumps",
 	"Names":{
@@ -81,7 +81,7 @@
 	"Germination":"1d",
 	"HarvestFrom":"7d",
 	"HarvestBy":"3w"
-    }
+    },
     "123":{
 	"Comment": "ID seen in dumps, name known, rest is guesses",
 	"Names":{
