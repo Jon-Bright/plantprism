@@ -432,5 +432,92 @@
 	"action": "swap",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
 	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687545606,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687545606,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a sunrise-setting message from the app"
+    },{
+	"ts": 1687545609,
+	"action": "sunrise",
+	"sunrise": 23408,
+	"comment": "App setting sunrise to 06:30:08"
+    },{
+	"ts": 1687545609.951,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a total offset update message from Agrilution code. Has no client ID, will be ignored by Mongoose code"
+    },{
+	"ts": 1687546435,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687546435,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a sunrise-setting message from the app"
+    },{
+	"ts": 1687546438.782,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a total offset update message from Agrilution code. Has no client ID, will be ignored by Mongoose code"
+    },{
+	"ts": 1687546438.785,
+	"action": "sunrise",
+	"sunrise": 21621,
+	"comment": "App setting sunrise to 06:00:21"
+    },{
+	"ts": 1687548509,
+	"action": "bumpAWSVersion",
+	"comment": "AWS Shadow accepts the update below"
+    },{
+	"ts": 1687548509,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a sunrise-setting message from the app"
+    },{
+	"ts": 1687548512,
+	"action": "sunrise",
+	"sunrise": 25247,
+	"comment": "App setting sunrise to 07:00:47"
+    },{
+	"ts": 1687548512.414,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS Shadow accepting a total offset update message from Agrilution code. Has no client ID, will be ignored by Mongoose code"
+    },{
+	"ts": 1687582926.513,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687584196.423,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687611797.611,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687613067.535,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687669327.899,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1687670597.886,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
     }
 ]

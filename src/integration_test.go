@@ -158,6 +158,7 @@ type manualAction struct {
 	Replacement string
 	AWSVersion  int
 	VersionOK   bool
+	Sunrise     int
 }
 
 func (ma manualAction) String() string {
@@ -404,6 +405,12 @@ func processManualAction(t *testing.T, ma *manualAction, dp *dumpPacket) (bool, 
 		err = d.AddPlant(ma.Slot, ma.PlantID)
 		if err != nil {
 			return false, fmt.Errorf("plant slot '%s', id '%d' failed: %w", ma.Slot, ma.PlantID, err)
+		}
+	case "sunrise":
+		sd := time.Duration(ma.Sunrise) * time.Second
+		err = d.SetSunrise(sd)
+		if err != nil {
+			return false, fmt.Errorf("sunrise %v failed: %w", sd, err)
 		}
 	case "defaultMode":
 		err = d.SetMode(device.ModeDefault)

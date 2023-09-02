@@ -273,6 +273,26 @@ func (d *Device) sendStreamingUpdate(l layerID, s slotID) {
 	}
 }
 
+func (d *Device) SetSunrise(s time.Duration) error {
+	t := d.clock.Now()
+	to, err := calcTotalOffset(d.Timezone, t, s)
+	if err != nil {
+		return fmt.Errorf("failed calculating total offset for sunrise %v: %w", s, err)
+	}
+	d.AWSVersion++
+	deltaD := Device{
+		AWSVersion: d.AWSVersion,
+	}
+	deltaD.Reported.TotalOffset.update(to, t)
+	delta := deltaD.getAWSShadowUpdateDeltaReply(t, t)
+	err = d.sendReplies([]msgReply{delta})
+	if err != nil {
+		return fmt.Errorf("failed sending delta for new sunrise: %w", err)
+	}
+
+	return nil
+}
+
 func parseSlot(slot string) (layerID, slotID, error) {
 	if len(slot) != 2 {
 		return "", 0, fmt.Errorf("slot string '%s' has wrong length", slot)
