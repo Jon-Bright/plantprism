@@ -36,7 +36,7 @@ const (
 	SaveDelay             = 20 * time.Second
 	RecipeDelay           = 2 * time.Minute
 	WateringDelayHarvest  = 41 * time.Minute               // No idea why this delay, but it's what's in the dumps
-	WateringDelayPlanting = 11*time.Minute - 1*time.Second // Also not exactly a round number, same reason
+	WateringDelayPlanting = 11*time.Minute - 4*time.Second // Also not exactly a round number, same reason
 )
 
 type layerID string
