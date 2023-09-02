@@ -181,13 +181,6 @@
 	"awsVersion": 938736,
 	"comment": "There's a 26-minute gap in the dump here and we miss these versions"
     },{
-	"ts": 1687035874.044,
-	"action": "replace",
-	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
-	"regex": "1687035873",
-	"replacement": "1687035874",
-	"comment": "AWS gets the message slightly quicker than our buffer time"
-    },{
 	"ts": 1687064479.955,
 	"action": "swap",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
