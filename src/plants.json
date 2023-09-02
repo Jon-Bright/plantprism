@@ -1,10 +1,33 @@
 {
+    "39":{
+	"Comment": "ID/HarvestFrom come from dumps",
+	"Names":{
+	    "en": "Coriander",
+	    "de": "Koriander"
+	},
+	"Comment2": "Germination/HarvestBy are guesses",
+	"Germination":"3d",
+	"HarvestFrom":"30d",
+	"HarvestBy":"60d"
+    },
+    "82":{
+	"Comment": "ID/HarvestFrom come from dumps",
+	"Names":{
+	    "en": "Watercress",
+	    "de": "Brunnenkresse"
+	},
+	"Comment2": "Germination/HarvestBy are guesses",
+	"Germination":"1d",
+	"HarvestFrom":"25d",
+	"HarvestBy":"60d"
+    },
     "96":{
 	"Comment": "ID/HarvestFrom come from dumps",
 	"Names":{
 	    "en": "Micro Radish",
 	    "de": "Mikroradieschen"
 	},
+	"Comment2": "Germination seems accurate, HarvestBy is a guess",
 	"Germination":"1d",
 	"HarvestFrom":"7d",
 	"HarvestBy":"3w"
@@ -17,15 +40,6 @@
 	"Germination":"4d",
 	"HarvestFrom":"4w",
 	"HarvestBy":"6w"
-    },
-    "1001":{
-	"Names":{
-	    "en": "Watercress",
-	    "de": "Brunnenkresse"
-	},
-	"Germination":"2d",
-	"HarvestFrom":"2w",
-	"HarvestBy":"5w"
     },
     "1002":{
 	"Names":{
