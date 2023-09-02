@@ -209,6 +209,10 @@ func (dp dumpPacket) String() string {
 	return fmt.Sprintf("[%d: %s %s (%d)]", dp.packetNum, dir, dp.ts.Local().Format(DebugTSFmt), dp.ts.Unix())
 }
 
+var (
+	stash []byte
+)
+
 func processPCAP(t *testing.T, name string, ma *manualActions) error {
 	t.Logf("Processing '%s'...", name)
 	f, err := os.Open(name)
@@ -229,8 +233,9 @@ func processPCAP(t *testing.T, name string, ma *manualActions) error {
 	}
 
 	ps := gopacket.NewPacketSource(r, layers.LinkTypeLinuxSLL2)
-	i := 1
+	i := 0
 	for {
+		i++
 		p, err := ps.NextPacket()
 		if err == io.EOF {
 			t.Logf("'%s': complete after %d packets", name, i)
@@ -242,30 +247,43 @@ func processPCAP(t *testing.T, name string, ma *manualActions) error {
 			return fmt.Errorf("packet %d decode error: %w", i, el.Error())
 		}
 		app := p.ApplicationLayer()
-		if app != nil {
-			tl := p.TransportLayer()
-			if tl == nil {
-				return fmt.Errorf("packet %d has application layer but no transport layer", i)
-			}
-			dp := dumpPacket{}
+		if app == nil {
+			continue
+		}
+		tl := p.TransportLayer()
+		if tl == nil {
+			return fmt.Errorf("packet %d has application layer but no transport layer", i)
+		}
 
-			// All our dump packets have AWS on port 8884
-			// and the Plantcube on a random other port.
-			dp.awsToPC = (tl.TransportFlow().Src().String() == DumpAWSPort)
-			dp.packetNum = i
-			dp.ts = p.Metadata().Timestamp
-			dp.raw = app.Payload()
-
-			err = processPayload(t, &dp, ma)
-			if err != nil {
-				return fmt.Errorf("packet %d payload error: %w", i, err)
-			}
-			if t.Failed() {
-				time.Sleep(1 * time.Second)
-				t.FailNow()
+		if stash != nil || len(app.Payload()) == 1024 {
+			stash = append(stash, app.Payload()...)
+			if len(app.Payload()) == 1024 {
+				continue
 			}
 		}
-		i++
+
+		dp := dumpPacket{}
+
+		// All our dump packets have AWS on port 8884
+		// and the Plantcube on a random other port.
+		dp.awsToPC = (tl.TransportFlow().Src().String() == DumpAWSPort)
+		dp.packetNum = i
+		dp.ts = p.Metadata().Timestamp
+		if stash != nil {
+			dp.raw = stash
+			stash = nil
+		} else {
+			dp.raw = app.Payload()
+		}
+
+		err = processPayload(t, &dp, ma)
+		if err != nil {
+			return fmt.Errorf("packet %d payload error: %w", i, err)
+		}
+		if t.Failed() {
+			time.Sleep(1 * time.Second)
+			t.FailNow()
+		}
 	}
 }
 
