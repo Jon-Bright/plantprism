@@ -94,18 +94,24 @@ func TestReplay(t *testing.T) {
 }
 
 type testLogWriter struct {
-	t *testing.T
+	t   *testing.T
+	err bool
 }
 
 func (t *testLogWriter) Write(p []byte) (n int, err error) {
 	t.t.Log(string(p))
+	if t.err {
+		t.t.Fatalf("error message logged")
+	}
 	return len(p), nil
 }
 
 func initLogging(t *testing.T) *logs.Loggers {
-	tlw := testLogWriter{t}
-	testLog := golog.New(&tlw, "", golog.LstdFlags)
-	return &logs.Loggers{testLog, testLog, testLog, testLog}
+	tlwOK := testLogWriter{t, false}
+	tlwError := testLogWriter{t, true}
+	testLogOK := golog.New(&tlwOK, "", golog.LstdFlags)
+	testLogError := golog.New(&tlwError, "", golog.LstdFlags)
+	return &logs.Loggers{testLogOK, testLogOK, testLogError, testLogError}
 }
 
 type pubMsg struct {
@@ -443,8 +449,9 @@ func processManualAction(t *testing.T, ma *manualAction, dp *dumpPacket) (bool, 
 	return false, nil
 }
 
+var verRe = regexp.MustCompile(`"version":(\d+)`)
+
 func adjustVersion(msg *dumpPacket, adj int) error {
-	verRe := regexp.MustCompile(`"version":(\d+)`)
 	sm := verRe.FindSubmatch(msg.parsed.Payload)
 	if len(sm) < 2 {
 		return fmt.Errorf("msg matched for version, but has no subgroup")
@@ -551,8 +558,9 @@ func compareMessages(t *testing.T, dp *dumpPacket, m *pubMsg) error {
 	return nil
 }
 
+var tsRe = regexp.MustCompile(`"timestamp":(\d+)`)
+
 func unifyTimestamps(ourMsg, theirMsg []byte) ([]byte, error) {
-	tsRe := regexp.MustCompile(`"timestamp":(\d+)`)
 	sm := tsRe.FindSubmatch(ourMsg)
 	if sm == nil {
 		// Some messages don't have a timestamp
