@@ -26,11 +26,11 @@ English, I've switched to using English.
 
 ## Status
 
-Continued operation of the Plantcube is possible without Agrilution. It won't
-(at least to start with) be as convenient or as polished as with the app and
-it'll need some technical knowledge.
+The code here is capable of operating a Plantcube (and ours is running using
+it), entirely without Agrilution/the app. It's not yet as polished as with the
+app. Setup needs some technical knowledge.
 
-My project plan is as follows:
+My project plan was:
 
 1. Remove the Plantcube controller PCB from the device. Take photos and trace
    connections.
@@ -43,8 +43,7 @@ My project plan is as follows:
 6. Develop a replacement server component to allow continued operation of the
    Plantcube.
 
-As of 2023-07-30, steps 1-5 are finished. I don't have a firm schedule for step
-6, but I'm working on it now.
+As of 2023-09-03, all steps are finished.
 
 ## Contact
 
