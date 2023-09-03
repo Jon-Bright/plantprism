@@ -9,6 +9,17 @@
 	"HarvestFrom":"30d",
 	"HarvestBy":"60d"
     },
+    "23":{
+	"Comment": "ID/HarvestFrom come from dumps",
+	"Names":{
+	    "en": "Redvein Dock",
+	    "de": "Blutampfer"
+	},
+	"Comment2": "Germination/HarvestBy are guesses",
+	"Germination":"3d",
+	"HarvestFrom":"30d",
+	"HarvestBy":"60d"
+    },
     "29":{
 	"Comment": "ID seen in dumps",
 	"Names":{
@@ -45,6 +56,17 @@
 	"Names":{
 	    "en": "Watercress",
 	    "de": "Brunnenkresse"
+	},
+	"Comment2": "Germination/HarvestBy are guesses",
+	"Germination":"1d",
+	"HarvestFrom":"25d",
+	"HarvestBy":"60d"
+    },
+    "85":{
+	"Comment": "ID/HarvestFrom come from dumps",
+	"Names":{
+	    "en": "Bull's Blood",
+	    "de": "Bull's Blood"
 	},
 	"Comment2": "Germination/HarvestBy are guesses",
 	"Germination":"1d",
