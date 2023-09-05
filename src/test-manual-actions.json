@@ -2088,5 +2088,902 @@
 	"action": "ignore",
 	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update",
 	"comment": "This update is right before a reconnect and doesn't get a reply (but we queue one up). Ignore it."
+    },{
+	"ts": 1690589981,
+	"action": "bumpAWSVersion",
+	"comment": "After reconnect - client will has bumped version"
+    },{
+	"ts": 1690605978.395,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690607248.306,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690614852.693,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1690614852.693,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting an update from Agrilution indicating that 15ml nutrient is needed"
+    },{
+	"ts": 1690634849.501,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690636119.428,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690692380.671,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690693650.587,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690721251.760,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690722521.762,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690778779.448,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690807650.501,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690808920.424,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690865180.726,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690894051.810,
+	"action": "swap",
+	"versionOK": true,
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690895321.729,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690951580.006,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690980451.169,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1690981721.031,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691037980.413,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691039250.322,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691066851.508,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691068121.407,
+	"action": "swap",
+	"versionOK": true,
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691124381.073,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691125650.971,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691153252.229,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "979473",
+	"replacement": "979472",
+	"comment": "AWS sends this and the next message in the _order_ we expect them but with the version numbers reversed, so ..73 comes first and ..72 comes second. Correct that."
+    },{
+	"ts": 1691153252.230,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "979472",
+	"replacement": "979473",
+	"comment": "See above"
+    },{
+	"ts": 1691154522.065,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691210781.122,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691212051.002,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691239652.185,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691240922.126,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691266725.473,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1691266725.473,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a nutrient-filled update"
+    },{
+	"ts": 1691266801.060,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending an invalid update, ignore"
+    },{
+	"ts": 1691266804.440,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending an invalid update, ignore"
+    },{
+	"ts": 1691266806.688,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting b8, ignore"
+    },{
+	"ts": 1691266806.689,
+	"action": "harvest",
+	"slot": "b8",
+	"comment": "Harvest ??? from b8"
+    },{
+	"ts": 1691266808.662,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266816.410,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266817.152,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266817.996,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266818.971,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266819.742,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266821.417,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266822.513,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266822.514,
+	"action": "setAWSVersion",
+	"awsVersion": 980735,
+	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
+    },{
+	"ts": 1691266907.283,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending an invalid update, ignore"
+    },{
+	"ts": 1691266910.557,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266913.730,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1691266916.700,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting b5, ignore"
+    },{
+	"ts": 1691266916.700,
+	"action": "harvest",
+	"slot": "b5",
+	"comment": "Harvest ??? from b5"
+    },{
+	"ts": 1691266918.085,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266919.090,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266919.810,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266920.578,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266921.325,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266922.372,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266923.645,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266923.744,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1691266926.728,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting b7, ignore"
+    },{
+	"ts": 1691266928.729,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1691266930,
+	"action": "harvest",
+	"slot": "b7",
+	"comment": "Harvest ??? from b7"
+    },{
+	"ts": 1691266931.641,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266944.327,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1691266947.808,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266954.772,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266956.105,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266956.843,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266957.634,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266958.431,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app doing a full resync, ignore"
+    },{
+	"ts": 1691266958.432,
+	"action": "setAWSVersion",
+	"awsVersion": 980753,
+	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
+    },{
+	"ts": 1691267050.696,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
+    },{
+	"ts": 1691269392.141,
+	"action": "ignore",
+	"msgTopic": "agl/all/things/a8d39911-7955-47d3-981b-fbd9d52f9221/rpc/put",
+	"comment": "This is an actual difference in behaviour. This is a post-harvest watering, but there was already an intervening watering and we've seen previous occasions where an intervening watering cancelled the later watering. Our behaviour seems better here (and we've seen that behaviour in another example), so this is not changing. Ignore."
+    },{
+	"ts": 1691269452.504,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691297180.441,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691326051.517,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691335043.185,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "981254",
+	"replacement": "981253",
+	"comment": "AWS sends this and the next message in the _order_ we expect them but with the version numbers reversed, so ..54 comes first and ..53 comes second. Correct that."
+    },{
+	"ts": 1691335043.186,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "981253",
+	"replacement": "981254",
+	"comment": "See above"
+    },{
+	"ts": 1691383576.846,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691400633.822,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691412447.893,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691466224.461,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691469979.230,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691498850.337,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691531815.126,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691556380.350,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691597405.758,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691642779.142,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691662996.419,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691728587.046,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691758728.045,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691794177.701,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691815579.561,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691901981.844,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691925359.011,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691930852.962,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1691948069.351,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1691948069.351,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1691948072,
+	"action": "sunrise",
+	"sunrise": 25234,
+	"comment": "App setting sunrise to 06:45:01"
+    },{
+	"ts": 1691948072.830,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1691990949.681,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692003254.961,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692003254.961,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692003258,
+	"action": "sunrise",
+	"sunrise": 84613,
+	"comment": "App setting sunrise to 23:30:13"
+    },{
+	"ts": 1692003258.657,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692003500.574,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692003500.574,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692003501,
+	"action": "sunrise",
+	"sunrise": 1852,
+	"comment": "App setting sunrise to 00:30:52"
+    },{
+	"ts": 1692003501.598,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692003633.915,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692003633.915,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692003634,
+	"action": "sunrise",
+	"sunrise": 84631,
+	"comment": "App setting sunrise to 23:30:31"
+    },{
+	"ts": 1692003634.930,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692003733.690,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692003733.690,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692003734,
+	"action": "sunrise",
+	"sunrise": 84647,
+	"comment": "App setting sunrise to 23:30:47"
+    },{
+	"ts": 1692003734.683,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692003851.070,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692003851.070,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692003852,
+	"action": "sunrise",
+	"sunrise": 25234,
+	"comment": "App setting sunrise to 07:00:34"
+    },{
+	"ts": 1692003852.834,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692004918.837,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692004918.837,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692004922,
+	"action": "sunrise",
+	"sunrise": 73834,
+	"comment": "App setting sunrise to 20:30:34"
+    },{
+	"ts": 1692004922.397,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692005045.095,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692005045.095,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692005046,
+	"action": "sunrise",
+	"sunrise": 25211,
+	"comment": "App setting sunrise to 07:00:11"
+    },{
+	"ts": 1692005046.064,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692006113.663,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692006113.663,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692006117,
+	"action": "sunrise",
+	"sunrise": 9045,
+	"comment": "App setting sunrise to 07:00:11"
+    },{
+	"ts": 1692006117.143,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692006161.247,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692006161.247,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update"
+    },{
+	"ts": 1692006162,
+	"action": "sunrise",
+	"sunrise": 25204,
+	"comment": "App setting sunrise to 07:00:04"
+    },{
+	"ts": 1692006162.263,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting a sunrise change update (this time for total offset)"
+    },{
+	"ts": 1692018184.221,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692018185.666,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692018185.666,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting an update from Agrilution indicating that 50ml nutrient is needed"
+    },{
+	"ts": 1692056540.323,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692075683.580,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692104554.670,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692122130.972,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692187721.644,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692190953.763,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692248482.851,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692253027,
+	"action": "harvest",
+	"slot": "a6",
+	"comment": "Harvest ??? from a6"
+    },{
+	"ts": 1692253027,
+	"action": "harvest",
+	"slot": "a9",
+	"comment": "Harvest ??? from a9"
+    },{
+	"ts": 1692253027,
+	"action": "harvest",
+	"slot": "a8",
+	"comment": "Harvest ??? from a8"
+    },{
+	"ts": 1692253027,
+	"action": "harvest",
+	"slot": "a7",
+	"comment": "Harvest ??? from a7"
+    },{
+	"ts": 1692253027,
+	"action": "harvest",
+	"slot": "a4",
+	"comment": "Harvest ??? from a4"
+    },{
+	"ts": 1692253060.230,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1692253061.910,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1692253063.386,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1692253066.021,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting a6, ignore"
+    },{
+	"ts": 1692253067.179,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting a9, ignore"
+    },{
+	"ts": 1692253068.792,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting a8, ignore"
+    },{
+	"ts": 1692253070.072,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1692253071.872,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/rejected",
+	"comment": "This is the Agrilution app sending another invalid update, ignore"
+    },{
+	"ts": 1692253073.021,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting a7, ignore"
+    },{
+	"ts": 1692253074.806,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app harvesting a4, ignore"
+    },{
+	"ts": 1692253146,
+	"action": "setAWSVersion",
+	"awsVersion": 988109,
+	"comment": "This is essentially a bunch of bumps from the updates above. It's this or 8 bump actions."
+    },{
+	"ts": 1692253148.440,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is AWS Shadow accepting a recipe update from Agrilution. See ...151 above"
+    },{
+	"ts": 1692253148.4409,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": "1692253148",
+	"replacement": "1692253147",
+	"comment": "Dump has a recipe generated at ..47 but updated at ..48. Our timestamps are consistent, so we don't have this. Fix their timestamp."
+    },{
+	"ts": 1692253312.306,
+	"action": "swap",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is two updates quickly after each other. We reply to the first, then the second. AWS does it the other way round, with messageId=1, messageId=2."
+    },{
+	"ts": 1692298591,
+	"action": "drain",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "App switches to drain mode"
+    },{
+	"ts": 1692298591.917,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the app's client token. The Mongoose Shadow code assumes delta messages don't contain a clientToken, so this is ignored, but we're correctly not generating one here, so our messages differ. Remove the clientToken."
+    },{
+	"ts": 1692298591.918,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the Agrilution app initiating drain mode"
+    },{
+	"ts": 1692298592.377,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1692298789.429,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"regex": "\"desired\"[^,]+,",
+	"replacement": "",
+	"comment": "This update accepted message includes a desired{} block and no client token. We also don't send a client token. Without one, it won't be processed Mongoose-side, but since we don't send a desired block, the messages don't match. Strip it."
+    },{
+	"ts": 1692298789.653,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": "1692253148",
+	"replacement": "1692253147",
+	"comment": "Dump has a recipe generated at ..47 but updated at ..48. Our timestamps are consistent, so we don't have this. Fix their timestamp."
+    },{
+	"ts": 1692298789.653,
+	"action": "replace",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/delta",
+	"regex": ",\"clientToken\":[^\\}]+",
+	"replacement": "",
+	"comment": "This delta message includes the _device_'s client token. Same deal as above."
+    },{
+	"ts": 1692298792.895,
+	"action": "bumpAWSVersion",
+	"comment": "AWS accepts the update below"
+    },{
+	"ts": 1692298792.895,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "AWS accepting an update from Agrilution indicating that 70ml nutrient is needed"
+    },{
+	"ts": 1692298935.757,
+	"action": "ignore",
+	"msgTopic": "$aws/things/a8d39911-7955-47d3-981b-fbd9d52f9221/shadow/update/accepted",
+	"comment": "This is the very last message. It's doing something with desired mode 0 (default), with the app's client token. Ignore."
     }
 ]
