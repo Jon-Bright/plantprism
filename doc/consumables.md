@@ -37,6 +37,20 @@ for their product "Formulex".
 We've been using Formulex instead of Agrilution's fertiliser since mid-2022
 without problems.
 
+### When to refill?
+
+I've analyzed the electrical conductivity measurements from the dumps. The
+results can be seen in
+[this sheet](https://docs.google.com/spreadsheets/d/1WozNsuoyWCZq33nOVKqihboraT5Xo0jwelI0DY_o3i0/edit#gid=0).
+The graph shows the Plantcube consistently asking for 15ml exactly 10 days after
+nutrient was refilled. Only one message differs from this pattern: 50ml is
+requested on 2023-08-14. Although this certainly seems warranted given the EC
+value, it's unclear what exactly triggers it (there were prior lower EC
+readings, so it's something more complex than a simple trigger level). In any
+event, it seems that attempting to maintain an EC level between 1250 and 1500
+should produce acceptable results.
+
+
 ## Cleaning tabs
 
 The Agrilution cleaning tabs state that they're made by the Austrian company
