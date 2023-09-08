@@ -43,6 +43,7 @@ func (d *Device) processAglShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	}
 	if r.EC != nil {
 		d.Reported.EC.update(*r.EC, msg.t)
+		log.Info.Printf(`EC "%s","%d"`, msg.t.Format("2006-01-02 15:04:05"), d.Reported.EC.Value)
 	}
 	if r.TankLevel != nil {
 		d.Reported.TankLevel.update(*r.TankLevel, msg.t)
