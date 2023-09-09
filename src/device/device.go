@@ -267,7 +267,7 @@ func (d *Device) DropSlotChan(drop chan *SlotEvent) {
 	}
 }
 
-func (d *Device) sendStreamingUpdate(l layerID, s slotID) {
+func (d *Device) streamSlotUpdate(l layerID, s slotID) {
 	se := SlotEvent{l, s}
 	for _, c := range d.slotChans {
 		c <- &se
@@ -346,7 +346,7 @@ func (d *Device) AddPlant(slotStr string, plantID plant.PlantID) error {
 		HarvestFrom:  t.Add(time.Duration(p.HarvestFrom)),
 		HarvestBy:    t.Add(time.Duration(p.HarvestBy)),
 	}
-	d.sendStreamingUpdate(l, s)
+	d.streamSlotUpdate(l, s)
 	d.QueueRecipe()
 	d.QueueWatering(false)
 	d.QueueSave()
@@ -362,7 +362,7 @@ func (d *Device) HarvestPlant(slotStr string) error {
 		return fmt.Errorf("can't harvest in slot '%s', it's already empty", slotStr)
 	}
 	d.Slots[l][s] = slot{}
-	d.sendStreamingUpdate(l, s)
+	d.streamSlotUpdate(l, s)
 	d.QueueRecipe()
 	d.QueueWatering(true)
 	d.QueueSave()
