@@ -55,13 +55,34 @@ func indexHandler(c *gin.Context) {
 		HarvestFrom  int64
 		HarvestBy    int64
 	}
-	type ViewData struct {
-		DeviceID string
-		Slots    map[string]SlotData
-	}
-	vd := ViewData{
+	vd := struct {
+		DeviceID   string
+		TempA      float64
+		TempB      float64
+		TempTank   float64
+		HumidA     int
+		HumidB     int
+		TankLevel0 string
+		TankLevel1 string
+		Slots      map[string]SlotData
+	}{
 		DeviceID: d.ID,
+		TempA:    float64(d.Reported.TempA.Value),
+		TempB:    float64(d.Reported.TempB.Value),
+		TempTank: float64(d.Reported.TempTank.Value),
+		HumidA:   d.Reported.HumidA.Value,
+		HumidB:   d.Reported.HumidB.Value,
 		Slots:    map[string]SlotData{},
+	}
+	if d.Reported.TankLevel.Value == 2 {
+		vd.TankLevel1 = "full"
+	} else {
+		vd.TankLevel1 = "empty"
+	}
+	if d.Reported.TankLevel.Value >= 1 {
+		vd.TankLevel0 = "full"
+	} else {
+		vd.TankLevel0 = "empty"
 	}
 	for lid, layer := range d.Slots {
 		for sid, slot := range layer {

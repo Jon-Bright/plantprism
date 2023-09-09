@@ -43,6 +43,20 @@
     td.frontback {
 	text-align:center;
     }
+    td.envIntro {
+	text-align:right;
+	vertical-align:top;
+    }
+    span.tankBlock {
+	width:3em;
+	display:inline-block;
+    }
+    span.tankBlock.full {
+	background-color:cornflowerblue;
+    }
+    span.tankBlock.empty {
+	background-image:repeating-linear-gradient(225deg, #FFF 5%, #000 10%, #FFF 15%, #fff 25%);
+    }
     .ui-widget button {
 	font-family:"Google Sans",Arial,sans-serif;
 	font-size:9pt;
@@ -139,7 +153,41 @@
 	</table>
       </div>
       <div id="tabStatus">
-	<p>TODO: Temp, humidity, light, etc. will appear here</p>
+	<table>
+	  <tr>
+	    <td rowspan="4" class="envIntro">Top:</td>
+	  </tr>
+	  <tr>
+	    <td class="envTemp"><span id="tempA">{{.TempA}}</span>°C</td>
+	  </tr>
+	  <tr>
+	    <td class="envHumid"><span id="humidA">{{.HumidA}}<span>%</td>
+	  </tr>
+	  <tr>
+	    <td class="envLight"><span id="lightA">?</span></td>
+	  </tr>
+	  <tr>
+	    <td rowspan="4" class="envIntro">Bottom:</td>
+	  </tr>
+	  <tr>
+	    <td class="envTemp"><span id="tempB">{{.TempB}}</span>°C</td>
+	  </tr>
+	  <tr>
+	    <td class="envHumid"><span id="humidB">{{.HumidB}}<span>%</td>
+	  </tr>
+	  <tr>
+	    <td class="envLight"><span id="lightB">?</span></td>
+	  </tr>
+	  <tr>
+	    <td rowspan="4" class="envIntro">Tank:</td>
+	  </tr>
+	  <tr>
+	    <td class="envTemp"><span id="tempTank">{{.TempTank}}<span>°C</td>
+	  </tr>
+	  <tr>
+	    <td class="envLevel"><span class="tankBlock {{.TankLevel0}}" id="tankLvl0">&nbsp;</span><span class="tankBlock {{.TankLevel1}}" id="tankLvl1">&nbsp;</span></td>
+	  </tr>
+	</table>
       </div>
       <div id="tabControl">
 	<p>TODO: Cleaning, cinema, silent, etc. controls will appear here</p>
