@@ -118,6 +118,33 @@ func plantDBHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, plant.GetDB())
 }
 
+func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool {
+	slot := d.Slots[se.Layer][se.Slot]
+	slotID := string(se.Layer) + strconv.Itoa(int(se.Slot))
+	planted := (slot.Plant != 0)
+	if planted {
+		p, err := plant.Get(slot.Plant)
+		if err != nil {
+			log.Error.Printf("couldn't get plant for ID '%v': %v", slot.Plant, err)
+			return false
+		}
+		c.SSEvent("se", gin.H{
+			"Slot":         slotID,
+			"Planted":      true,
+			"PlantName":    p.Names["de"], // TODO: language
+			"PlantingTime": slot.PlantingTime.Unix(),
+			"HarvestFrom":  slot.HarvestFrom.Unix(),
+			"HarvestBy":    slot.HarvestBy.Unix(),
+		})
+	} else {
+		c.SSEvent("se", gin.H{
+			"Slot":    slotID,
+			"Planted": false,
+		})
+	}
+	return true
+}
+
 func streamHandler(c *gin.Context) {
 	d := getDevice(c, true, "Stream")
 	if d == nil {
@@ -131,30 +158,7 @@ func streamHandler(c *gin.Context) {
 	c.Stream(func(w io.Writer) bool {
 		select {
 		case se := <-slotChan:
-			slot := d.Slots[se.Layer][se.Slot]
-			slotID := string(se.Layer) + strconv.Itoa(int(se.Slot))
-			planted := (slot.Plant != 0)
-			if planted {
-				p, err := plant.Get(slot.Plant)
-				if err != nil {
-					log.Error.Printf("couldn't get plant for ID '%v': %v", slot.Plant, err)
-					return false
-				}
-				c.SSEvent("se", gin.H{
-					"Slot":         slotID,
-					"Planted":      true,
-					"PlantName":    p.Names["de"], // TODO: language
-					"PlantingTime": slot.PlantingTime.Unix(),
-					"HarvestFrom":  slot.HarvestFrom.Unix(),
-					"HarvestBy":    slot.HarvestBy.Unix(),
-				})
-			} else {
-				c.SSEvent("se", gin.H{
-					"Slot":    slotID,
-					"Planted": false,
-				})
-			}
-			return true
+			return sendSlotUpdate(c, d, se)
 		}
 		return false
 	})
