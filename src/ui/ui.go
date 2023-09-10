@@ -56,33 +56,11 @@ func indexHandler(c *gin.Context) {
 		HarvestBy    int64
 	}
 	vd := struct {
-		DeviceID   string
-		TempA      float64
-		TempB      float64
-		TempTank   float64
-		HumidA     int
-		HumidB     int
-		TankLevel0 string
-		TankLevel1 string
-		Slots      map[string]SlotData
+		DeviceID string
+		Slots    map[string]SlotData
 	}{
 		DeviceID: d.ID,
-		TempA:    float64(d.Reported.TempA.Value),
-		TempB:    float64(d.Reported.TempB.Value),
-		TempTank: float64(d.Reported.TempTank.Value),
-		HumidA:   d.Reported.HumidA.Value,
-		HumidB:   d.Reported.HumidB.Value,
 		Slots:    map[string]SlotData{},
-	}
-	if d.Reported.TankLevel.Value == 2 {
-		vd.TankLevel1 = device.StatusTankFull
-	} else {
-		vd.TankLevel1 = device.StatusTankEmpty
-	}
-	if d.Reported.TankLevel.Value >= 1 {
-		vd.TankLevel0 = device.StatusTankFull
-	} else {
-		vd.TankLevel0 = device.StatusTankEmpty
 	}
 	for lid, layer := range d.Slots {
 		for sid, slot := range layer {
@@ -147,13 +125,14 @@ func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool
 
 func sendStatusUpdate(c *gin.Context, d *device.Device, se *device.StatusEvent) bool {
 	c.SSEvent("status", gin.H{
-		"TempA":      se.TempA,
-		"TempB":      se.TempB,
-		"TempTank":   se.TempTank,
-		"HumidA":     se.HumidA,
-		"HumidB":     se.HumidB,
-		"TankLevel0": se.TankLevel0,
-		"TankLevel1": se.TankLevel1,
+		"TempA":     se.TempA,
+		"TempB":     se.TempB,
+		"TempTank":  se.TempTank,
+		"HumidA":    se.HumidA,
+		"HumidB":    se.HumidB,
+		"LightA":    se.LightA,
+		"LightB":    se.LightB,
+		"TankLevel": se.TankLevel,
 	})
 	return true
 }

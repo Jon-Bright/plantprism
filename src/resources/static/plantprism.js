@@ -134,8 +134,20 @@ function statusEvent(e) {
     $("#tempTank").text(data["TempTank"]);
     $("#humidA").text(data["HumidA"]);
     $("#humidB").text(data["HumidB"]);
-    $("#tankLevel0").attr("class", "tankBlock "+data["TankLevel0"]);
-    $("#tankLevel1").attr("class", "tankBlock "+data["TankLevel1"]);
+    var tl0 = (data["TankLevel"]>=1) ? "full" : "empty";
+    $("#tankLevel0").attr("class", "tankBlock "+tl0);
+    var tl1 = (data["TankLevel"]==2) ? "full" : "empty";
+    $("#tankLevel1").attr("class", "tankBlock "+tl1);
+    if (data["LightA"]) {
+	$("#lightA").text("🌞");
+    } else {
+	$("#lightA").text("🌛");
+    }
+    if (data["LightB"]) {
+	$("#lightB").text("🌞");
+    } else {
+	$("#lightB").text("🌛");
+    }
 }
 
 function StartStream() {

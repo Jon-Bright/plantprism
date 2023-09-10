@@ -254,7 +254,7 @@ type SlotEvent struct {
 }
 
 func (d *Device) GetSlotChan() chan *SlotEvent {
-	c := make(chan *SlotEvent, 5)
+	c := make(chan *SlotEvent, 10)
 	d.slotChans = append(d.slotChans, c)
 	return c
 }
@@ -275,24 +275,21 @@ func (d *Device) streamSlotUpdate(l layerID, s slotID) {
 	}
 }
 
-const (
-	StatusTankFull  = "full"
-	StatusTankEmpty = "empty"
-)
-
 type StatusEvent struct {
-	TempA      float64
-	TempB      float64
-	TempTank   float64
-	HumidA     int
-	HumidB     int
-	TankLevel0 string
-	TankLevel1 string
+	TempA     float64
+	TempB     float64
+	TempTank  float64
+	HumidA    int
+	HumidB    int
+	LightA    bool
+	LightB    bool
+	TankLevel int
 }
 
 func (d *Device) GetStatusChan() chan *StatusEvent {
-	c := make(chan *StatusEvent, 10)
+	c := make(chan *StatusEvent, 5)
 	d.statusChans = append(d.statusChans, c)
+	c <- d.getStatusUpdate()
 	return c
 }
 
@@ -305,29 +302,27 @@ func (d *Device) DropStatusChan(drop chan *StatusEvent) {
 	}
 }
 
-func (d *Device) streamStatusUpdate() {
+func (d *Device) getStatusUpdate() *StatusEvent {
 	// We could just stream what changed, but that seems like
 	// hoop-jumping when we only have seven values to deliver
 	// anyway, so we just deliver them all.
 	se := StatusEvent{
-		TempA:    float64(d.Reported.TempA.Value),
-		TempB:    float64(d.Reported.TempB.Value),
-		TempTank: float64(d.Reported.TempTank.Value),
-		HumidA:   d.Reported.HumidA.Value,
-		HumidB:   d.Reported.HumidB.Value,
+		TempA:     float64(d.Reported.TempA.Value),
+		TempB:     float64(d.Reported.TempB.Value),
+		TempTank:  float64(d.Reported.TempTank.Value),
+		HumidA:    d.Reported.HumidA.Value,
+		HumidB:    d.Reported.HumidB.Value,
+		LightA:    d.Reported.LightA.Value,
+		LightB:    d.Reported.LightB.Value,
+		TankLevel: d.Reported.TankLevel.Value,
 	}
-	if d.Reported.TankLevel.Value == 2 {
-		se.TankLevel1 = StatusTankFull
-	} else {
-		se.TankLevel1 = StatusTankEmpty
-	}
-	if d.Reported.TankLevel.Value >= 1 {
-		se.TankLevel0 = StatusTankFull
-	} else {
-		se.TankLevel0 = StatusTankEmpty
-	}
+	return &se
+}
+
+func (d *Device) streamStatusUpdate() {
+	se := d.getStatusUpdate()
 	for _, c := range d.statusChans {
-		c <- &se
+		c <- se
 	}
 }
 
