@@ -106,6 +106,7 @@ type Device struct {
 	msgQueue      chan *msgUnparsed
 	publisher     Publisher
 	slotChans     []chan *SlotEvent
+	statusChans   []chan *StatusEvent
 	saveTimer     *clock.Timer
 	recipeTimer   *clock.Timer
 	wateringTimer *clock.Timer
@@ -270,6 +271,57 @@ func (d *Device) DropSlotChan(drop chan *SlotEvent) {
 func (d *Device) streamSlotUpdate(l layerID, s slotID) {
 	se := SlotEvent{l, s}
 	for _, c := range d.slotChans {
+		c <- &se
+	}
+}
+
+type StatusEvent struct {
+	TempA      float64
+	TempB      float64
+	TempTank   float64
+	HumidA     int
+	HumidB     int
+	TankLevel0 string
+	TankLevel1 string
+}
+
+func (d *Device) GetStatusChan() chan *StatusEvent {
+	c := make(chan *StatusEvent, 10)
+	d.statusChans = append(d.statusChans, c)
+	return c
+}
+
+func (d *Device) DropStatusChan(drop chan *StatusEvent) {
+	for i, c := range d.statusChans {
+		if c == drop {
+			d.statusChans = append(d.statusChans[:i], d.statusChans[i+1:]...)
+			return
+		}
+	}
+}
+
+func (d *Device) streamStatusUpdate() {
+	// We could just stream what changed, but that seems like
+	// hoop-jumping when we only have seven values to deliver
+	// anyway, so we just deliver them all.
+	se := StatusEvent{
+		TempA:    float64(d.Reported.TempA.Value),
+		TempB:    float64(d.Reported.TempB.Value),
+		TempTank: float64(d.Reported.TempTank.Value),
+		HumidA:   d.Reported.HumidA.Value,
+		HumidB:   d.Reported.HumidA.Value,
+	}
+	if d.Reported.TankLevel.Value == 2 {
+		se.TankLevel1 = "full"
+	} else {
+		se.TankLevel1 = "empty"
+	}
+	if d.Reported.TankLevel.Value >= 1 {
+		se.TankLevel0 = "full"
+	} else {
+		se.TankLevel0 = "empty"
+	}
+	for _, c := range d.statusChans {
 		c <- &se
 	}
 }
