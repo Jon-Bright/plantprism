@@ -143,11 +143,11 @@ The following keys have been seen in state reports:
 * `cooling`, boolean. Whether the cooling pump is currently running.
 * `door`, boolean. Whether the door is open.
 * `firmware_ncu`, integer, Unix timestamp. Firmware version of the ESP8266.
-* `humid_a`, integer, percentage. Relative humidity in the upper layer. This
+* `humid_a`, integer, percentage. Relative humidity in the lower layer. This
   doesn't seem to ever actually get published by the device.
-* `humid_b`, integer, percentage. Relative humidity in the lower layer.
-* `light_a`, boolean. Whether the lights on the upper layer are on.
-* `light_b`, boolean. Whether the lights on the lower layer are on.
+* `humid_b`, integer, percentage. Relative humidity in the upper layer.
+* `light_a`, boolean. Whether the lights on the lower layer are on.
+* `light_b`, boolean. Whether the lights on the upper layer are on.
 * `recipe_id`, integer, Unix timestamp/Recipe ID or 1 (used for "tell me which
   Recipe ID to use"). The ID (found in the first four bytes of the recipe) of
   the current recipe.
@@ -155,8 +155,8 @@ The following keys have been seen in state reports:
   Doesn't update just from watering.
 * `tank_level_raw`, integer, observed values 0-2. Tank water level. Updates
   every time there's watering.
-* `temp_a`, decimal, degrees C. Temperature in the upper layer.
-* `temp_b`, decimal, degrees C. Temperature in the lower layer.
+* `temp_a`, decimal, degrees C. Temperature in the lower layer.
+* `temp_b`, decimal, degrees C. Temperature in the upper layer.
 * `temp_tank`, decimal, degrees C. Temperature in the tank. Unclear where the
   sensor for this measurement is.
 * `total_offset`, integer. Appears to be `86400` (length of a day in seconds)
