@@ -30,6 +30,7 @@ type brokerFlags struct {
 	caCert      string
 	keepAlive   time.Duration
 	pingTimeout time.Duration
+	insecure    bool
 }
 
 var bf brokerFlags
@@ -42,6 +43,7 @@ func InitFlags() {
 	flag.StringVar(&bf.caCert, "broker_ca_cert", "", "Filename of a custom CA cert to trust from the broker")
 	flag.DurationVar(&bf.keepAlive, "broker_keep_alive", 60*time.Second, "Interval for sending keep-alive packets to the MQTT broker")
 	flag.DurationVar(&bf.pingTimeout, "broker_ping_timeout", 130*time.Second, "Timeout after which the connection to the MQTT broker is regarded as dead")
+	flag.BoolVar(&bf.insecure, "broker_insecure", false, "Don't verify broker SSL cert. Use for testing only.")
 }
 
 func addCACert(opts *paho.ClientOptions, caCert string) (*paho.ClientOptions, error) {
@@ -75,6 +77,10 @@ func New(l *logs.Loggers, connectHandler paho.OnConnectHandler) (*MQTT, error) {
 	paho.ERROR = l.Error
 	paho.CRITICAL = l.Critical
 
+	if bf.insecure && bf.caCert != "" {
+		return nil, fmt.Errorf("insecure and CA cert '%s' are both specified", bf.caCert)
+	}
+
 	opts := paho.NewClientOptions().
 		AddBroker(bf.url).
 		SetKeepAlive(bf.keepAlive).
@@ -95,6 +101,11 @@ func New(l *logs.Loggers, connectHandler paho.OnConnectHandler) (*MQTT, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else if bf.insecure {
+		config := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		opts = opts.SetTLSConfig(config)
 	}
 
 	c := paho.NewClient(opts)
