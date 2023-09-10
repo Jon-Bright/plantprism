@@ -309,7 +309,7 @@ func (d *Device) streamStatusUpdate() {
 		TempB:    float64(d.Reported.TempB.Value),
 		TempTank: float64(d.Reported.TempTank.Value),
 		HumidA:   d.Reported.HumidA.Value,
-		HumidB:   d.Reported.HumidA.Value,
+		HumidB:   d.Reported.HumidB.Value,
 	}
 	if d.Reported.TankLevel.Value == 2 {
 		se.TankLevel1 = "full"
