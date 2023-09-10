@@ -111,19 +111,19 @@
 	    <td colspan="3" class="frontback">Back</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.b1}}</td>
-	    <td class="slot">{{template "button" .Slots.b2}}</td>
-	    <td class="slot">{{template "button" .Slots.b3}}</td>
+	    <td class="slot">{{template "button" "b1"}}</td>
+	    <td class="slot">{{template "button" "b2"}}</td>
+	    <td class="slot">{{template "button" "b3"}}</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.b4}}</td>
-	    <td class="slot">{{template "button" .Slots.b5}}</td>
-	    <td class="slot">{{template "button" .Slots.b6}}</td>
+	    <td class="slot">{{template "button" "b4"}}</td>
+	    <td class="slot">{{template "button" "b5"}}</td>
+	    <td class="slot">{{template "button" "b6"}}</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.b7}}</td>
-	    <td class="slot">{{template "button" .Slots.b8}}</td>
-	    <td class="slot">{{template "button" .Slots.b9}}</td>
+	    <td class="slot">{{template "button" "b7"}}</td>
+	    <td class="slot">{{template "button" "b8"}}</td>
+	    <td class="slot">{{template "button" "b9"}}</td>
 	  </tr>
 	  <tr>
 	    <td colspan="3" class="frontback">Front</td>
@@ -136,19 +136,19 @@
 	    <td colspan="3" class="frontback">Back</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.a1}}</td>
-	    <td class="slot">{{template "button" .Slots.a2}}</td>
-	    <td class="slot">{{template "button" .Slots.a3}}</td>
+	    <td class="slot">{{template "button" "a1"}}</td>
+	    <td class="slot">{{template "button" "a2"}}</td>
+	    <td class="slot">{{template "button" "a3"}}</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.a4}}</td>
-	    <td class="slot">{{template "button" .Slots.a5}}</td>
-	    <td class="slot">{{template "button" .Slots.a6}}</td>
+	    <td class="slot">{{template "button" "a4"}}</td>
+	    <td class="slot">{{template "button" "a5"}}</td>
+	    <td class="slot">{{template "button" "a6"}}</td>
 	  </tr>
 	  <tr>
-	    <td class="slot">{{template "button" .Slots.a7}}</td>
-	    <td class="slot">{{template "button" .Slots.a8}}</td>
-	    <td class="slot">{{template "button" .Slots.a9}}</td>
+	    <td class="slot">{{template "button" "a7"}}</td>
+	    <td class="slot">{{template "button" "a8"}}</td>
+	    <td class="slot">{{template "button" "a9"}}</td>
 	  </tr>
 	  <tr>
 	    <td colspan="3" class="frontback">Front</td>
@@ -200,15 +200,8 @@
   </body>
 </html>
 {{define "button"}}
-  {{if .Planted}}
-    <button id="slot-{{.Slot}}" class="slot-plant" data-slot="{{.Slot}}" data-name="{{.PlantName}}" data-plantingtime="{{.PlantingTime}}" data-harvestfrom="{{.HarvestFrom}}" data-harvestby="{{.HarvestBy}}">
-      <img class="sprout" src="static/sprout.png"/>
-      <div class="slot-name">{{.PlantName}}</div>
-    </button>
-  {{- else}}
-    <button id="slot-{{.Slot}}" class="slot-empty" data-slot="{{.Slot}}">
+    <button id="slot-{{.}}" class="slot-empty" data-slot="{{.}}">
       <img class="empty" src="static/blank.png"/>
       <div class="slot-name">&nbsp;</div>
     </button>
-  {{- end}}
 {{end}}

@@ -48,48 +48,12 @@ func indexHandler(c *gin.Context) {
 		// Error, already handled
 		return
 	}
-	type SlotData struct {
-		Slot         string
-		Planted      bool
-		PlantName    string
-		PlantingTime int64
-		HarvestFrom  int64
-		HarvestBy    int64
-	}
 	vd := struct {
 		DeviceID string
 		Version  string
-		Slots    map[string]SlotData
 	}{
 		DeviceID: d.ID,
 		Version:  version,
-		Slots:    map[string]SlotData{},
-	}
-	for lid, layer := range d.Slots {
-		for sid, slot := range layer {
-			slotID := string(lid) + strconv.Itoa(int(sid))
-			if slot.Plant != 0 {
-				plant, err := plant.Get(slot.Plant)
-				if err != nil {
-					log.Error.Printf("couldn't find plant %d for slot %s", slot.Plant, slotID)
-					c.String(http.StatusInternalServerError, "Unable to find plant for slot")
-					return
-				}
-				vd.Slots[slotID] = SlotData{
-					Slot:         slotID,
-					Planted:      true,
-					PlantName:    plant.Names["de"], //TODO: language
-					PlantingTime: slot.PlantingTime.Unix(),
-					HarvestFrom:  slot.HarvestFrom.Unix(),
-					HarvestBy:    slot.HarvestBy.Unix(),
-				}
-			} else {
-				vd.Slots[slotID] = SlotData{
-					Slot:    slotID,
-					Planted: false,
-				}
-			}
-		}
 	}
 
 	c.HTML(http.StatusOK, "index.templ.html", vd)
