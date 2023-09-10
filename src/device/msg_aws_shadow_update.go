@@ -284,12 +284,17 @@ func (d *Device) getAWSShadowUpdateAcceptedReply(t time.Time, omitClientToken bo
 	if !omitClientToken {
 		msg.ClientToken = d.ClientToken
 	}
-	d.fillAWSUpdateDataMetadata(t, r, m)
+	statusUpdated := d.fillAWSUpdateDataMetadata(t, r, m)
+	if statusUpdated {
+		d.streamStatusUpdate()
+	}
 	return &msg
 }
 
-func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateData, m *msgAWSShadowUpdateMetadata) {
+func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateData, m *msgAWSShadowUpdateMetadata) bool {
 	dr := &dev.Reported
+
+	su := false // whether any of the fields in StatusEvent was updated
 
 	ts := msgUpdTS{int(t.Unix())}
 	if dr.Connected.wasUpdatedAt(t) {
@@ -315,18 +320,22 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.HumidA.wasUpdatedAt(t) {
 		d.HumidA = &dr.HumidA.Value
 		m.HumidA = &ts
+		su = true
 	}
 	if dr.HumidB.wasUpdatedAt(t) {
 		d.HumidB = &dr.HumidB.Value
 		m.HumidB = &ts
+		su = true
 	}
 	if dr.LightA.wasUpdatedAt(t) {
 		d.LightA = &dr.LightA.Value
 		m.LightA = &ts
+		su = true
 	}
 	if dr.LightB.wasUpdatedAt(t) {
 		d.LightB = &dr.LightB.Value
 		m.LightB = &ts
+		su = true
 	}
 	if dr.Mode.wasUpdatedAt(t) {
 		d.Mode = &dr.Mode.Value
@@ -339,6 +348,7 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.TankLevel.wasUpdatedAt(t) {
 		d.TankLevel = &dr.TankLevel.Value
 		m.TankLevel = &ts
+		su = true
 	}
 	if dr.TankLevelRaw.wasUpdatedAt(t) {
 		d.TankLevelRaw = &dr.TankLevelRaw.Value
@@ -347,14 +357,17 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.TempA.wasUpdatedAt(t) {
 		d.TempA = &dr.TempA.Value
 		m.TempA = &ts
+		su = true
 	}
 	if dr.TempB.wasUpdatedAt(t) {
 		d.TempB = &dr.TempB.Value
 		m.TempB = &ts
+		su = true
 	}
 	if dr.TempTank.wasUpdatedAt(t) {
 		d.TempTank = &dr.TempTank.Value
 		m.TempTank = &ts
+		su = true
 	}
 	if dr.TotalOffset.wasUpdatedAt(t) {
 		d.TotalOffset = &dr.TotalOffset.Value
@@ -368,6 +381,7 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 		d.WifiLevel = &dr.WifiLevel.Value
 		m.WifiLevel = &ts
 	}
+	return su
 }
 
 // Example: {"version":944757,"timestamp":1687710613,"state":{"recipe_id":1687710613},"metadata":{"recipe_id":{"timestamp":1687710613}}}
@@ -389,6 +403,7 @@ func (d *Device) getAWSShadowUpdateDeltaReply(deltaT, t time.Time) msgReply {
 
 	msg.Version = d.AWSVersion
 	msg.Timestamp = int(t.Unix())
-	d.fillAWSUpdateDataMetadata(deltaT, s, m)
+	// Status won't be updated, ignore return.
+	_ = d.fillAWSUpdateDataMetadata(deltaT, s, m)
 	return &msg
 }
