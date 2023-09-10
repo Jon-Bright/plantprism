@@ -100,6 +100,7 @@ func sendStatusUpdate(c *gin.Context, d *device.Device, se *device.StatusEvent) 
 		"LightA":    se.LightA,
 		"LightB":    se.LightB,
 		"TankLevel": se.TankLevel,
+		"EC":        se.EC,
 	})
 	return true
 }

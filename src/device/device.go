@@ -290,6 +290,7 @@ type StatusEvent struct {
 	LightA    bool
 	LightB    bool
 	TankLevel int
+	EC        int
 }
 
 func (d *Device) GetStatusChan() chan *StatusEvent {
@@ -310,7 +311,7 @@ func (d *Device) DropStatusChan(drop chan *StatusEvent) {
 
 func (d *Device) getStatusUpdate() *StatusEvent {
 	// We could just stream what changed, but that seems like
-	// hoop-jumping when we only have seven values to deliver
+	// hoop-jumping when we only have a few values to deliver
 	// anyway, so we just deliver them all.
 	se := StatusEvent{
 		TempA:     float64(d.Reported.TempA.Value),
@@ -321,6 +322,7 @@ func (d *Device) getStatusUpdate() *StatusEvent {
 		LightA:    d.Reported.LightA.Value,
 		LightB:    d.Reported.LightB.Value,
 		TankLevel: d.Reported.TankLevel.Value,
+		EC:        d.Reported.EC.Value,
 	}
 	return &se
 }

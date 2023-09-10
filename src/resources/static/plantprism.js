@@ -148,6 +148,7 @@ function statusEvent(e) {
     } else {
 	$("#lightB").text("🌛");
     }
+    $("#ec").text(data["EC"]);
 }
 
 function StartStream() {
