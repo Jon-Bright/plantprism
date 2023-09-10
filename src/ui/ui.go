@@ -145,6 +145,19 @@ func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool
 	return true
 }
 
+func sendStatusUpdate(c *gin.Context, d *device.Device, se *device.StatusEvent) bool {
+	c.SSEvent("status", gin.H{
+		"TempA":      se.TempA,
+		"TempB":      se.TempB,
+		"TempTank":   se.TempTank,
+		"HumidA":     se.HumidA,
+		"HumidB":     se.HumidB,
+		"TankLevel0": se.TankLevel0,
+		"TankLevel1": se.TankLevel1,
+	})
+	return true
+}
+
 func streamHandler(c *gin.Context) {
 	d := getDevice(c, true, "Stream")
 	if d == nil {
@@ -161,6 +174,8 @@ func streamHandler(c *gin.Context) {
 		select {
 		case se := <-slotChan:
 			return sendSlotUpdate(c, d, se)
+		case se := <-statusChan:
+			return sendStatusUpdate(c, d, se)
 		}
 		return false
 	})

@@ -127,6 +127,17 @@ function slotEvent(e) {
     }
 }
 
+function statusEvent(e) {
+    var data = jQuery.parseJSON(e.data);
+    $("#tempA").text(data["TempA"]);
+    $("#tempB").text(data["TempB"]);
+    $("#tempTank").text(data["TempTank"]);
+    $("#humidA").text(data["HumidA"]);
+    $("#humidB").text(data["HumidB"]);
+    $("#tankLevel0").attr("class", "tankBlock "+data["TankLevel0"]);
+    $("#tankLevel1").attr("class", "tankBlock "+data["TankLevel1"]);
+}
+
 function StartStream() {
     if (!window.EventSource) {
 	alert("EventSource is not enabled in this browser");
@@ -134,4 +145,5 @@ function StartStream() {
     }
     var stream = new EventSource('/stream?id='+deviceID);
     stream.addEventListener('slot', slotEvent, false);
+    stream.addEventListener('status', statusEvent, false);
 }
