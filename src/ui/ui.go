@@ -128,7 +128,7 @@ func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool
 			log.Error.Printf("couldn't get plant for ID '%v': %v", slot.Plant, err)
 			return false
 		}
-		c.SSEvent("se", gin.H{
+		c.SSEvent("slot", gin.H{
 			"Slot":         slotID,
 			"Planted":      true,
 			"PlantName":    p.Names["de"], // TODO: language
@@ -137,7 +137,7 @@ func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool
 			"HarvestBy":    slot.HarvestBy.Unix(),
 		})
 	} else {
-		c.SSEvent("se", gin.H{
+		c.SSEvent("slot", gin.H{
 			"Slot":    slotID,
 			"Planted": false,
 		})
@@ -152,8 +152,10 @@ func streamHandler(c *gin.Context) {
 		return
 	}
 	slotChan := d.GetSlotChan()
+	statusChan := d.GetStatusChan()
 	defer func() {
 		d.DropSlotChan(slotChan)
+		d.DropStatusChan(statusChan)
 	}()
 	c.Stream(func(w io.Writer) bool {
 		select {

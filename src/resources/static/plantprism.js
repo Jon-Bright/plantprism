@@ -133,5 +133,5 @@ function StartStream() {
 	return;
     }
     var stream = new EventSource('/stream?id='+deviceID);
-    stream.addEventListener('se', slotEvent, false);
+    stream.addEventListener('slot', slotEvent, false);
 }
