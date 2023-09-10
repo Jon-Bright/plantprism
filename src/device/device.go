@@ -254,8 +254,14 @@ type SlotEvent struct {
 }
 
 func (d *Device) GetSlotChan() chan *SlotEvent {
-	c := make(chan *SlotEvent, 10)
+	c := make(chan *SlotEvent, 20)
 	d.slotChans = append(d.slotChans, c)
+	for _, l := range []layerID{layerA, layerB} {
+		for s := slot1; s <= slot9; s++ {
+			se := SlotEvent{l, s}
+			c <- &se
+		}
+	}
 	return c
 }
 
