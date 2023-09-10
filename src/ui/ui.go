@@ -15,6 +15,7 @@ import (
 var (
 	log       *logs.Loggers
 	publisher device.Publisher
+	version   string
 )
 
 func getDevice(c *gin.Context, isGet bool, reqName string) *device.Device {
@@ -57,9 +58,11 @@ func indexHandler(c *gin.Context) {
 	}
 	vd := struct {
 		DeviceID string
+		Version  string
 		Slots    map[string]SlotData
 	}{
 		DeviceID: d.ID,
+		Version:  version,
 		Slots:    map[string]SlotData{},
 	}
 	for lid, layer := range d.Slots {
@@ -286,9 +289,10 @@ func cinemaModeHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func Init(l *logs.Loggers, p device.Publisher) {
+func Init(l *logs.Loggers, p device.Publisher, v string) {
 	log = l
 	publisher = p
+	version = v
 	r := gin.Default()
 	r.SetTrustedProxies(nil)
 	r.LoadHTMLGlob("resources/*.templ.html")

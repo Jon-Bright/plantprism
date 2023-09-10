@@ -45,6 +45,10 @@ var (
 		"$aws/things/+/shadow/get",
 		"$aws/things/+/shadow/update",
 	}
+
+	// This gets set to the last 8 chars of the git HEAD revision
+	// by build.sh
+	GitVersion = "unset"
 )
 
 func connectHandler(c paho.Client) {
@@ -120,7 +124,7 @@ func main() {
 		log.Critical.Fatalf("Unable to initialize MQTT: %v", err)
 	}
 	publisher = mq
-	ui.Init(log, mq)
+	ui.Init(log, mq, GitVersion)
 
 	err = mq.Connect()
 	if err != nil {
