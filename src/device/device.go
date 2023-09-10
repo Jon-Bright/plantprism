@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Jon-Bright/plantprism/plant"
-	"github.com/benbjohnson/clock"
-	"github.com/lupguo/go-render/render"
 	"io"
 	"os"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/benbjohnson/clock"
+	"github.com/lupguo/go-render/render"
+	"go.einride.tech/pid"
+
+	"github.com/Jon-Bright/plantprism/plant"
 )
 
 const (
@@ -111,20 +114,23 @@ type Device struct {
 	recipeTimer   *clock.Timer
 	wateringTimer *clock.Timer
 
-	Slots map[layerID]map[slotID]slot `json:",omitempty"`
-
-	ClientToken string  `json:",omitempty"`
-	Recipe      *recipe `json:",omitempty"`
-	UserOffset  int
+	// Stuff we maintain
+	SmoothedEC   float64                     `json:",omitempty"`
+	NutrientPID  *pid.Controller             `json:",omitempty"`
+	WantNutrient int                         `json:",omitempty"`
+	Slots        map[layerID]map[slotID]slot `json:",omitempty"`
+	Recipe       *recipe                     `json:",omitempty"`
 
 	// Configuration
-	Timezone string `json:",omitempty"`
+	Timezone   string `json:",omitempty"`
+	UserOffset int    `json:",omitempty"`
 
 	// Monotonically increasing ID sent out with update messages
 	AWSVersion int `json:",omitempty"`
 
 	// Values reported by the device
-	Reported deviceReported `json:",omitempty"`
+	ClientToken string         `json:",omitempty"`
+	Reported    deviceReported `json:",omitempty"`
 }
 
 type msgUnparsed struct {
@@ -282,15 +288,17 @@ func (d *Device) streamSlotUpdate(l layerID, s slotID) {
 }
 
 type StatusEvent struct {
-	TempA     float64
-	TempB     float64
-	TempTank  float64
-	HumidA    int
-	HumidB    int
-	LightA    bool
-	LightB    bool
-	TankLevel int
-	EC        int
+	TempA        float64
+	TempB        float64
+	TempTank     float64
+	HumidA       int
+	HumidB       int
+	LightA       bool
+	LightB       bool
+	TankLevel    int
+	EC           int
+	SmoothedEC   float64
+	WantNutrient int
 }
 
 func (d *Device) GetStatusChan() chan *StatusEvent {
@@ -314,15 +322,17 @@ func (d *Device) getStatusUpdate() *StatusEvent {
 	// hoop-jumping when we only have a few values to deliver
 	// anyway, so we just deliver them all.
 	se := StatusEvent{
-		TempA:     float64(d.Reported.TempA.Value),
-		TempB:     float64(d.Reported.TempB.Value),
-		TempTank:  float64(d.Reported.TempTank.Value),
-		HumidA:    d.Reported.HumidA.Value,
-		HumidB:    d.Reported.HumidB.Value,
-		LightA:    d.Reported.LightA.Value,
-		LightB:    d.Reported.LightB.Value,
-		TankLevel: d.Reported.TankLevel.Value,
-		EC:        d.Reported.EC.Value,
+		TempA:        float64(d.Reported.TempA.Value),
+		TempB:        float64(d.Reported.TempB.Value),
+		TempTank:     float64(d.Reported.TempTank.Value),
+		HumidA:       d.Reported.HumidA.Value,
+		HumidB:       d.Reported.HumidB.Value,
+		LightA:       d.Reported.LightA.Value,
+		LightB:       d.Reported.LightB.Value,
+		TankLevel:    d.Reported.TankLevel.Value,
+		EC:           d.Reported.EC.Value,
+		SmoothedEC:   d.SmoothedEC,
+		WantNutrient: d.WantNutrient,
 	}
 	return &se
 }

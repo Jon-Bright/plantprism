@@ -126,7 +126,12 @@ func instantiateDevice(id string, p Publisher) (*Device, error) {
 		if d.ID != id {
 			return nil, fmt.Errorf("restored device has incorrect ID, want '%s', got '%s'", id, d.ID)
 		}
+		if d.NutrientPID == nil {
+			log.Info.Printf("Saved file has no PID controller, upgrading")
+			d.NutrientPID = newPIDController()
+		}
 	} else {
+		d.NutrientPID = newPIDController()
 		d.Slots = map[layerID]map[slotID]slot{
 			layerA: map[slotID]slot{
 				slot1: slot{},

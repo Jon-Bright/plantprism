@@ -149,6 +149,8 @@ function statusEvent(e) {
 	$("#lightB").text("🌛");
     }
     $("#ec").text(data["EC"]);
+    $("#smoothedEC").text(data["SmoothedEC"].toFixed(1));
+    $("#wantNutrient").text(data["WantNutrient"]);
 }
 
 function StartStream() {

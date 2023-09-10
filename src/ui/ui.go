@@ -92,15 +92,17 @@ func sendSlotUpdate(c *gin.Context, d *device.Device, se *device.SlotEvent) bool
 
 func sendStatusUpdate(c *gin.Context, d *device.Device, se *device.StatusEvent) bool {
 	c.SSEvent("status", gin.H{
-		"TempA":     se.TempA,
-		"TempB":     se.TempB,
-		"TempTank":  se.TempTank,
-		"HumidA":    se.HumidA,
-		"HumidB":    se.HumidB,
-		"LightA":    se.LightA,
-		"LightB":    se.LightB,
-		"TankLevel": se.TankLevel,
-		"EC":        se.EC,
+		"TempA":        se.TempA,
+		"TempB":        se.TempB,
+		"TempTank":     se.TempTank,
+		"HumidA":       se.HumidA,
+		"HumidB":       se.HumidB,
+		"LightA":       se.LightA,
+		"LightB":       se.LightB,
+		"TankLevel":    se.TankLevel,
+		"EC":           se.EC,
+		"SmoothedEC":   se.SmoothedEC,
+		"WantNutrient": se.WantNutrient,
 	})
 	return true
 }
