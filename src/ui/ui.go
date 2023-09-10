@@ -75,14 +75,14 @@ func indexHandler(c *gin.Context) {
 		Slots:    map[string]SlotData{},
 	}
 	if d.Reported.TankLevel.Value == 2 {
-		vd.TankLevel1 = "full"
+		vd.TankLevel1 = device.StatusTankFull
 	} else {
-		vd.TankLevel1 = "empty"
+		vd.TankLevel1 = device.StatusTankEmpty
 	}
 	if d.Reported.TankLevel.Value >= 1 {
-		vd.TankLevel0 = "full"
+		vd.TankLevel0 = device.StatusTankFull
 	} else {
-		vd.TankLevel0 = "empty"
+		vd.TankLevel0 = device.StatusTankEmpty
 	}
 	for lid, layer := range d.Slots {
 		for sid, slot := range layer {

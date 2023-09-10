@@ -275,6 +275,11 @@ func (d *Device) streamSlotUpdate(l layerID, s slotID) {
 	}
 }
 
+const (
+	StatusTankFull  = "full"
+	StatusTankEmpty = "empty"
+)
+
 type StatusEvent struct {
 	TempA      float64
 	TempB      float64
@@ -312,14 +317,14 @@ func (d *Device) streamStatusUpdate() {
 		HumidB:   d.Reported.HumidB.Value,
 	}
 	if d.Reported.TankLevel.Value == 2 {
-		se.TankLevel1 = "full"
+		se.TankLevel1 = StatusTankFull
 	} else {
-		se.TankLevel1 = "empty"
+		se.TankLevel1 = StatusTankEmpty
 	}
 	if d.Reported.TankLevel.Value >= 1 {
-		se.TankLevel0 = "full"
+		se.TankLevel0 = StatusTankFull
 	} else {
-		se.TankLevel0 = "empty"
+		se.TankLevel0 = StatusTankEmpty
 	}
 	for _, c := range d.statusChans {
 		c <- &se
