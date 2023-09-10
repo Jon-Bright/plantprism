@@ -327,10 +327,10 @@ func TestParseAWSShadowUpdate(t *testing.T) {
 	firmware := 1667466618
 	humid75 := 75
 	offset69299 := 69299
-	temp2269 := 22.69
-	temp2299 := 22.99
-	temp2419 := 24.19
-	temp2834 := 28.34
+	temp2269 := floatDP(22.69)
+	temp2299 := floatDP(22.99)
+	temp2419 := floatDP(24.19)
+	temp2834 := floatDP(28.34)
 	two := 2
 	zero := 0
 	tests := []test{

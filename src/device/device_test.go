@@ -79,7 +79,7 @@ func TestMarshalUnmarshal(t *testing.T) {
 				ClientToken: "12345678",
 				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, ts},
-					TempA:   valueWithTimestamp[float64]{22.31, ts},
+					TempA:   valueWithTimestamp[floatDP]{22.31, ts},
 				},
 			},
 			want: `{
@@ -253,14 +253,16 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 	}{
 		{
 			// Simple update, two values, both with the current timestamp,
-			// one unaffected value.
+			// three unaffected values.
 			d: Device{
 				ClientToken: "12345678",
 				AWSVersion:  9876,
 				Reported: deviceReported{
-					Cooling: valueWithTimestamp[bool]{true, ts},
-					Door:    valueWithTimestamp[bool]{true, ts},
-					TempA:   valueWithTimestamp[float64]{22.31, ts},
+					Cooling:  valueWithTimestamp[bool]{true, ts},
+					Door:     valueWithTimestamp[bool]{true, ts},
+					TempA:    valueWithTimestamp[floatDP]{22.31, ts},
+					RecipeID: valueWithTimestamp[int]{12345, ts},
+					Valve:    valueWithTimestamp[ValveState]{ValveClosed, ts},
 				},
 			},
 			msgContent: `{"clientToken":"12345678",` +
@@ -278,9 +280,11 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 				ClientToken: "12345678",
 				AWSVersion:  9877,
 				Reported: deviceReported{
-					Cooling: valueWithTimestamp[bool]{false, tsNew},
-					Door:    valueWithTimestamp[bool]{true, ts},
-					TempA:   valueWithTimestamp[float64]{19.86, tsNew},
+					Cooling:  valueWithTimestamp[bool]{false, tsNew},
+					Door:     valueWithTimestamp[bool]{true, ts},
+					TempA:    valueWithTimestamp[floatDP]{19.86, tsNew},
+					RecipeID: valueWithTimestamp[int]{12345, ts},
+					Valve:    valueWithTimestamp[ValveState]{ValveClosed, ts},
 				},
 			},
 		}, {
@@ -291,6 +295,7 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 				Recipe:      recipe,
 				Reported: deviceReported{
 					RecipeID: valueWithTimestamp[int]{int(recipe.ID), ts},
+					Valve:    valueWithTimestamp[ValveState]{ValveClosed, ts},
 				},
 			},
 			msgContent: `{"clientToken":"12345678",` +
@@ -305,7 +310,7 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 				`{"version":9877,"timestamp":1691777930,"state":{` +
 					`"recipe_id":1691777926},` +
 					`"metadata":{` +
-					`"recipe_id":{"timestamp":1691777930}}}`,
+					`"recipe_id":{"timestamp":1691777926}}}`,
 			},
 			wantDevice: Device{
 				ClientToken: "12345678",
@@ -313,6 +318,7 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 				Recipe:      recipe,
 				Reported: deviceReported{
 					RecipeID: valueWithTimestamp[int]{1, tsNew},
+					Valve:    valueWithTimestamp[ValveState]{ValveClosed, ts},
 				},
 			},
 		},
@@ -322,6 +328,7 @@ func TestProcessAWSShadowUpdate(t *testing.T) {
 			content: []byte(tc.msgContent),
 			t:       tsNew,
 		}
+		t.Logf("case %d", i)
 		replies, err := tc.d.processAWSShadowUpdate(&mu)
 		if err != nil {
 			t.Fatalf("case %d: processAWSShadowUpdate failed: %v", i, err)
@@ -359,7 +366,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				ClientToken: "12345678",
 				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, ts},
-					TempA:   valueWithTimestamp[float64]{22.31, ts},
+					TempA:   valueWithTimestamp[floatDP]{22.31, ts},
 				},
 			},
 			omitClientToken: false,
@@ -375,7 +382,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				ClientToken: "12345678",
 				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, ts},
-					TempA:   valueWithTimestamp[float64]{22.31, tsOld},
+					TempA:   valueWithTimestamp[floatDP]{22.31, tsOld},
 				},
 			},
 			omitClientToken: false,
@@ -401,9 +408,9 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 					RecipeID:     valueWithTimestamp[int]{int(tsOld.Unix()), ts},
 					TankLevel:    valueWithTimestamp[int]{2, ts},
 					TankLevelRaw: valueWithTimestamp[int]{2, ts},
-					TempA:        valueWithTimestamp[float64]{22.31, ts},
-					TempB:        valueWithTimestamp[float64]{23.45, ts},
-					TempTank:     valueWithTimestamp[float64]{24.56, ts},
+					TempA:        valueWithTimestamp[floatDP]{22.31, ts},
+					TempB:        valueWithTimestamp[floatDP]{23.45, ts},
+					TempTank:     valueWithTimestamp[floatDP]{24.56, ts},
 					TotalOffset:  valueWithTimestamp[int]{68040, ts},
 					Valve:        valueWithTimestamp[ValveState]{ValveClosed, ts},
 					WifiLevel:    valueWithTimestamp[int]{2, ts},
@@ -437,7 +444,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				Reported: deviceReported{
 					Cooling: valueWithTimestamp[bool]{true, tsOld},
 					EC:      valueWithTimestamp[int]{1234, ts},
-					TempA:   valueWithTimestamp[float64]{22.31, tsOld},
+					TempA:   valueWithTimestamp[floatDP]{22.31, tsOld},
 				},
 			},
 			omitClientToken: true,
@@ -453,7 +460,7 @@ func TestGetAWSUpdateAcceptedReply(t *testing.T) {
 				Reported: deviceReported{
 					LightA:   valueWithTimestamp[bool]{true, tsOld},
 					Mode:     valueWithTimestamp[DeviceMode]{ModeCinema, ts},
-					TempTank: valueWithTimestamp[float64]{22.31, tsOld},
+					TempTank: valueWithTimestamp[floatDP]{22.31, tsOld},
 				},
 			},
 			omitClientToken: true,

@@ -211,8 +211,10 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 	replies := []msgReply{
 		d.getAWSShadowUpdateAcceptedReply(msg.t, false),
 	}
-	if d.Recipe != nil && dr.RecipeID.Value != int(d.Recipe.ID) {
-		log.Info.Printf("Seen recipe difference (%d!=%d), generating delta", dr.RecipeID.Value, d.Recipe.ID)
+	if dr.RecipeID.wasUpdatedAt(msg.t) && dr.RecipeID.Value != int(d.Recipe.ID) {
+		if log != nil {
+			log.Info.Printf("Seen recipe difference (%d!=%d), generating delta", dr.RecipeID.Value, d.Recipe.ID)
+		}
 		// We need to generate a delta message that just
 		// covers the Recipe ID.  We therefore make a new
 		// Device with our current AWS version, update just
@@ -224,7 +226,7 @@ func (d *Device) processAWSShadowUpdate(msg *msgUnparsed) ([]msgReply, error) {
 		deltaD.Reported.RecipeID.update(int(d.Recipe.ID), deltaT)
 		replies = append(replies, deltaD.getAWSShadowUpdateDeltaReply(deltaT, msg.t))
 	}
-	if dr.Valve.Value != ValveClosed {
+	if dr.Valve.wasUpdatedAt(msg.t) && dr.Valve.Value != ValveClosed {
 		d.wateringTimer.Stop()
 	}
 	return replies, nil
