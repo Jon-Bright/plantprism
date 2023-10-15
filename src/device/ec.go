@@ -23,8 +23,9 @@ const (
 
 	// This is a little bit below what we see after a cleaning
 	// cycle and refill with 120ml. It seems like a reasonable
-	// midpoint.
-	ECGoalValue = 1425
+	// midpoint. 1425 called for what seemed like too little
+	// nutrient.
+	ECGoalValue = 1520
 )
 
 func newPIDController() *pid.Controller {
