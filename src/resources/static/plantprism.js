@@ -150,8 +150,8 @@ function InitUI() {
     });
     $("button.slot-plant").on("click", plantClick);
     $("button.slot-empty").on("click", emptyClick);
-    $("button.resetNutrient").on("click", resetNutrientClick);
-    $("button.triggerWatering").on("click", triggerWateringClick);
+    $("#resetNutrient").on("click", resetNutrientClick);
+    $("#triggerWatering").on("click", triggerWateringClick);
     $("#tabs").tabs();
 }
 
