@@ -38,6 +38,21 @@ func newPIDController() *pid.Controller {
 	}
 }
 
+func (d *Device) ResetNutrient() {
+	// We no longer want nutrient
+	d.WantNutrient = 0
+
+	// And by resetting the SmoothedEC, we'll take the next
+	// (temp-corrected) nutrient value at face value rather than
+	// smoothing it.
+	d.SmoothedEC = 0
+
+	// Finally, reset the PID controller
+	d.NutrientPID.Reset()
+
+	d.streamStatusUpdate()
+}
+
 func (d *Device) updateSmoothedEC(ec int, tempTank float64, lastUpdate time.Time, thisUpdate time.Time) {
 	// First, we compensate for temperature. It looks like some
 	// kind of EC compensation has already happened (and there's a

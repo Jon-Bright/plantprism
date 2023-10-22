@@ -98,6 +98,18 @@
 	<input type="hidden" name="slot" id="slot" value="" />
       </form>
     </div>
+    <div id="confirm-nutrient" title="Nutrient added?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Have you added</span><span id="confirmNutrient-Amount"></span><span>ml nutrient?</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="confirm-watering" title="Manually water?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Should a manual watering be triggered?</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
     <div id="tabs">
       <ul>
 	<li><a href="#tabPlants">Plants</a></li>
@@ -209,6 +221,12 @@
 	</table>
       </div>
       <div id="tabControl">
+	<button id="resetNutrient">
+	  <div>Nutrient added</div>
+	</button>
+	<button id="triggerWatering">
+	  <div>Manual watering</div>
+	</button>
 	<p>TODO: Cleaning, cinema, silent, etc. controls will appear here</p>
       </div>
     </div>

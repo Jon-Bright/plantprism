@@ -439,6 +439,11 @@ func (d *Device) HarvestPlant(slotStr string) error {
 	return nil
 }
 
+func (d *Device) TriggerManualWatering() {
+	d.wateringTimer.Stop()
+	d.sendWateringRPC()
+}
+
 func (d *Device) sendWateringRPC() {
 	l := layerA
 	if d.layerHasPlants(layerB) {

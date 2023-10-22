@@ -184,6 +184,26 @@ func harvestPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+func resetNutrientHandler(c *gin.Context) {
+	d := getDevice(c, false, "ResetNutrient")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	d.ResetNutrient()
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func triggerWateringHandler(c *gin.Context) {
+	d := getDevice(c, false, "TriggerWatering")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	d.TriggerManualWatering()
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func defaultModeHandler(c *gin.Context) {
 	d := getDevice(c, false, "DefaultMode")
 	if d == nil {
@@ -269,6 +289,8 @@ func Init(l *logs.Loggers, p device.Publisher, v string) {
 	r.GET("/stream", streamHandler)
 	r.POST("/addPlant", addPlantHandler)
 	r.POST("/harvestPlant", harvestPlantHandler)
+	r.POST("/resetNutrient", resetNutrientHandler)
+	r.POST("/triggerWatering", triggerWateringHandler)
 	r.POST("/defaultMode", defaultModeHandler)
 	r.POST("/silentMode", silentModeHandler)
 	r.POST("/cinemaMode", cinemaModeHandler)

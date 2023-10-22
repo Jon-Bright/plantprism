@@ -1,5 +1,5 @@
 var plantDB;
-var addPlantDialog, confirmHarvestDialog, plantInfoDialog;
+var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, plantInfoDialog;
 
 var plantClick = function( event ) {
         event.preventDefault();
@@ -16,6 +16,18 @@ var emptyClick = function( event ) {
 	addPlantDialog.find("#id").val(deviceID);
 	addPlantDialog.find("#slot").val(event.currentTarget.dataset.slot);
 	addPlantDialog.dialog("open");
+};
+
+var resetNutrientClick = function( event ) {
+	event.preventDefault();
+	confirmNutrientDialog.find("#id").val(deviceID);
+	confirmNutrientDialog.dialog("open");
+};
+
+var triggerWateringClick = function( event ) {
+	event.preventDefault();
+	confirmWateringDialog.find("#id").val(deviceID);
+	confirmWateringDialog.dialog("open");
 };
 
 function processPlantDB(data) {
@@ -72,6 +84,46 @@ function InitUI() {
         }
     });
 
+    confirmNutrientDialog = $("#confirm-nutrient").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+        buttons: {
+            "Yes": function() {
+		$.post("resetNutrient", $( this ).find("form").serialize());
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+            "No": function() {
+		$( this ).dialog( "option", "hide", {effect: "drop", duration: 500});
+		$( this ).dialog( "close" );
+            }
+        }
+    });
+
+    confirmWateringDialog = $("#confirm-watering").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+        buttons: {
+            "Yes": function() {
+		$.post("triggerWatering", $( this ).find("form").serialize());
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+            "No": function() {
+		$( this ).dialog( "option", "hide", {effect: "drop", duration: 500});
+		$( this ).dialog( "close" );
+            }
+        }
+    });
+
     plantInfoDialog = $("#plant-info").dialog({
         autoOpen: false,
         modal: true,
@@ -98,6 +150,8 @@ function InitUI() {
     });
     $("button.slot-plant").on("click", plantClick);
     $("button.slot-empty").on("click", emptyClick);
+    $("button.resetNutrient").on("click", resetNutrientClick);
+    $("button.triggerWatering").on("click", triggerWateringClick);
     $("#tabs").tabs();
 }
 
