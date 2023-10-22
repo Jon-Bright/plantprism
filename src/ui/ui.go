@@ -184,33 +184,6 @@ func harvestPlantHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-func setSunriseHandler(c *gin.Context) {
-	d := getDevice(c, false, "SetSunrise")
-	if d == nil {
-		// Error, already handled
-		return
-	}
-	sunrise, set := c.GetPostForm("seconds")
-	if !set {
-		log.Warn.Printf("setSunrise request with no seconds received")
-		c.String(http.StatusBadRequest, "No seconds specified")
-		return
-	}
-	sunriseI, err := strconv.Atoi(sunrise)
-	if err != nil {
-		log.Warn.Printf("setSunrise seconds '%s' not numeric: %v", sunrise, err)
-		c.String(http.StatusBadRequest, "Invalid seconds specified")
-		return
-	}
-	err = d.SetSunrise(time.Duration(sunriseI) * time.Second)
-	if err != nil {
-		log.Warn.Printf("setSunrise seconds '%s' failed: %v", sunrise, err)
-		c.String(http.StatusInternalServerError, "SetSunrise failed")
-		return
-	}
-	c.JSON(http.StatusNoContent, nil)
-}
-
 func defaultModeHandler(c *gin.Context) {
 	d := getDevice(c, false, "DefaultMode")
 	if d == nil {
@@ -251,6 +224,33 @@ func cinemaModeHandler(c *gin.Context) {
 	if err != nil {
 		log.Warn.Printf("cinemaMode failed: %v", err)
 		c.String(http.StatusInternalServerError, "CinemaMode failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func setSunriseHandler(c *gin.Context) {
+	d := getDevice(c, false, "SetSunrise")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	sunrise, set := c.GetPostForm("seconds")
+	if !set {
+		log.Warn.Printf("setSunrise request with no seconds received")
+		c.String(http.StatusBadRequest, "No seconds specified")
+		return
+	}
+	sunriseI, err := strconv.Atoi(sunrise)
+	if err != nil {
+		log.Warn.Printf("setSunrise seconds '%s' not numeric: %v", sunrise, err)
+		c.String(http.StatusBadRequest, "Invalid seconds specified")
+		return
+	}
+	err = d.SetSunrise(time.Duration(sunriseI) * time.Second)
+	if err != nil {
+		log.Warn.Printf("setSunrise seconds '%s' failed: %v", sunrise, err)
+		c.String(http.StatusInternalServerError, "SetSunrise failed")
 		return
 	}
 	c.JSON(http.StatusNoContent, nil)
