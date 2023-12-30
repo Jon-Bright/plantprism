@@ -30,6 +30,24 @@ var triggerWateringClick = function( event ) {
 	confirmWateringDialog.dialog("open");
 };
 
+var modeSilentClick = function( event ) {
+    event.preventDefault();
+    $( this ).find("#id").val(deviceID);
+    $.post("silentMode", $( this ).find("form").serialize());
+};
+
+var modeCinemaClick = function( event ) {
+    event.preventDefault();
+    $( this ).find("#id").val(deviceID);
+    $.post("cinemaMode", $( this ).find("form").serialize());
+};
+
+var modeDefaultClick = function( event ) {
+    event.preventDefault();
+    $( this ).find("#id").val(deviceID);
+    $.post("defaultMode", $( this ).find("form").serialize());
+};
+
 function processPlantDB(data) {
     plantDB = data;
     var ptSel = $("#plantType");
@@ -152,6 +170,9 @@ function InitUI() {
     $("button.slot-empty").on("click", emptyClick);
     $("#resetNutrient").on("click", resetNutrientClick);
     $("#triggerWatering").on("click", triggerWateringClick);
+    $("#modeSilent").on("click", modeSilentClick);
+    $("#modeCinema").on("click", modeCinemaClick);
+    $("#modeDefault").on("click", modeDefaultClick);
     $("#tabs").tabs();
 }
 
@@ -205,6 +226,58 @@ function statusEvent(e) {
     $("#ec").text(data["EC"]);
     $("#smoothedEC").text(data["SmoothedEC"].toFixed(1));
     $("#wantNutrient").text(data["WantNutrient"]);
+    var door = (data["Door"]==true) ? "Open" : "Closed";
+    $("door").text(door);
+    var mode;
+    switch (data["Mode"]) {
+    case 0:
+	mode="Normal";
+	break;
+    case 1:
+	mode="Debug";
+	break;
+    case 2:
+	mode="Rinse end";
+	break;
+    case 3:
+	mode="Tank drain A";
+	break;
+    case 4:
+	mode="Tank drain B";
+	break;
+    case 5:
+	mode="Cleaning";
+	break;
+    case 6:
+	mode="Unknown mode 6";
+	break;
+    case 7:
+	mode="Silent";
+	break;
+    case 8:
+	mode="Cinema";
+	break;
+    default:
+	mode="Out of range";
+    }
+    $("mode").text(mode);
+    var pump;
+    switch (data["Valve"]) {
+    case 0:
+	pump="Watering top";
+	break;
+    case 1:
+	pump="Watering bottom";
+	break;
+    case 4:
+	pump="Inactive";
+	break;
+    default:
+	pump="Unknown";
+	break;
+    }
+    $("pump").text(pump);
+    // TODO: handle mode change here
 }
 
 function StartStream() {

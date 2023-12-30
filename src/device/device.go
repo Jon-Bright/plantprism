@@ -296,6 +296,9 @@ type StatusEvent struct {
 	LightA       bool
 	LightB       bool
 	TankLevel    int
+	Valve        ValveState
+	Mode         DeviceMode
+	Door         bool
 	EC           int
 	SmoothedEC   float64
 	WantNutrient int
@@ -330,6 +333,9 @@ func (d *Device) getStatusUpdate() *StatusEvent {
 		LightA:       d.Reported.LightA.Value,
 		LightB:       d.Reported.LightB.Value,
 		TankLevel:    d.Reported.TankLevel.Value,
+		Valve:        d.Reported.Valve.Value,
+		Mode:         d.Reported.Mode.Value,
+		Door:         d.Reported.Door.Value,
 		EC:           d.Reported.EC.Value,
 		SmoothedEC:   d.SmoothedEC,
 		WantNutrient: d.WantNutrient,

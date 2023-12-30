@@ -223,6 +223,27 @@
 	  <tr>
 	    <td class="envNutrient"><span id="wantNutrient">????</span>ml wanted</td>
 	  </tr>
+	  <tr>
+	    <td rowspan="2" class="envIntro">Door:</td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td class="envDoor"><span id="door">????</span></td>
+	  </tr>
+	  <tr>
+	    <td rowspan="2" class="envIntro">Mode:</td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td class="envMode"><span id="mode">????</span></td>
+	  </tr>
+	  <tr>
+	    <td rowspan="2" class="envIntro">Pump:</td>
+	    <td>&nbsp;</td>
+	  </tr>
+	  <tr>
+	    <td class="envPump"><span id="pump">????</span></td>
+	  </tr>
 	</table>
       </div>
       <div id="tabControl">
@@ -232,7 +253,26 @@
 	<button id="triggerWatering" class="control">
 	  <div>Manual watering</div>
 	</button>
-	<p>TODO: Cleaning, cinema, silent, etc. controls will appear here</p>
+	<!-- TODO: Add cleaning controls here -->
+	<form>
+	  <input type="hidden" name="id" id="id" value="" />
+	  <button id="modeSilent" class="control">
+	    <div>Silent mode</div>
+	  </button>
+	</form>
+	<form>
+	  <input type="hidden" name="id" id="id" value="" />
+	  <button id="modeCinema" class="control">
+	    <div>Cinema mode</div>
+	  </button>
+	</form>
+	<form>
+	  <input type="hidden" name="id" id="id" value="" />
+	  <button id="modeDefault" class="control">
+	    <div>Default mode</div>
+	  </button>
+	</form>
+	<!-- TODO: Add sunrise controls here -->
       </div>
     </div>
     <a href="static/credits.html">Credits</a>
