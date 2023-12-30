@@ -227,7 +227,7 @@ function statusEvent(e) {
     $("#smoothedEC").text(data["SmoothedEC"].toFixed(1));
     $("#wantNutrient").text(data["WantNutrient"]);
     var door = (data["Door"]==true) ? "Open" : "Closed";
-    $("door").text(door);
+    $("#door").text(door);
     var mode;
     switch (data["Mode"]) {
     case 0:
@@ -260,7 +260,7 @@ function statusEvent(e) {
     default:
 	mode="Out of range";
     }
-    $("mode").text(mode);
+    $("#mode").text(mode);
     var pump;
     switch (data["Valve"]) {
     case 0:
@@ -276,7 +276,7 @@ function statusEvent(e) {
 	pump="Unknown";
 	break;
     }
-    $("pump").text(pump);
+    $("#pump").text(pump);
     // TODO: handle mode change here
 }
 
