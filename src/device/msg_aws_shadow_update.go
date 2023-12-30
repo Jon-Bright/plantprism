@@ -310,10 +310,12 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.Door.wasUpdatedAt(t) {
 		d.Door = &dr.Door.Value
 		m.Door = &ts
+		su = true
 	}
 	if dr.EC.wasUpdatedAt(t) {
 		d.EC = &dr.EC.Value
 		m.EC = &ts
+		su = true
 	}
 	if dr.FirmwareNCU.wasUpdatedAt(t) {
 		d.FirmwareNCU = &dr.FirmwareNCU.Value
@@ -342,6 +344,7 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.Mode.wasUpdatedAt(t) {
 		d.Mode = &dr.Mode.Value
 		m.Mode = &ts
+		su = true
 	}
 	if dr.RecipeID.wasUpdatedAt(t) {
 		d.RecipeID = &dr.RecipeID.Value
@@ -378,6 +381,7 @@ func (dev *Device) fillAWSUpdateDataMetadata(t time.Time, d *msgAWSShadowUpdateD
 	if dr.Valve.wasUpdatedAt(t) {
 		d.Valve = &dr.Valve.Value
 		m.Valve = &ts
+		su = true
 	}
 	if dr.WifiLevel.wasUpdatedAt(t) {
 		d.WifiLevel = &dr.WifiLevel.Value
