@@ -115,6 +115,29 @@
 	<input type="hidden" name="id" id="id" value="" />
       </form>
     </div>
+    <div id="confirm-cleaning" title="Start cleaning?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Should a cleaning cycle be started?</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="cleaning-prep" title="Prepare for cleaning">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Please:</span></p>
+      <ul>
+	<li>Remove plants and trays (leave the drawers in)</li>
+	<li>Ensure the tank is full</li>
+	<li>Add two cleaning tabs</li>
+      </ul>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="cleaning-underway" title="Cleaning underway">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Cleaning is happening. Please wait.</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
     <div id="tabs">
       <ul>
 	<li><a href="#tabPlants">Plants</a></li>
@@ -253,7 +276,9 @@
 	<button id="triggerWatering" class="control">
 	  <div>Manual watering</div>
 	</button>
-	<!-- TODO: Add cleaning controls here -->
+	<button id="startCleaning" class="control">
+	  <div>Start cleaning</div>
+	</button>
 	<form>
 	  <input type="hidden" name="id" id="id" value="" />
 	  <button id="modeSilent" class="control">

@@ -1,5 +1,5 @@
 var plantDB;
-var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, plantInfoDialog;
+var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, confirmCleaningDialog, cleaningPrepDialog, plantInfoDialog;
 
 var plantClick = function( event ) {
         event.preventDefault();
@@ -28,6 +28,12 @@ var triggerWateringClick = function( event ) {
 	event.preventDefault();
 	confirmWateringDialog.find("#id").val(deviceID);
 	confirmWateringDialog.dialog("open");
+};
+
+var startCleaningClick = function( event ) {
+	event.preventDefault();
+	confirmCleaningDialog.find("#id").val(deviceID);
+	confirmCleaningDialog.dialog("open");
 };
 
 var modeSilentClick = function( event ) {
@@ -142,6 +148,57 @@ function InitUI() {
         }
     });
 
+    confirmCleaningDialog = $("#confirm-cleaning").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+        buttons: {
+            "Yes": function() {
+		cleaningPrepDialog.find("#id").val(deviceID);
+		cleaningPrepDialog.dialog("open");
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+            "No": function() {
+		$( this ).dialog( "option", "hide", {effect: "drop", duration: 500});
+		$( this ).dialog( "close" );
+            }
+        }
+    });
+
+    cleaningPrepDialog = $("#cleaning-prep").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+	dialogClass: "no-close",
+        buttons: {
+            "All done": function() {
+		$.post("startCleaning", $( this ).find("form").serialize());
+		cleaningOngoingDialog.find("#id").val(deviceID);
+		cleaningOngoingDialog.dialog("open");
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+        }
+    });
+
+    cleaningUnderwayDialog = $("#cleaning-underway").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+	dialogClass: "no-close"
+	// This has no buttons. We'll close it ourselves and open up the next dialog
+    });
+
     plantInfoDialog = $("#plant-info").dialog({
         autoOpen: false,
         modal: true,
@@ -170,6 +227,7 @@ function InitUI() {
     $("button.slot-empty").on("click", emptyClick);
     $("#resetNutrient").on("click", resetNutrientClick);
     $("#triggerWatering").on("click", triggerWateringClick);
+    $("#startCleaning").on("click", startCleaningClick);
     $("#modeSilent").on("click", modeSilentClick);
     $("#modeCinema").on("click", modeCinemaClick);
     $("#modeDefault").on("click", modeDefaultClick);
