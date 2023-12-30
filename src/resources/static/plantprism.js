@@ -289,7 +289,7 @@ function statusEvent(e) {
     var mode;
     switch (data["Mode"]) {
     case 0:
-	mode="Normal";
+	mode="Default";
 	break;
     case 1:
 	mode="Debug";
