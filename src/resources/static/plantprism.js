@@ -39,19 +39,19 @@ var startCleaningClick = function( event ) {
 var modeSilentClick = function( event ) {
     event.preventDefault();
     $( this ).parent().find("#id").val(deviceID);
-    $.post("silentMode", $( this ).parent().find("form").serialize());
+    $.post("silentMode", $( this ).parent().serialize());
 };
 
 var modeCinemaClick = function( event ) {
     event.preventDefault();
     $( this ).parent().find("#id").val(deviceID);
-    $.post("cinemaMode", $( this ).parent().find("form").serialize());
+    $.post("cinemaMode", $( this ).parent().serialize());
 };
 
 var modeDefaultClick = function( event ) {
     event.preventDefault();
     $( this ).parent().find("#id").val(deviceID);
-    $.post("defaultMode", $( this ).parent().find("form").serialize());
+    $.post("defaultMode", $( this ).parent().serialize());
 };
 
 function processPlantDB(data) {
