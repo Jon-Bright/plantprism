@@ -287,9 +287,12 @@ function statusEvent(e) {
     var door = (data["Door"]==true) ? "Open" : "Closed";
     $("#door").text(door);
     var mode;
+    var defaultDisabled=true,silentDisabled=true,cinemaDisabled=true;
     switch (data["Mode"]) {
     case 0:
 	mode="Default";
+	silentDisabled=false;
+	cinemaDisabled=false;
 	break;
     case 1:
 	mode="Debug";
@@ -311,14 +314,22 @@ function statusEvent(e) {
 	break;
     case 7:
 	mode="Silent";
+	defaultDisabled=false;
+	cinemaDisabled=false;
 	break;
     case 8:
 	mode="Cinema";
+	defaultDisabled=false;
+	silentDisabled=false;
 	break;
     default:
 	mode="Out of range";
     }
     $("#mode").text(mode);
+    $("#modeDefault").prop("disabled", defaultDisabled);
+    $("#modeSilent").prop("disabled", silentDisabled);
+    $("#modeCinema").prop("disabled", cinemaDisabled);
+
     var pump;
     switch (data["Valve"]) {
     case 0:
