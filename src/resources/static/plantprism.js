@@ -1,5 +1,5 @@
 var plantDB;
-var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, confirmCleaningDialog, cleaningPrepDialog, cleaningUnderwayDialog, plantInfoDialog;
+var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, confirmCleaningDialog, cleaningPrepDialog, cleaningUnderwayDialog, cleaningRinseDoneDialog, cleaningDrainDialog, cleaningFinalDialog, plantInfoDialog;
 
 var plantClick = function( event ) {
         event.preventDefault();
@@ -199,6 +199,52 @@ function InitUI() {
 	// This has no buttons. We'll close it ourselves and open up the next dialog
     });
 
+    cleaningRinseDoneDialog = $("#cleaning-rinse-done").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+	dialogClass: "no-close",
+        buttons: {
+            "All done": function() {
+		$.post("startDraining", $( this ).find("form").serialize());
+		cleaningDrainDialog.find("#id").val(deviceID);
+		cleaningDrainDialog.dialog("open");
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+        }
+    });
+
+    cleaningDrainDialog = $("#cleaning-drain").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+	dialogClass: "no-close"
+	// This has no buttons. We'll close it ourselves and open up the next dialog
+    });
+
+    cleaningFinalDialog = $("#cleaning-final").dialog({
+        autoOpen: false,
+        modal: true,
+        show: {
+            effect: "drop",
+            duration: 500
+        },
+	dialogClass: "no-close",
+        buttons: {
+            "All done": function() {
+		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
+		$( this ).dialog( "close" );
+            },
+        }
+    });
+
     plantInfoDialog = $("#plant-info").dialog({
         autoOpen: false,
         modal: true,
@@ -298,7 +344,7 @@ function statusEvent(e) {
 	mode="Debug";
 	break;
     case 2:
-	mode="Rinse end";
+	mode="Rinsing done";
 	break;
     case 3:
 	mode="Tank drain A";
@@ -346,7 +392,25 @@ function statusEvent(e) {
 	break;
     }
     $("#pump").text(pump);
-    // TODO: handle mode change here
+
+    if (cleaningUnderwayDialog.dialog("isOpen")) {
+	if (data["Valve"]!=4) {
+	    $("#cleaningStatus").text(pump);
+	} else {
+	    $("#cleaningStatus").text("Waiting for water");
+	}
+	if (data["Mode"]==2) {
+	    // Rinsing is done
+	    cleaningUnderwayDialog.dialog("close");
+	    cleaningRinseDoneDialog.dialog("open");
+	}
+    } else if (cleaningDrainDialog.dialog("isOpen")) {
+	if (data["Mode"]==0) {
+	    // Draining is done
+	    cleaningDrainDialog.dialog("close");
+	    cleaningFinalDialog.dialog("open");
+	}
+    }
 }
 
 function StartStream() {

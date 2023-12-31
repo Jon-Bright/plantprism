@@ -137,6 +137,41 @@
     </div>
     <div id="cleaning-underway" title="Cleaning underway">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Cleaning is happening. Please wait.</span></p>
+      <p>Status: <span id="cleaningStatus">Waiting</span></p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="cleaning-rinse-done" title="Rinsing done">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>The Plantcube has finished rinsing. Please:</span></p>
+      <ul>
+	<li>Remove and wash the drawers</li>
+	<li>Attach the drain hose</li>
+      </ul>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="cleaning-drain" title="Tank draining">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>The tank is ready to drain. Please:</span></p>
+      <ul>
+	<li>Place the end of the drain hose in a bucket</li>
+	<li>Press the button to start and stop draining as needed</li>
+      </ul>
+      <p>This dialog will close when the tank is empty</p>
+      <form>
+	<input type="hidden" name="id" id="id" value="" />
+      </form>
+    </div>
+    <div id="cleaning-final" title="Cleaning final steps">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span><span>Cleaning done! Please:</span></p>
+      <ul>
+	<li>Empty and clean the tank</li>
+	<li>Do any final cleaning</li>
+	<li>Replace and refill the tank</li>
+	<li>Add 120ml nutrient solution</li>
+	<li>Replace the drawers, plants and seed trays</li>
+      </ul>
       <form>
 	<input type="hidden" name="id" id="id" value="" />
       </form>
