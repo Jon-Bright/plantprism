@@ -420,7 +420,7 @@ function statusEvent(e) {
 	cleaningDrainDialog.find("#id").val(deviceID);
 	cleaningDrainDialog.dialog("open");
     }
-    if (data["Mode"==2 && !cleaningRinseDoneDialog.dialog("isOpen")) {
+    if (data["Mode"]==2 && !cleaningRinseDoneDialog.dialog("isOpen")) {
 	cleaningRinseDoneDialog.find("#id").val(deviceID);
 	cleaningRinseDoneDialog.dialog("open");
     }
