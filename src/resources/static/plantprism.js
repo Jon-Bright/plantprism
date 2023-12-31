@@ -402,14 +402,27 @@ function statusEvent(e) {
 	if (data["Mode"]==2) {
 	    // Rinsing is done
 	    cleaningUnderwayDialog.dialog("close");
+	    cleaningRinseDoneDialog.find("#id").val(deviceID);
 	    cleaningRinseDoneDialog.dialog("open");
 	}
-    } else if (cleaningDrainDialog.dialog("isOpen")) {
+    } else if (data["Mode"]==5) {
+	cleaningUnderwayDialog.find("#id").val(deviceID);
+	cleaningUnderwayDialog.dialog("open");
+    }
+    if (cleaningDrainDialog.dialog("isOpen")) {
 	if (data["Mode"]==0) {
 	    // Draining is done
 	    cleaningDrainDialog.dialog("close");
+	    cleaningFinalDialog.find("#id").val(deviceID);
 	    cleaningFinalDialog.dialog("open");
 	}
+    } else if (data["Mode"]==3) {
+	cleaningDrainDialog.find("#id").val(deviceID);
+	cleaningDrainDialog.dialog("open");
+    }
+    if (data["Mode"==2 && !cleaningRinseDoneDialog.dialog("isOpen")) {
+	cleaningRinseDoneDialog.find("#id").val(deviceID);
+	cleaningRinseDoneDialog.dialog("open");
     }
 }
 
