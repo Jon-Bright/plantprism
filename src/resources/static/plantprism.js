@@ -1,5 +1,5 @@
 var plantDB;
-var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, confirmCleaningDialog, cleaningPrepDialog, plantInfoDialog;
+var addPlantDialog, confirmHarvestDialog, confirmNutrientDialog, confirmWateringDialog, confirmCleaningDialog, cleaningPrepDialog, cleaningUnderwayDialog, plantInfoDialog;
 
 var plantClick = function( event ) {
         event.preventDefault();
@@ -180,8 +180,8 @@ function InitUI() {
         buttons: {
             "All done": function() {
 		$.post("startCleaning", $( this ).find("form").serialize());
-		cleaningOngoingDialog.find("#id").val(deviceID);
-		cleaningOngoingDialog.dialog("open");
+		cleaningUnderwayDialog.find("#id").val(deviceID);
+		cleaningUnderwayDialog.dialog("open");
 		$( this ).dialog( "option", "hide", {effect: "explode", duration: 1000});
 		$( this ).dialog( "close" );
             },
