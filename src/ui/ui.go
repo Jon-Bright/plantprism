@@ -207,6 +207,36 @@ func triggerWateringHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+func startCleaningHandler(c *gin.Context) {
+	d := getDevice(c, false, "StartCleaning")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	err := d.SetMode(device.ModeCleaning)
+	if err != nil {
+		log.Warn.Printf("startCleaning failed: %v", err)
+		c.String(http.StatusInternalServerError, "StartCleaning failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
+func startDrainingHandler(c *gin.Context) {
+	d := getDevice(c, false, "StartDraining")
+	if d == nil {
+		// Error, already handled
+		return
+	}
+	err := d.SetMode(device.ModeTankDrainCleaning)
+	if err != nil {
+		log.Warn.Printf("startDraining failed: %v", err)
+		c.String(http.StatusInternalServerError, "StartDraining failed")
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func defaultModeHandler(c *gin.Context) {
 	d := getDevice(c, false, "DefaultMode")
 	if d == nil {
@@ -294,6 +324,8 @@ func Init(l *logs.Loggers, p device.Publisher, v string) {
 	r.POST("/harvestPlant", harvestPlantHandler)
 	r.POST("/resetNutrient", resetNutrientHandler)
 	r.POST("/triggerWatering", triggerWateringHandler)
+	r.POST("/startCleaning", startCleaningHandler)
+	r.POST("/startDraining", startDrainingHandler)
 	r.POST("/defaultMode", defaultModeHandler)
 	r.POST("/silentMode", silentModeHandler)
 	r.POST("/cinemaMode", cinemaModeHandler)
