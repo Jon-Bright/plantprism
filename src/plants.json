@@ -9,6 +9,16 @@
 	"HarvestFrom":"30d",
 	"HarvestBy":"60d"
     },
+    "20":{
+	"Comment": "ID/HarvestFrom from package",
+	"Names":{
+	    "en": "Micro Broccoli",
+	    "de": "Mikro Brokkoli"
+	},
+	"Germination":"3d",
+	"HarvestFrom":"7d",
+	"HarvestBy":"30d"
+    },
     "23":{
 	"Comment": "ID/HarvestFrom come from dumps",
 	"Names":{
@@ -21,14 +31,14 @@
 	"HarvestBy":"60d"
     },
     "29":{
-	"Comment": "ID seen in dumps",
+	"Comment": "ID/HarvestFrom from package",
 	"Names":{
-	    "en": "Plant 29",
-	    "de": "Pflanze 29"
+	    "en": "Thyme",
+	    "de": "Thymian"
 	},
 	"Germination":"3d",
-	"HarvestFrom":"30d",
-	"HarvestBy":"60d"
+	"HarvestFrom":"35d",
+	"HarvestBy":"180d"
     },
     "31":{
 	"Comment": "ID seen in dumps",
